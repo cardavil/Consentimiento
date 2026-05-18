@@ -202,7 +202,7 @@ Patrón: operaciones sensibles (INSERT en tablas críticas, OTP) pasan exclusiva
 | org_oauth | Solo su config (select/insert/update). |
 | org_sms_config | Solo su config (select/insert/update). |
 | consent_items | Solo los suyos (CRUD completo). |
-| signing_sessions_temp | Org accede por session_id. Firmante accede por x-access-token header. INSERT/DELETE solo service_role. |
+| signing_sessions_temp | Org accede por session_id. Firmante accede por x-access-token header. Org puede borrar los suyos. INSERT solo service_role. |
 | signing_sessions_results | Org ve las suyas y actualiza status. Firmante accede por access_token. INSERT solo service_role. |
 | otp_tokens | Bloqueado (sin policies). Solo service_role. |
 | folio_sequence | Bloqueado para todos. Solo service_role. |
