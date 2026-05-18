@@ -74,7 +74,7 @@ Usados por 2+ páginas.
 
 | Archivo | Responsabilidad |
 |---|---|
-| config.js | URL de Supabase, anon key (datos públicos, nunca secrets) |
+| config.js | URL de Supabase, publishable key (datos públicos, nunca secrets) |
 | supabase-client.js | Init Supabase, auth helpers, wrappers de fetch |
 | utils.js | Toasts, validación, formato, helpers UI |
 | otp-ui.js | Lógica OTP parametrizada (inputs, timer, paste, reenvío) |

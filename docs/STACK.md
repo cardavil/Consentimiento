@@ -79,7 +79,7 @@ firmaconsent/
 │   │   ├── tokens.css
 │   │   └── componentes.css
 │   ├── js/
-│   │   ├── config.js           (URL Supabase, anon key)
+│   │   ├── config.js           (URL Supabase, publishable key)
 │   │   ├── supabase-client.js  (init, auth helpers, wrappers)
 │   │   ├── utils.js            (toasts, validación, formato)
 │   │   ├── otp-ui.js           (inputs OTP, timer, paste)

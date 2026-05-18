@@ -4,6 +4,22 @@ Supabase nuevo, proyecto independiente. Multi-tenant con RLS. 9 tablas.
 
 Schema: `supabase/migrations/001_initial_schema.sql`
 Correcciones: `supabase/migrations/002_security_and_fixes.sql`
+Auth fix: `supabase/migrations/003_fix_auth_token_defaults.sql`
+
+---
+
+## Supabase Keys
+
+| Concepto | Qué es |
+|---|---|
+| **publishable key** (`sb_publishable_*`) | Identifica proyecto ante el gateway, se traduce a rol anon. Segura en frontend. |
+| **secret key** (`sb_secret_*`) | Se traduce a service_role. Solo en Edge Functions (env var), nunca en frontend. |
+| **header apikey** | Identificación del proyecto ante el API gateway. |
+| **header Authorization: Bearer** | JWT de sesión del usuario. Autenticación ante GoTrue/PostgREST. |
+
+`apikey` y `Authorization` son headers independientes. El gateway lee `apikey` para routing. GoTrue/PostgREST lee `Authorization` para autenticación.
+
+Para operaciones admin: `updateUserById()`, NO `updateUser()` (ese es para el usuario autenticado actual).
 
 ---
 
@@ -169,6 +185,9 @@ Marca como 'expired' las sesiones vencidas. Limpia signing_sessions_temp de sesi
 
 ### cleanup_otps() → INTEGER
 Borra OTPs expirados hace más de 1 hora.
+
+### fix_auth_user_token_defaults()
+Trigger BEFORE INSERT en auth.users. Convierte NULLs a string vacío en confirmation_token, recovery_token, email_change_token_new. Previene crash de GoTrue al crear usuarios vía Admin API. SECURITY DEFINER.
 
 ### update_updated_at()
 Trigger en organizations, org_oauth, org_sms_config, consent_items. Actualiza updated_at automáticamente.

@@ -30,7 +30,7 @@ Tokens OAuth y secrets del SMS gateway se encriptan en la BD con pgp_sym_encrypt
 
 ## Patrón service_role
 
-Operaciones sensibles pasan exclusivamente por Edge Functions con service_role (que bypasea RLS). El frontend con anon key NO puede:
+Operaciones sensibles pasan exclusivamente por Edge Functions con service_role (que bypasea RLS). El frontend con publishable key NO puede:
 
 - Insertar organizaciones (registro)
 - Insertar/leer/actualizar OTPs
@@ -38,7 +38,7 @@ Operaciones sensibles pasan exclusivamente por Edge Functions con service_role (
 - Generar folios
 - Escribir en audit_log
 
-Esto previene que un atacante con la anon key (pública en el frontend) pueda insertar datos falsos o consultar información sensible.
+Esto previene que un atacante con la publishable key (pública en el frontend) pueda insertar datos falsos o consultar información sensible.
 
 ---
 
@@ -92,8 +92,8 @@ App Android en el teléfono del cliente. Recibe peticiones HTTPS, envía SMS des
 | Hackean la plataforma | No hay documentos ni datos personales que robar |
 | El firmante dice "yo no firmé" | Evidencia forense: IP, user agent, timestamps, hashes |
 | Consentimiento sin representante válido | Formulario obliga datos del representante legal y su calidad |
-| Atacante usa anon key para insertar datos | INSERT bloqueado en tablas críticas, solo service_role |
-| Atacante consulta OTPs con anon key | otp_tokens sin policies RLS, solo service_role |
+| Atacante usa publishable key para insertar datos | INSERT bloqueado en tablas críticas, solo service_role |
+| Atacante consulta OTPs con publishable key | otp_tokens sin policies RLS, solo service_role |
 | Tokens OAuth expuestos en BD | Encriptados con pgcrypto (pgp_sym_encrypt) |
 
 ---
