@@ -105,7 +105,9 @@ $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 --  7. REEMPLAZO next_folio() — retorna folio formateado
 -- ============================================================
 
-CREATE OR REPLACE FUNCTION next_folio(p_org_id UUID, p_code TEXT, p_year INTEGER)
+DROP FUNCTION next_folio(UUID, TEXT, INTEGER);
+
+CREATE FUNCTION next_folio(p_org_id UUID, p_code TEXT, p_year INTEGER)
 RETURNS TEXT AS $$
 DECLARE
     v_seq INTEGER;
