@@ -13,7 +13,7 @@ POST /api/v1/consent/request
 **Request:**
 ```json
 {
-  "mode": "natural" | "juridica" | "menor",
+  "mode": "natural_personal" | "natural_tutor" | "juridica",
   "signer": {
     "nombre": "",
     "apellido": "",
@@ -22,7 +22,7 @@ POST /api/v1/consent/request
     "email": "",
     "telefono": ""
   },
-  "guardian": { },
+  "representative": { },
   "documents": ["drive_file_id"],
   "consents": [
     { "id": "uuid", "required": true }
@@ -32,7 +32,7 @@ POST /api/v1/consent/request
 }
 ```
 
-- `guardian` solo si mode = "menor"
+- `representative` solo si mode = "natural_tutor"
 - `documents` son IDs de archivos del Drive del cliente
 - `consents[].required` puede sobrescribir la obligatoriedad por defecto
 

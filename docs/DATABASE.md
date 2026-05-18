@@ -3,8 +3,6 @@
 Supabase nuevo, proyecto independiente. Multi-tenant con RLS. 9 tablas.
 
 Schema: `supabase/migrations/001_initial_schema.sql`
-Correcciones: `supabase/migrations/002_security_and_fixes.sql`
-Auth fix: `supabase/migrations/003_fix_auth_token_defaults.sql`
 
 ---
 
