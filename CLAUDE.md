@@ -45,6 +45,7 @@ Un cambio de una línea sigue el mismo protocolo que una migración de 500 líne
 
 ## Documentación
 
+- [docs/CONVENTIONS.md](docs/CONVENTIONS.md) — convenciones de código por capa
 - [docs/PRODUCT.md](docs/PRODUCT.md) — producto, diferenciadores, pricing, roadmap, legal
 - [docs/STACK.md](docs/STACK.md) — tecnologías, arquitectura, costos, estructura del proyecto
 - [docs/DATABASE.md](docs/DATABASE.md) — schema, tablas, RLS, funciones

@@ -79,11 +79,17 @@ firmaconsent/
 │   │   ├── tokens.css
 │   │   └── componentes.css
 │   ├── js/
-│   │   ├── config.js
-│   │   ├── auth.js
-│   │   ├── firma.js
+│   │   ├── config.js           (URL Supabase, anon key)
+│   │   ├── supabase-client.js  (init, auth helpers, wrappers)
+│   │   ├── utils.js            (toasts, validación, formato)
+│   │   ├── otp-ui.js           (inputs OTP, timer, paste)
+│   │   ├── modales.js          (abrir/cerrar modales)
+│   │   ├── login.js
+│   │   ├── registro.js
+│   │   ├── onboarding.js
 │   │   ├── dashboard.js
-│   │   └── utils.js
+│   │   ├── solicitar.js
+│   │   └── firma.js
 │   └── assets/
 ├── supabase/
 │   ├── migrations/
