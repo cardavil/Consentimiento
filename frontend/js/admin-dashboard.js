@@ -18,8 +18,10 @@ async function load_dashboard() {
     var data = await call_edge_function('admin-service', { action: 'metrics' });
     render_metrics(container, data);
   } catch (err) {
-    container.innerHTML = '<div class="admin-empty"><p class="text-muted">Error cargando métricas: ' +
-      escape_html(err.message) + '</p></div>';
+    container.innerHTML = '<div class="admin-empty">' +
+      '<p class="icon-2xl mb-sm">&#9888;</p>' +
+      '<p class="text-muted mb-sm">No se pudieron cargar las métricas</p>' +
+      '<button class="btn btn-outline btn-sm" onclick="load_dashboard()">Reintentar</button></div>';
   }
 }
 
