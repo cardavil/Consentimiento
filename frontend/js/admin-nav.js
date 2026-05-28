@@ -5,7 +5,7 @@ function render_admin_nav() {
   var current = window.location.pathname.split('/').pop();
 
   var items = [
-    { href: 'index.html', label: 'Dashboard', perm: null },
+    { href: 'index.html', label: 'Indicadores', perm: null },
     { href: 'orgs.html', label: 'Organizaciones', perm: 'read:orgs' },
     { href: 'audit.html', label: 'Auditoría', perm: 'read:audit_log' },
     { href: 'catalogs.html', label: 'Catálogos', perm: 'read:catalogs' },

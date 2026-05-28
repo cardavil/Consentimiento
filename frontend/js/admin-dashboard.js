@@ -29,7 +29,17 @@ function render_metrics(container, m) {
   var html = '';
   var edge_approx = (m.sessions_created_month || 0) + (m.signing_otps_month || 0) + (m.auth_otps_month || 0);
 
-  html += '<h2 class="mb-sm">Recursos — Etapa 1</h2>';
+  html += '<h2 class="mb-sm">Organizaciones por plan</h2>';
+  html += '<div class="admin-stats">';
+  var plans = ['trial', 'basic', 'pro', 'enterprise'];
+  var plan_labels = { trial: 'Trial', basic: 'Basic', pro: 'Pro', enterprise: 'Enterprise' };
+  for (var i = 0; i < plans.length; i++) {
+    var p = plans[i];
+    html += stat_card(m.orgs_by_plan[p] || 0, plan_labels[p], 'plan-' + p);
+  }
+  html += '</div>';
+
+  html += '<h2 class="mt-md mb-sm">Recursos — Etapa 1</h2>';
   html += '<div class="card" style="padding:0;overflow:hidden">';
   html += '<div class="admin-limits">';
   html += limit_row('Organizaciones', m.orgs_total, 'Sin límite');
@@ -44,16 +54,6 @@ function render_metrics(container, m) {
   html += limit_row('Emails auth (SMTP propio)', m.auth_otps_month || '—', 'Sin límite');
   html += limit_row('Almacenamiento', (m.storage_size_mb || 0) + ' MB', '1 GB');
   html += '</div>';
-  html += '</div>';
-
-  html += '<h2 class="mt-md mb-sm">Organizaciones por plan</h2>';
-  html += '<div class="admin-stats">';
-  var plans = ['trial', 'basic', 'pro', 'enterprise'];
-  var plan_labels = { trial: 'Trial', basic: 'Basic', pro: 'Pro', enterprise: 'Enterprise' };
-  for (var i = 0; i < plans.length; i++) {
-    var p = plans[i];
-    html += stat_card(m.orgs_by_plan[p] || 0, plan_labels[p], 'plan-' + p);
-  }
   html += '</div>';
 
   container.innerHTML = html;
