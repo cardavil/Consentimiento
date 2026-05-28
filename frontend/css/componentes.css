@@ -840,6 +840,7 @@ select.form-input {
 
 .admin-content {
   padding: var(--spacing-xl);
+  width: 100%;
   max-width: 95%;
   margin: 0 auto;
 }
