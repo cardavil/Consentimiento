@@ -1,6 +1,6 @@
 # FirmaConsent — Documento de Producto
 
-**Versión:** 2.3
+**Versión:** 3.0
 **Fecha:** Mayo 2026
 **Autor:** CARDAVIL
 **Estado:** En desarrollo
@@ -10,21 +10,29 @@
 
 ## Qué es
 
-Plataforma donde empresas (clínicas, consultorios, ONGs) envían consentimientos informados a sus clientes/pacientes con verificación de identidad por email + SMS, evidencia criptográfica, y copia para ambas partes.
+Plataforma donde empresas (clínicas, consultorios, ONGs) gestionan consentimientos informados y firmas electrónicas con verificación de identidad, evidencia criptográfica, y copia para ambas partes.
+
+**Dos modos, mutuamente excluyentes por solicitud:**
+1. **Consentimiento:** documento embebido desde Drive + consentimientos preconfigurados (checkbox "Leí y acepto"). Para compliance, protección de datos, autorizaciones.
+2. **Documento (firma electrónica):** editor visual donde el cliente arrastra campos (firma, fecha, iniciales, checkbox, texto libre) sobre un PDF de Drive. Para contratos, actas, formatos propios.
+
+Mezclar ambos modos en una solicitud diluye la naturaleza jurídica de cada uno.
 
 **Multi-tenant:** 200+ empresas usan la misma plataforma. Cada una solo ve lo suyo.
 
-**Single sign:** cada solicitud de consentimiento es para UNA persona. Un firmante, una sesión, un PDF. Si la empresa tiene 10 pacientes hoy, hace 10 solicitudes.
+**Single sign:** cada solicitud es para UNA persona. Un firmante, una sesión, un PDF. Si la empresa tiene 10 pacientes hoy, hace 10 solicitudes.
 
 **Zero-knowledge:** los documentos del cliente viven en su Drive. Los datos del firmante pasan por la plataforma pero no se quedan. Solo se guardan hashes y metadatos operativos.
 
-**El producto profesa lo que vende:** el propio registro del cliente usa SMS OTP. La experiencia de registrarse es la demo del servicio.
+**El producto profesa lo que vende:** el propio registro del cliente usa OTP. La experiencia de registrarse es la demo del servicio.
 
 ## Diferenciadores
 
-- Consentimiento granular con folio y hash SHA-256 por cada punto
+- Dos modos: consentimiento granular + firma electrónica visual
+- Consentimiento con folio y hash SHA-256 por cada punto
+- Editor visual drag & drop para firma electrónica con plantillas reutilizables
 - Documentos siempre en el Drive del cliente, nunca en la plataforma
-- SMS OTP desde el número del consultorio/empresa del cliente
+- OTP desde el canal del cliente (email; SMS o WhatsApp en Fase 3)
 - Copia idéntica del PDF para ambas partes
 - Historial automático en Google Sheet en la carpeta del cliente
 - Soporte para firma con representante legal (menores, adultos con discapacidad, interdicción, curador)
@@ -51,12 +59,14 @@ La plataforma es responsable de:
 
 ## Pricing (COP)
 
-| Plan | $/mes | Qué incluye |
-|---|---|---|
-| Trial | $0 (30 días) | 10 consentimientos, 2 documentos |
-| Basic | $99.000 | 50/mes, 10 docs, email OTP |
-| Pro | $199.000 | 200/mes, docs ilimitados, SMS OTP, API, branding |
-| Enterprise | A medida | Ilimitado, soporte, SLA |
+| Plan | $/mes | Qué incluye | Plantillas firma |
+|---|---|---|---|
+| Trial | $0 (30 días) | 10 solicitudes, 2 documentos, email OTP | 0 |
+| Basic | $99.000 | 50/mes, 10 docs, email OTP | TBD |
+| Pro | $199.000 | 200/mes, docs ilimitados, SMS+WhatsApp OTP, branding | TBD |
+| Enterprise | A medida | Ilimitado, soporte, SLA | Ilimitadas |
+
+Sin plantillas disponibles, el cliente configura campos cada vez.
 
 ## Mercado
 
@@ -64,13 +74,44 @@ Consultorios, clínicas, IPS (50,000+ en Colombia), centros de estética, labora
 
 ## Roadmap
 
-**Fase 1 (2-3 sem):** Schema + Edge Functions OTP y consent + frontend registro/firma + SMS OTP.
+Las 3 fases son MVP. Todas deben estar completas antes del primer cliente.
 
-**Fase 2 (2-3 sem):** Login + onboarding + dashboard (documentos, consentimientos, solicitar consentimiento con 3 modos).
+### Fase 1 — Consentimiento
 
-**Fase 3 (2-3 sem):** Drive picker + OneDrive + Sheets historial + PDF con pdf-lib + API REST.
+1. Schema + migraciones (tablas, RLS, funciones)
+2. Edge Functions: otp-service, consent-service, drive-service, pdf-generator
+3. Frontend: login, registro, onboarding, dashboard, consentimiento-solicitar, firmar
+4. Landing page (iterar UI + data pipeline desde el inicio)
+5. Drive/OneDrive integration (OAuth, file picker, preview)
+6. Google Sheets historial (particionado por año)
+7. PDF con pdf-lib (constancia con evidencia + hashes)
 
-**Fase 4 (2-3 sem):** Landing + términos + facturación + Play Store + primeros 5 clientes.
+OTP factor 2: email-only en esta fase.
+
+### Fase 2 — Editor visual de firma electrónica
+
+1. Frontend: documento-editor (drag & drop campos sobre PDF renderizado)
+2. Frontend: documento-solicitar (formulario solicitar firma)
+3. firmar.html se extiende (detecta session_type=firma, renderiza campos)
+4. Edge Function: signing-service (sesiones de firma, procesar campos)
+5. Plantillas reutilizables (limitadas por plan, TBD)
+6. PDF con pdf-lib: documento original + campos aplicados + evidencia
+
+Tipos de campo: firma, fecha, iniciales, checkbox, texto libre.
+
+### Fase 3 — App HTTP para 2FA (SMS + WhatsApp)
+
+1. App Android SMS gateway (NanoHTTPD, SmsManager, foreground service)
+2. WhatsApp Business API (cada cliente usa su propia cuenta)
+3. Firmante elige canal: SMS o WhatsApp
+4. Onboarding extendido: config SMS gateway + config WhatsApp Business
+5. Términos de servicio
+6. Facturación
+7. Play Store
+
+### Post-MVP
+
+- API REST para integraciones externas (los clientes usan dashboard durante el MVP)
 
 ## Legal para operar
 

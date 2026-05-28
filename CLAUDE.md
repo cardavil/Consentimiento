@@ -2,13 +2,16 @@
 
 ## Qué es
 
-Plataforma multi-tenant de consentimiento informado con verificación dual (email + SMS OTP), evidencia criptográfica, y arquitectura zero-knowledge. Producto independiente.
+Plataforma multi-tenant de consentimiento informado y firma electrónica con verificación de identidad (email OTP; SMS/WhatsApp en Fase 3), evidencia criptográfica, y arquitectura zero-knowledge. Dos modos mutuamente excluyentes: consentimiento y documento (firma electrónica visual). Producto independiente.
 
-## Alcance V1
+## Alcance MVP
 
-Configuración de consentimientos (título + texto + obligatoriedad) + solicitar consentimiento + firma + SMS OTP.
+Las 3 fases son MVP. Todas deben estar completas antes del primer cliente.
 
-V2: editor visual tipo DocuSign (marcar checkboxes sobre el documento preview).
+- **Fase 1 — Consentimiento:** flujo completo de consentimiento, landing page, OTP email-only
+- **Fase 2 — Editor visual firma:** drag & drop campos sobre PDF de Drive, plantillas reutilizables (limitadas por plan)
+- **Fase 3 — App HTTP 2FA:** app Android SMS gateway + WhatsApp Business API (cuenta del cliente), términos, facturación
+- **Post-MVP:** API REST
 
 ## Protocolo de trabajo
 
@@ -31,6 +34,8 @@ Un cambio de una línea sigue el mismo protocolo que una migración de 500 líne
 - **NUNCA** mezclar datos de persona con datos de empresa en la misma lógica
 - **NUNCA** asumir que natural_tutor es solo menores — aplica a cualquier persona que firma a través de representante legal
 - **NUNCA** crear tablas innecesarias (si los datos viven en el PDF/Sheet del cliente, no duplicar)
+- **NUNCA** mezclar consentimiento y firma en la misma solicitud — modos mutuamente excluyentes (riesgo legal)
+- **NUNCA** usar una cuenta central de WhatsApp — cada cliente usa su propia cuenta de WhatsApp Business
 - **NUNCA** asumir — preguntar. El autor es CARDAVIL.
 
 ## Convenciones
@@ -41,6 +46,7 @@ Un cambio de una línea sigue el mismo protocolo que una migración de 500 líne
 - Fonts: Titillium Web + PT Sans
 - Edge Functions en TypeScript/Deno
 - APIs externas (Gmail, Drive, Sheets) via OAuth del cliente
+- WhatsApp Business API via cuenta propia de cada cliente (Fase 3)
 - PDF con pdf-lib, nunca Google Docs templates
 
 ## Documentación

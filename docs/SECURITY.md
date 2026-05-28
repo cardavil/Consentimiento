@@ -42,7 +42,15 @@ Esto previene que un atacante con la publishable key (pública en el frontend) p
 
 ---
 
-## SMS Gateway — 5 capas de seguridad
+## Canales de verificación factor 2
+
+El firmante verifica su identidad con un OTP de 6 dígitos enviado por uno de estos canales:
+
+### Email OTP (Fase 1+)
+
+Disponible desde Fase 1. El OTP se envía al email del firmante (o del representante en modo natural_tutor) via Gmail API / Microsoft Graph del cliente. Mismo principio zero-knowledge: la plataforma no envía emails propios.
+
+### SMS Gateway — 5 capas de seguridad (Fase 3)
 
 App Android en el teléfono del cliente. Recibe peticiones HTTPS, envía SMS desde la SIM del cliente. Corre en segundo plano (foreground service con auto-inicio).
 
@@ -62,6 +70,17 @@ App Android en el teléfono del cliente. Recibe peticiones HTTPS, envía SMS des
 - Android 8.0+, SIM activa, WiFi
 - Comunicación via Cloudflare Tunnel
 
+### WhatsApp Business API (Fase 3)
+
+Cada cliente usa su propia cuenta de WhatsApp Business (nunca una cuenta central de FirmaConsent). El cliente paga su propio canal.
+
+- OTP enviado como template message de WhatsApp al teléfono del firmante
+- Access token del cliente encriptado at-rest con pgcrypto (mismo patrón que OAuth tokens)
+- HTTPS a Meta API
+- Solo template messages (no free-form, previene abuso)
+- Rate limits gobernados por Meta per-account (responsabilidad del cliente)
+- Zero-knowledge preservado: FirmaConsent almacena config encriptada, mensajes van de WABA del cliente a WhatsApp del firmante
+
 ---
 
 ## Cadena de evidencia por cada firma
@@ -71,8 +90,8 @@ App Android en el teléfono del cliente. Recibe peticiones HTTPS, envía SMS des
 3. Enlace abierto — factor 1 (IP, user agent, hora)
 4. Documentos vistos
 5. Consentimientos marcados
-6. OTP SMS enviado
-7. OTP verificado — factor 2 (IP, hora)
+6. OTP enviado (email en Fase 1-2; email/SMS/WhatsApp en Fase 3 — canal registrado en otp_channel)
+7. OTP verificado — factor 2 (IP, hora, canal)
 8. PDF generado (hash SHA-256)
 9. PDF subido a Drive del cliente
 10. Google Sheet actualizado (Historial-{año})
@@ -95,6 +114,10 @@ App Android en el teléfono del cliente. Recibe peticiones HTTPS, envía SMS des
 | Atacante usa publishable key para insertar datos | INSERT bloqueado en tablas críticas, solo service_role |
 | Atacante consulta OTPs con publishable key | otp_tokens sin policies RLS, solo service_role |
 | Tokens OAuth expuestos en BD | Encriptados con pgcrypto (pgp_sym_encrypt) |
+| WhatsApp account del cliente comprometida | Cada cliente gestiona su propia cuenta; revocación de token independiente |
+| Meta API caída o rate limited | Fallback a email OTP; firmante puede cambiar canal |
+| Suplantación de número WhatsApp | Template messages verificados por Meta; phone_number_id vinculado a WABA verificado |
+| Plantilla de firma manipulada después de creación | Fields almacenados en BD; PDF se genera server-side con pdf-lib; hash del PDF final |
 
 ---
 

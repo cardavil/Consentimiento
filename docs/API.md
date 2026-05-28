@@ -1,6 +1,6 @@
 # API REST
 
-Para integraciones externas. Fase 3 del roadmap.
+Para integraciones externas. **Post-MVP.** Los clientes usan el dashboard durante el MVP. La API se construye cuando haya demanda de integraciones.
 
 ---
 
@@ -66,3 +66,25 @@ GET /api/v1/consent/status/{sessionId}
   }
 }
 ```
+
+---
+
+## Endpoints planificados — Modo firma (Post-MVP)
+
+Estructura tentativa. Se definirá cuando se implemente la API.
+
+```
+POST /api/v1/signing/request
+```
+Similar a consent/request pero con session_type: "firma". Incluye template_id (opcional) o array de campos inline. Mismos modos de firmante.
+
+```
+GET /api/v1/signing/status/{sessionId}
+```
+Similar a consent/status.
+
+```
+GET /api/v1/templates
+POST /api/v1/templates
+```
+CRUD de plantillas de firma.

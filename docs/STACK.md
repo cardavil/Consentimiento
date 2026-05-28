@@ -7,7 +7,9 @@
 | Frontend | GitHub Pages (HTML/CSS/JS estático) |
 | Backend | Supabase (PostgreSQL + Auth + Edge Functions) |
 | Email | Gmail API o Microsoft Graph via OAuth del cliente |
-| SMS | App Android gateway en el teléfono del cliente, via Cloudflare Tunnel |
+| 2FA (Fase 1-2) | Email OTP únicamente |
+| SMS (Fase 3) | App Android gateway en el teléfono del cliente, via Cloudflare Tunnel |
+| WhatsApp (Fase 3) | WhatsApp Business API via cuenta propia de cada cliente |
 | PDF | pdf-lib en Edge Function |
 | Almacenamiento | Drive/OneDrive del cliente via OAuth |
 | Historial | Google Sheet en la carpeta del cliente |
@@ -22,11 +24,14 @@ Frontend ──────────►      PostgreSQL + RLS
                           Edge Functions:             
                             otp-service        ──────► Gmail API (del cliente)
                             consent-service    ──────► Drive API (del cliente)
-                            drive-service      ──────► Sheets API (del cliente)
+                            signing-service    ──────► Sheets API (del cliente)
+                            drive-service             
                             pdf-generator             
                                                       
-                          Gateway SMS (Android)       
-                            via Cloudflare Tunnel     
+                          Fase 3:                     
+                            whatsapp-service   ──────► WhatsApp Business API
+                            Gateway SMS (Android)       (cuenta del cliente)
+                              via Cloudflare Tunnel     
 ```
 
 ## Por qué no GAS
@@ -67,29 +72,33 @@ Supabase Pro ($25 USD/mes) cuando crezca más.
 ```
 firmaconsent/
 ├── frontend/
-│   ├── index.html              (landing)
+│   ├── index.html                        (landing)
 │   ├── pages/
-│   │   ├── login.html          (OTP email)
-│   │   ├── registro.html       (SMS OTP)
-│   │   ├── onboarding.html     (SMS + nube)
-│   │   ├── dashboard.html      (panel cliente)
-│   │   ├── firma.html          (portal firmante)
-│   │   └── solicitar.html      (solicitar consentimiento)
+│   │   ├── login.html                    (OTP email)
+│   │   ├── registro.html                 (registro cliente)
+│   │   ├── onboarding.html               (nube + canales Fase 3)
+│   │   ├── dashboard.html                (panel cliente)
+│   │   ├── consentimiento-solicitar.html (solicitar consentimiento)
+│   │   ├── documento-solicitar.html      (solicitar firma — Fase 2)
+│   │   ├── documento-editor.html         (editor visual drag & drop — Fase 2)
+│   │   └── firmar.html                   (portal firmante, ambos modos)
 │   ├── css/
 │   │   ├── tokens.css
 │   │   └── componentes.css
 │   ├── js/
-│   │   ├── config.js           (URL Supabase, publishable key)
-│   │   ├── supabase-client.js  (init, auth helpers, wrappers)
-│   │   ├── utils.js            (toasts, validación, formato)
-│   │   ├── otp-ui.js           (inputs OTP, timer, paste)
-│   │   ├── modales.js          (abrir/cerrar modales)
+│   │   ├── config.js                     (URL Supabase, publishable key)
+│   │   ├── supabase-client.js            (init, auth helpers, wrappers)
+│   │   ├── utils.js                      (toasts, validación, formato)
+│   │   ├── otp-ui.js                     (inputs OTP, timer, paste)
+│   │   ├── modales.js                    (abrir/cerrar modales)
 │   │   ├── login.js
 │   │   ├── registro.js
 │   │   ├── onboarding.js
 │   │   ├── dashboard.js
-│   │   ├── solicitar.js
-│   │   └── firma.js
+│   │   ├── consentimiento-solicitar.js
+│   │   ├── documento-solicitar.js        (Fase 2)
+│   │   ├── documento-editor.js           (Fase 2)
+│   │   └── firmar.js                     (ambos modos, detecta session_type)
 │   └── assets/
 ├── supabase/
 │   ├── migrations/
@@ -97,8 +106,10 @@ firmaconsent/
 │   └── functions/
 │       ├── otp-service/
 │       ├── consent-service/
+│       ├── signing-service/              (Fase 2)
 │       ├── drive-service/
+│       ├── whatsapp-service/             (Fase 3)
 │       └── pdf-generator/
-├── android/
+├── android/                              (Fase 3)
 └── docs/
 ```

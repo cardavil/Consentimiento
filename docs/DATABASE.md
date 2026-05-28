@@ -1,6 +1,6 @@
 # Base de Datos
 
-Supabase nuevo, proyecto independiente. Multi-tenant con RLS. 9 tablas.
+Supabase nuevo, proyecto independiente. Multi-tenant con RLS. 11 tablas.
 
 Schema: `supabase/migrations/001_initial_schema.sql`
 
@@ -105,6 +105,7 @@ Datos operativos en tránsito. **SE BORRA al completar la firma.** INSERT solo v
 | consents | JSONB | consentimientos y obligatoriedad |
 | signer | JSONB | datos del firmante |
 | context | TEXT | |
+| fields | JSONB | Para firma: [{type, x, y, w, h, page, required, label}]. NULL para consentimiento |
 | created_at | TIMESTAMPTZ | |
 
 ### signing_sessions_results
@@ -114,6 +115,7 @@ Registro permanente zero-knowledge. **NO contiene datos del firmante, documentos
 |---|---|---|
 | id | UUID PK | |
 | organization_id | UUID FK | → organizations |
+| session_type | TEXT | consent / firma. NOT NULL. CHECK constraint |
 | mode | TEXT | natural_personal / natural_tutor (con representante) / juridica |
 | access_token | TEXT | UNIQUE, gen_random_bytes(32) hex |
 | token_expires_at | TIMESTAMPTZ | |
@@ -121,6 +123,8 @@ Registro permanente zero-knowledge. **NO contiene datos del firmante, documentos
 | folio | TEXT | formato: PREFIX-CODE-YEAR-SEQ |
 | pdf_hash | TEXT | SHA-256 |
 | consent_hashes | JSONB | hash por cada consentimiento |
+| otp_channel | TEXT | email / sms / whatsapp. Default 'email' |
+| template_id | UUID FK NULL | → signing_templates(id). ON DELETE SET NULL. Solo para session_type=firma |
 | created_at | TIMESTAMPTZ | |
 | completed_at | TIMESTAMPTZ | |
 | expires_at | TIMESTAMPTZ | |
@@ -138,6 +142,36 @@ Temporales. Se limpian automáticamente. Solo accesible via service_role (Edge F
 | expires_at | TIMESTAMPTZ | |
 | verified_at | TIMESTAMPTZ | |
 | created_at | TIMESTAMPTZ | |
+
+### signing_templates
+Plantillas reutilizables del editor visual (modo firma). Limitadas por plan (límites TBD). El límite se valida en Edge Function, no en BD.
+
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | UUID PK | uuid_generate_v4() |
+| organization_id | UUID FK | → organizations |
+| name | TEXT | NOT NULL |
+| source_file_name | TEXT | Nombre original del PDF (display, no Drive ID) |
+| page_count | INTEGER | |
+| fields | JSONB | NOT NULL default '[]'. [{type, label, x, y, w, h, page, required}] |
+| active | BOOLEAN | default true |
+| created_at | TIMESTAMPTZ | |
+| updated_at | TIMESTAMPTZ | trigger auto |
+
+### org_whatsapp_config
+Config de WhatsApp Business API del cliente. Fase 3. Secrets encriptados con pgcrypto. Cada cliente usa su propia cuenta de WhatsApp Business.
+
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | UUID PK | uuid_generate_v4() |
+| organization_id | UUID FK UNIQUE | → organizations, ON DELETE CASCADE |
+| phone_number_id | TEXT | WhatsApp Business phone number ID |
+| waba_id | TEXT | WhatsApp Business Account ID |
+| access_token | BYTEA | encriptado con pgcrypto |
+| display_phone | TEXT | Número visible para el firmante en UI |
+| enabled | BOOLEAN | default false |
+| created_at | TIMESTAMPTZ | |
+| updated_at | TIMESTAMPTZ | trigger auto |
 
 ### folio_sequence
 Secuencial atómico. PK compuesta. Solo accesible por service_role.
@@ -187,8 +221,11 @@ Borra OTPs expirados hace más de 1 hora.
 ### fix_auth_user_token_defaults()
 Trigger BEFORE INSERT en auth.users. Convierte NULLs a string vacío en confirmation_token, recovery_token, email_change_token_new. Previene crash de GoTrue al crear usuarios vía Admin API. SECURITY DEFINER.
 
+### check_template_limit(p_org_id UUID) → BOOLEAN
+Cuenta plantillas activas de la org, compara contra el límite del plan (leído de organizations.plan). Retorna true si puede crear más. SECURITY DEFINER.
+
 ### update_updated_at()
-Trigger en organizations, org_oauth, org_sms_config, consent_items. Actualiza updated_at automáticamente.
+Trigger en organizations, org_oauth, org_sms_config, org_whatsapp_config, consent_items, signing_templates. Actualiza updated_at automáticamente.
 
 ---
 
@@ -206,6 +243,8 @@ Patrón: operaciones sensibles (INSERT en tablas críticas, OTP) pasan exclusiva
 | signing_sessions_results | Org ve las suyas y actualiza status. Firmante accede por access_token. INSERT solo service_role. |
 | otp_tokens | Bloqueado (sin policies). Solo service_role. |
 | folio_sequence | Bloqueado para todos. Solo service_role. |
+| signing_templates | Solo ve/edita las suyas (CRUD). organization_id = get_org_id(). |
+| org_whatsapp_config | Solo su config (select/insert/update). Mismo patrón que org_sms_config. |
 | audit_log | Org ve los suyos. INSERT solo service_role. Sin UPDATE ni DELETE. |
 
 ---
@@ -214,6 +253,7 @@ Patrón: operaciones sensibles (INSERT en tablas críticas, OTP) pasan exclusiva
 
 - consent_items(organization_id)
 - signing_sessions_temp(session_id)
-- signing_sessions_results(organization_id, access_token, status, folio)
+- signing_sessions_results(organization_id, access_token, status, folio, session_type)
+- signing_templates(organization_id)
 - otp_tokens(email), otp_tokens(email, purpose)
 - audit_log(organization_id, event_type, created_at)

@@ -1,98 +1,37 @@
 # Estado del Proyecto — FirmaConsent
 
-**Última actualización:** 2026-05-17
-**Sesión:** Configuración inicial completa
+**Última actualización:** 2026-05-27
+**Sesión:** Redefinición de alcance MVP (3 fases)
 
 ---
 
 ## Resumen
 
-Proyecto FirmaConsent inicializado con documentación estructurada, schema de BD con correcciones de seguridad, y servicios cloud configurados.
+Proyecto FirmaConsent con documentación estructurada, schema de BD diseñado, y servicios cloud configurados. No hay código funcional aún — solo documentación, migraciones SQL, y configuración de infraestructura.
 
 ---
 
 ## Lo que se hizo
 
-### 1. Estructura del repositorio
+### Sesión 1 — Configuración inicial (2026-05-17)
 
-- Creado directorio `docs/` con 6 archivos de documentación
-- Creado directorio `supabase/migrations/` con 2 migraciones
-- Movidos archivos sueltos a sus ubicaciones correctas (`git mv`)
-- Eliminadas todas las referencias a DiversoLab
+- Estructura del repositorio: `docs/` (7 archivos), `supabase/migrations/`
+- CLAUDE.md como constitución del proyecto
+- Schema BD: 9 tablas, RLS, funciones, 8 issues de seguridad corregidos
+- Redefinición de natural_tutor (aplica a cualquier persona con representante legal)
+- Supabase configurado: proyecto firmaconsent, ref pgouzutwvronvsxgdizk, org cardavil, sa-east-1, free tier
+- Cloudflare CLI (wrangler v4.92.0) instalada y autenticada
 
-**Estructura resultante:**
-```
-Consentimiento/
-├── CLAUDE.md                          ← constitución del proyecto
-├── CLAUDE_STATUS.md                   ← este archivo
-├── README.md
-├── docs/
-│   ├── PRODUCT.md                     ← producto, pricing, roadmap, legal
-│   ├── STACK.md                       ← tecnologías, arquitectura, costos
-│   ├── DATABASE.md                    ← 9 tablas, RLS, funciones, índices
-│   ├── FLOWS.md                       ← 7 flujos paso a paso
-│   ├── SECURITY.md                    ← encriptación, SMS gateway, amenazas, marco legal
-│   └── API.md                         ← endpoints REST (fase 3)
-└── supabase/migrations/
-    ├── 001_initial_schema.sql         ← schema inicial: 9 tablas, RLS, funciones
-    └── 002_security_and_fixes.sql     ← correcciones de seguridad (8 issues)
-```
+### Sesión 2 — Redefinición de alcance MVP (2026-05-27)
 
-### 2. CLAUDE.md reestructurado
-
-Convertido de documento técnico extenso a constitución del proyecto:
-- Qué es FirmaConsent (3 líneas)
-- Alcance V1/V2
-- Protocolo de trabajo (auditar → diagnosticar → planear → autorización → implementar)
-- 8 reglas inquebrantables
-- Convenciones de código
-- Links a documentación
-
-### 3. Auditoría del schema — 8 issues identificados y corregidos
-
-| # | Issue | Fix en migración 002 |
-|---|---|---|
-| 1 | Tokens OAuth y API keys en TEXT plano | Columnas migradas a BYTEA, funciones encrypt_secret/decrypt_secret con pgcrypto |
-| 2 | otp_tokens RLS abierto a todo el mundo | 3 policies eliminadas, solo accesible via service_role |
-| 3 | INSERT público en tablas críticas | Policies de INSERT eliminadas en organizations, signing_sessions_results, signing_sessions_temp, audit_log |
-| 4 | Sin FK entre signing_sessions_temp y results | FK agregada con ON DELETE CASCADE |
-| 5 | get_org_id() hacía SELECT por cada evaluación RLS | Reescrita: lee org_id del JWT (fast path), fallback a SELECT |
-| 6 | next_folio() no usaba folio_prefix | Retorna TEXT formateado: FC-C1-2026-0007. DROP + CREATE (cambio de tipo retorno) |
-| 7 | Sin tracking de refresh de tokens OAuth | Columna last_refreshed_at agregada a org_oauth |
-| 8 | Google Sheet sin partición por año | Columna history_sheets JSONB agregada: {"2026":"sheet_id"} |
-
-**Decisión de encriptación:** pgcrypto parametrizado. Ya estaba en el schema, es estándar PostgreSQL, no depende de features específicos de Supabase. La llave vive como Supabase Secret, Edge Function la pasa como parámetro.
-
-### 4. Redefinición del modo natural_tutor
-
-El modo `natural_tutor` NO es solo para menores de edad. Aplica a cualquier persona que firma a través de representante legal:
-- Menores de edad
-- Adultos con discapacidad cognitiva
-- Personas en interdicción
-- Adultos mayores con curador
-
-**Cambios:**
-- Reordenado: modo 1 (natural_personal), modo 2 (natural_tutor), modo 3 (juridica)
-- "Parentesco" renombrado a "Calidad" (madre, padre, tutor legal, representante legal, curador)
-- Fecha nacimiento: obligatoria solo si tipo doc es TI o RC, opcional en los demás
-- PDF genérico: "Firmado por [representante], en calidad de [calidad] de [nombre representado]"
-- Juridica: campo "cargo" movido al final
-
-### 5. Supabase configurado
-
-- **Proyecto:** firmaconsent
-- **Ref:** pgouzutwvronvsxgdizk
-- **Organización:** cardavil
-- **Región:** sa-east-1 (São Paulo) — elegida por proximidad legal a Colombia
-- **Plan:** Free tier ($0/mes)
-- **Migraciones aplicadas:** 001_initial_schema + 002_security_and_fixes
-- **Estado:** ACTIVE_HEALTHY, 9 tablas, RLS habilitado, 0 rows
-
-### 6. Cloudflare CLI instalada
-
-- **Wrangler:** v4.92.0 instalado globalmente
-- **Autenticación:** completada via OAuth
-- **Pendiente:** configurar tunnel (SMS gateway) y DNS (cuando se tenga dominio)
+- Roadmap redefinido: de 4 fases incrementales a 3 fases de producto + Post-MVP
+- Dos modos mutuamente excluyentes: consentimiento + documento (firma electrónica visual)
+- WhatsApp Business API como canal OTP (cuenta propia de cada cliente)
+- Plantillas de firma limitadas por plan (monetización)
+- Página única del firmante: `firmar.html?token=xxx` (detecta session_type)
+- Nomenclatura nueva de páginas: `consentimiento-solicitar`, `documento-solicitar`, `documento-editor`, `firmar`
+- Schema actualizado: 9 → 11 tablas (+signing_templates, +org_whatsapp_config)
+- Todos los docs actualizados para reflejar el nuevo alcance
 
 ---
 
@@ -102,6 +41,27 @@ El modo `natural_tutor` NO es solo para menores de edad. Aplica a cualquier pers
 |---|---|
 | 7fbfd8b | Restructure docs, add migration 002 security fixes, update natural_tutor mode |
 | 54fc5b8 | Fix next_folio: DROP before CREATE to change return type from INTEGER to TEXT |
+| 606f72d | Fix DATABASE.md: signing_sessions_temp DELETE is allowed for org, not service_role only |
+| c8e6bec | Consolidate schema into single file, fix API.md mode names |
+| a4cea11 | Replace deprecated anon key refs with publishable key, add migration 003 |
+| 1db2c99 | Add coding conventions and update project structure |
+| 8d26f34 | Add project status document with session summary |
+
+---
+
+## Estado actual
+
+| Qué | Estado |
+|---|---|
+| Documentación | Completa (8 docs actualizados con alcance MVP 3 fases) |
+| Schema BD (docs) | 11 tablas documentadas en DATABASE.md |
+| Migraciones SQL | 001_initial_schema.sql aplicada (9 tablas). Pendiente migración para signing_templates y org_whatsapp_config |
+| Supabase | ACTIVE_HEALTHY, 9 tablas, RLS habilitado, 0 rows |
+| Cloudflare | CLI instalada, autenticada. Tunnel pendiente |
+| Frontend | No existe. Cero código |
+| Edge Functions | No existen. Cero código |
+| App Android | No existe. Cero código |
+| Landing page | No existe |
 
 ---
 
@@ -111,23 +71,34 @@ El modo `natural_tutor` NO es solo para menores de edad. Aplica a cualquier pers
 - [ ] Agregar `ENCRYPTION_KEY` como Supabase Secret
 - [ ] Configurar Cloudflare tunnel para SMS gateway
 - [ ] Elegir y configurar dominio
+- [ ] Commit con los docs actualizados (sesión 2)
 
-### Fase 1 (próxima)
-- [ ] Edge Functions: otp-service, consent-service
-- [ ] Frontend: registro.html, firma.html
-- [ ] Login Edge Function debe setear `app_metadata.org_id` en JWT
-- [ ] Todas las Edge Functions deben usar service_role para operaciones sensibles
+### Fase 1 — Consentimiento
+1. Schema + migraciones (tablas ya diseñadas, falta aplicar cambios de sesión 2)
+2. Edge Functions: otp-service, consent-service, drive-service, pdf-generator
+3. Frontend: login, registro, onboarding, dashboard, consentimiento-solicitar, firmar
+4. Landing page
+5. Drive/OneDrive integration (OAuth, file picker, preview)
+6. Google Sheets historial
+7. PDF con pdf-lib
 
-### Fase 2
-- [ ] Login + onboarding + dashboard
-- [ ] Drive picker + consent CRUD
+OTP factor 2: email-only en esta fase.
 
-### Fase 3
-- [ ] Drive/OneDrive integration + Sheets historial
-- [ ] PDF generation con pdf-lib
-- [ ] API REST
+### Fase 2 — Editor visual de firma electrónica
+1. Frontend: documento-editor (drag & drop), documento-solicitar
+2. firmar.html extendido (session_type=firma)
+3. Edge Function: signing-service
+4. Plantillas reutilizables (limitadas por plan, TBD)
+5. PDF con campos aplicados
 
-### Fase 4
-- [ ] Landing + términos + facturación
-- [ ] App Android SMS Gateway → Play Store
-- [ ] Primeros 5 clientes
+### Fase 3 — App HTTP para 2FA (SMS + WhatsApp)
+1. App Android SMS gateway
+2. WhatsApp Business API (cuenta de cada cliente)
+3. Firmante elige canal
+4. Onboarding extendido (config SMS + WhatsApp)
+5. Términos de servicio
+6. Facturación
+7. Play Store
+
+### Post-MVP
+- [ ] API REST para integraciones externas
