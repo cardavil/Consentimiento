@@ -16,7 +16,10 @@ function render_app_header(opts) {
   var org_link = in_admin ? '../dashboard.html' : 'dashboard.html';
   var admin_link = in_admin ? 'index.html' : 'admin/index.html';
 
+  var page_title = document.title.split('|')[0].trim();
   var html = '<a class="brand" href="' + (has_org ? org_link : '#') + '">Consen<em>tia</em></a>';
+  html += '<span class="header-separator">|</span>';
+  html += '<span class="header-page-title">' + escape_html(page_title) + '</span>';
   html += '<div class="header-actions">';
   html += '<div class="header-dropdown-wrap">';
   html += '<div class="header-avatar" id="header-avatar-btn" role="button" tabindex="0" aria-label="Menú de usuario">' + escape_html(initials) + '</div>';

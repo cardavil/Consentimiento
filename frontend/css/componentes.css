@@ -80,6 +80,18 @@ body {
   font-style: normal;
 }
 
+.header-separator {
+  color: var(--azul-grisaceo);
+  font-size: var(--text-lg);
+  opacity: 0.5;
+}
+
+.header-page-title {
+  color: var(--white);
+  font-size: var(--text-base);
+  font-weight: 400;
+}
+
 .app-header .header-actions {
   margin-left: auto;
   display: flex;
