@@ -23,17 +23,16 @@ js/de-página        → Lógica específica de cada vista
 
 Variables del design system. Cero colores hardcodeados en ningún archivo; todo se referencia por token.
 
-Categorías definidas, **valores pendientes de decidir:**
+Tokens definidos (ver `docs/mockups/manual-marca-consentia.html` para referencia visual):
 
-| Categoría | Ejemplo de nomenclatura |
+| Categoría | Tokens |
 |---|---|
-| Colores | --color-{nombre} |
-| Variantes | --color-{nombre}-{opacidad} (no hex nuevo) |
-| Semánticos | --color-exito, --color-alerta, --color-progreso |
-| Tipografía | --font-titulos, --font-cuerpo, --font-datos |
-| Tamaños | --text-xs a --text-3xl |
-| Espaciado | --spacing-xs a --spacing-2xl |
-| Bordes/sombras | --radius-sm/md/lg, --shadow-sm/md |
+| Colores base | --gris-azulado (#1E2A3A), --verde-profundo (#0F4C5C), --teal (#17B3A3), --azul-grisaceo (#5F7D95) |
+| Fondos | --fondo (#F5F8FC), --teal-soft (#E6F7F5), --white (#FFFFFF) |
+| Textos | --gris-oscuro (#1F2937), --gris-claro (#DCE5EE) |
+| Estados | --teal-dark (#0E8A7D), --danger (#E74C3C) |
+| Tipografía | --font-display (DM Serif Display), --font-body (DM Sans), --font-mono (IBM Plex Mono) |
+| Bordes/sombras | --radius (10px cards), --radius-lg (16px panels), --shadow, --shadow-md |
 
 ### componentes.css
 
@@ -153,5 +152,5 @@ Usados por 2+ páginas.
 | gas-client.js | GAS eliminado. Todo es Supabase Edge Functions. |
 | labels.js | No hay labels compartidos. |
 | consentimientos.js | Dinámicos por org (consent_items en BD), no hardcoded C1-C7. |
-| mi-expediente.html | No existe en FirmaConsent. |
-| accesos.html | No existe en FirmaConsent. |
+| mi-expediente.html | No existe en Consentia. |
+| accesos.html | No existe en Consentia. |

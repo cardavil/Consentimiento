@@ -41,7 +41,7 @@ Clientes de la plataforma. La persona siempre existe. La empresa solo si es jur�
 | company_nit | TEXT | solo jurídica |
 | plan | TEXT | trial/basic/pro/enterprise (default: trial) |
 | active | BOOLEAN | default: true |
-| folio_prefix | TEXT | default: 'FC'. Usado por next_folio() |
+| folio_prefix | TEXT | default: 'CT'. Usado por next_folio() |
 | created_at | TIMESTAMPTZ | |
 | updated_at | TIMESTAMPTZ | trigger auto |
 
@@ -207,7 +207,7 @@ Encripta con pgp_sym_encrypt. SECURITY DEFINER. La llave la pasa la Edge Functio
 Desencripta con pgp_sym_decrypt. SECURITY DEFINER. La llave la pasa la Edge Function desde Supabase Secret.
 
 ### next_folio(p_org_id, p_code, p_year) → TEXT
-INSERT ON CONFLICT UPDATE atómico. Lee folio_prefix de organizations. Retorna folio formateado: `{prefix}-{code}-{year}-{seq_padded}`. Ejemplo: `FC-C1-2026-0007`. SECURITY DEFINER.
+INSERT ON CONFLICT UPDATE atómico. Lee folio_prefix de organizations. Retorna folio formateado: `{prefix}-{code}-{year}-{seq_padded}`. Ejemplo: `CT-C1-2026-0007`. SECURITY DEFINER.
 
 ### get_org_id() → UUID
 Lee org_id del JWT (app_metadata) como fast path sin query. Si no existe, fallback a SELECT por email. SECURITY DEFINER STABLE. La Edge Function de login debe setear app_metadata.org_id.

@@ -70,7 +70,7 @@ Supabase Pro ($25 USD/mes) cuando crezca más.
 ## Estructura del proyecto
 
 ```
-firmaconsent/
+consentia/
 ├── frontend/
 │   ├── index.html                        (landing)
 │   ├── pages/

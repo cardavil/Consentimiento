@@ -1,4 +1,4 @@
-# Estado del Proyecto — FirmaConsent
+# Estado del Proyecto — Consentia
 
 **Última actualización:** 2026-05-27
 **Sesión:** Redefinición de alcance MVP (3 fases)
@@ -7,7 +7,7 @@
 
 ## Resumen
 
-Proyecto FirmaConsent con documentación estructurada, schema de BD diseñado, y servicios cloud configurados. No hay código funcional aún — solo documentación, migraciones SQL, y configuración de infraestructura.
+Proyecto Consentia (antes FirmaConsent) con documentación estructurada, schema de BD diseñado, y servicios cloud configurados. No hay código funcional aún — solo documentación, migraciones SQL, configuración de infraestructura, y manual de marca aprobado.
 
 ---
 
@@ -22,7 +22,7 @@ Proyecto FirmaConsent con documentación estructurada, schema de BD diseñado, y
 - Supabase configurado: proyecto firmaconsent, ref pgouzutwvronvsxgdizk, org cardavil, sa-east-1, free tier
 - Cloudflare CLI (wrangler v4.92.0) instalada y autenticada
 
-### Sesión 2 — Redefinición de alcance MVP (2026-05-27)
+### Sesión 2 — Redefinición de alcance MVP + Marca (2026-05-27)
 
 - Roadmap redefinido: de 4 fases incrementales a 3 fases de producto + Post-MVP
 - Dos modos mutuamente excluyentes: consentimiento + documento (firma electrónica visual)
@@ -32,6 +32,10 @@ Proyecto FirmaConsent con documentación estructurada, schema de BD diseñado, y
 - Nomenclatura nueva de páginas: `consentimiento-solicitar`, `documento-solicitar`, `documento-editor`, `firmar`
 - Schema actualizado: 9 → 11 tablas (+signing_templates, +org_whatsapp_config)
 - Todos los docs actualizados para reflejar el nuevo alcance
+- **Rebrand:** FirmaConsent → Consentia. Manual de marca aprobado (`docs/mockups/manual-marca-consentia.html`)
+- Design system: DM Serif Display + DM Sans + IBM Plex Mono, paleta teal profesional
+- Folio prefix: FC → CT
+- Infraestructura: Supabase restaurado y linkeado, Google Cloud Project creado (4 APIs habilitadas)
 
 ---
 
@@ -53,7 +57,8 @@ Proyecto FirmaConsent con documentación estructurada, schema de BD diseñado, y
 
 | Qué | Estado |
 |---|---|
-| Documentación | Completa (8 docs actualizados con alcance MVP 3 fases) |
+| Marca | Consentia — manual aprobado en docs/mockups/manual-marca-consentia.html |
+| Documentación | Completa (8 docs actualizados con alcance MVP 3 fases + rebrand) |
 | Schema BD (docs) | 11 tablas documentadas en DATABASE.md |
 | Migraciones SQL | 001_initial_schema.sql aplicada (9 tablas). Pendiente migración para signing_templates y org_whatsapp_config |
 | Supabase | ACTIVE_HEALTHY, 9 tablas, RLS habilitado, 0 rows |
@@ -68,10 +73,12 @@ Proyecto FirmaConsent con documentación estructurada, schema de BD diseñado, y
 ## Pendiente
 
 ### Inmediato
-- [ ] Agregar `ENCRYPTION_KEY` como Supabase Secret
+- [x] Agregar `ENCRYPTION_KEY` como Supabase Secret (completado sesión 2)
+- [ ] Migración: folio_prefix default 'FC' → 'CT' (rebrand Consentia)
+- [ ] Migración: signing_templates + org_whatsapp_config (tablas nuevas sesión 2)
 - [ ] Configurar Cloudflare tunnel para SMS gateway
 - [ ] Elegir y configurar dominio
-- [ ] Commit con los docs actualizados (sesión 2)
+- [ ] Commit con los docs actualizados + rebrand
 
 ### Fase 1 — Consentimiento
 1. Schema + migraciones (tablas ya diseñadas, falta aplicar cambios de sesión 2)

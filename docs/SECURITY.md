@@ -72,14 +72,14 @@ App Android en el teléfono del cliente. Recibe peticiones HTTPS, envía SMS des
 
 ### WhatsApp Business API (Fase 3)
 
-Cada cliente usa su propia cuenta de WhatsApp Business (nunca una cuenta central de FirmaConsent). El cliente paga su propio canal.
+Cada cliente usa su propia cuenta de WhatsApp Business (nunca una cuenta central de Consentia). El cliente paga su propio canal.
 
 - OTP enviado como template message de WhatsApp al teléfono del firmante
 - Access token del cliente encriptado at-rest con pgcrypto (mismo patrón que OAuth tokens)
 - HTTPS a Meta API
 - Solo template messages (no free-form, previene abuso)
 - Rate limits gobernados por Meta per-account (responsabilidad del cliente)
-- Zero-knowledge preservado: FirmaConsent almacena config encriptada, mensajes van de WABA del cliente a WhatsApp del firmante
+- Zero-knowledge preservado: Consentia almacena config encriptada, mensajes van de WABA del cliente a WhatsApp del firmante
 
 ---
 

@@ -1,4 +1,4 @@
-# CLAUDE.md — FirmaConsent
+# CLAUDE.md — Consentia
 
 ## Qué es
 
@@ -42,8 +42,8 @@ Un cambio de una línea sigue el mismo protocolo que una migración de 500 líne
 
 - Columnas en inglés, cortas, sin prefijos redundantes
 - Frontend: HTML/CSS/JS estático, sin framework, sin build step
-- Design tokens: --color-sol, --color-aqua, --color-coral, --color-lavanda, --color-violeta, --color-crema
-- Fonts: Titillium Web + PT Sans
+- Design tokens: --gris-azulado, --verde-profundo, --teal, --azul-grisaceo, --fondo, --gris-oscuro, --gris-claro, --teal-soft, --teal-dark, --danger
+- Fonts: DM Serif Display (display) + DM Sans (body/UI) + IBM Plex Mono (code/datos)
 - Edge Functions en TypeScript/Deno
 - APIs externas (Gmail, Drive, Sheets) via OAuth del cliente
 - WhatsApp Business API via cuenta propia de cada cliente (Fase 3)

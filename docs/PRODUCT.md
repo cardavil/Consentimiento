@@ -1,4 +1,4 @@
-# FirmaConsent — Documento de Producto
+# Consentia — Documento de Producto
 
 **Versión:** 3.0
 **Fecha:** Mayo 2026

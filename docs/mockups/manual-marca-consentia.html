@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Manual de Marca · Consentia</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400;1,9..40,500&family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --gris-azulado:   #1E2A3A;
+  --verde-profundo: #0F4C5C;
+  --teal:           #17B3A3;
+  --azul-grisaceo:  #5F7D95;
+  --fondo:          #F5F8FC;
+  --gris-oscuro:    #1F2937;
+  --gris-claro:     #DCE5EE;
+  --white:          #ffffff;
+  --teal-soft:      #E6F7F5;
+  --teal-dark:      #0E8A7D;
+  --danger:         #E74C3C;
+  --radius:         10px;
+  --radius-lg:      16px;
+  --shadow:         0 1px 8px rgba(30,42,58,0.06);
+  --shadow-md:      0 4px 20px rgba(30,42,58,0.10);
+  --font-display:   'DM Serif Display', Georgia, serif;
+  --font-body:      'DM Sans', system-ui, sans-serif;
+  --font-mono:      'IBM Plex Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--gris-oscuro);
+  background: var(--fondo);
+}
+
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--gris-azulado);
+  padding: 14px 28px;
+  display: flex; align-items: center; gap: 20px;
+  flex-wrap: wrap;
+  box-shadow: 0 2px 20px rgba(30,42,58,0.3);
+  border-bottom: 2px solid var(--teal);
+}
+nav .brand {
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--white);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+nav .brand em {
+  color: var(--teal);
+  font-style: normal;
+}
+nav .nav-links {
+  display: flex; gap: 4px; flex-wrap: wrap; margin-left: auto;
+}
+nav a {
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+  font-family: var(--font-body);
+  font-weight: 500; font-size: 13px;
+  padding: 5px 14px; border-radius: 20px;
+  border: 1.5px solid rgba(255,255,255,0.12);
+  transition: all 0.25s;
+  white-space: nowrap;
+}
+nav a:hover {
+  background: rgba(23,179,163,0.15);
+  color: var(--teal);
+  border-color: rgba(23,179,163,0.3);
+}
+
+.hero {
+  background: linear-gradient(160deg, var(--gris-azulado) 0%, var(--verde-profundo) 55%, #0a3a47 100%);
+  padding: 100px 28px 80px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 25% 120%, rgba(23,179,163,0.12) 0%, transparent 55%),
+    radial-gradient(ellipse at 75% -10%, rgba(95,125,149,0.15) 0%, transparent 50%);
+}
+.hero::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.hero h1 {
+  font-family: var(--font-display);
+  font-weight: 400; font-size: clamp(40px, 7vw, 72px);
+  color: var(--white);
+  letter-spacing: 0.01em;
+  position: relative;
+}
+.hero h1 em {
+  font-style: italic;
+  color: var(--teal);
+}
+.hero .subtitle {
+  font-family: var(--font-body);
+  font-weight: 600; font-size: 16px;
+  color: var(--teal);
+  margin-top: 14px; position: relative;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.hero .tagline {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 18px; color: rgba(255,255,255,0.5);
+  margin-top: 10px; position: relative;
+}
+.hero .line-accent {
+  width: 60px; height: 3px; background: var(--teal);
+  margin: 20px auto 0; border-radius: 2px;
+  position: relative;
+}
+
+section {
+  max-width: 960px; margin: 0 auto;
+  padding: 64px 28px 44px;
+}
+section + section { border-top: 1px solid var(--gris-claro); }
+
+.section-label {
+  font-family: var(--font-mono);
+  font-weight: 600; font-size: 12px;
+  color: var(--teal);
+  margin-bottom: 6px;
+  letter-spacing: 0.05em;
+}
+h2 {
+  font-family: var(--font-display);
+  font-weight: 400; font-size: 34px;
+  color: var(--gris-azulado);
+  margin-bottom: 18px;
+  line-height: 1.2;
+}
+h3 {
+  font-family: var(--font-body);
+  font-weight: 700; font-size: 18px;
+  color: var(--gris-azulado);
+  margin: 28px 0 10px;
+  letter-spacing: -0.01em;
+}
+p { margin-bottom: 14px; color: #3a4a5c; }
+strong { color: var(--gris-oscuro); }
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px; margin-top: 20px;
+}
+
+.concepts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px; margin-top: 16px;
+}
+.concept-card {
+  background: var(--white);
+  border-left: 3px solid var(--teal);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.concept-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.concept-card:nth-child(2) { border-left-color: var(--verde-profundo); }
+.concept-card:nth-child(3) { border-left-color: var(--azul-grisaceo); }
+.concept-card:nth-child(4) { border-left-color: var(--gris-azulado); }
+.concept-card:nth-child(5) { border-left-color: var(--teal-dark); }
+.concept-card:nth-child(6) { border-left-color: var(--verde-profundo); }
+.concept-card h4 {
+  font-family: var(--font-body);
+  font-weight: 700; font-size: 15px;
+  color: var(--gris-azulado); margin-bottom: 6px;
+}
+.concept-card ul {
+  list-style: none; padding: 0;
+  font-size: 14px; color: var(--azul-grisaceo);
+}
+.concept-card li::before {
+  content: '—'; margin-right: 6px;
+  font-weight: 600; color: var(--teal);
+}
+
+.color-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px; margin-top: 16px;
+}
+.color-card {
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  background: var(--white);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.color-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+.color-swatch {
+  height: 105px;
+  display: flex; align-items: flex-end; justify-content: flex-start;
+  padding: 10px 14px;
+}
+.color-swatch .hex {
+  font-family: var(--font-mono);
+  font-weight: 500; font-size: 13px;
+  background: rgba(255,255,255,0.85);
+  padding: 2px 8px; border-radius: 6px;
+  color: var(--gris-azulado);
+}
+.color-info {
+  padding: 12px 14px;
+}
+.color-info .name {
+  font-family: var(--font-body);
+  font-weight: 700; font-size: 13px;
+  text-transform: uppercase; letter-spacing: 0.06em;
+  color: var(--gris-azulado); margin-bottom: 3px;
+}
+.color-info .role {
+  font-size: 12px; color: var(--azul-grisaceo); line-height: 1.4;
+}
+.color-info .detail {
+  font-size: 11px; color: #8a99a8; line-height: 1.5;
+  margin-top: 4px;
+  font-family: var(--font-mono);
+}
+
+.font-specimen {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 30px 28px;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+  border: 1px solid var(--gris-claro);
+}
+.font-specimen .font-name {
+  font-size: 12px; color: var(--teal);
+  font-family: var(--font-mono);
+  font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.08em; margin-bottom: 10px;
+}
+.font-specimen .sample-large {
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1.2; margin-bottom: 10px;
+  color: var(--gris-azulado);
+}
+.font-specimen .sample-alphabet {
+  font-size: 15px; color: var(--azul-grisaceo);
+  word-break: break-all; line-height: 1.7;
+}
+.font-specimen .weights {
+  display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px;
+}
+.font-specimen .weight-tag {
+  font-size: 12px; padding: 4px 12px;
+  border-radius: 6px; background: var(--fondo);
+  color: var(--gris-azulado);
+  border: 1px solid var(--gris-claro);
+}
+.font-specimen .uso {
+  font-size: 13px; color: var(--azul-grisaceo); margin-top: 14px; margin-bottom: 0;
+}
+
+.logo-showcase {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px; margin-top: 16px;
+}
+.logo-box {
+  border-radius: var(--radius-lg);
+  padding: 40px 28px;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 170px;
+  box-shadow: var(--shadow);
+  position: relative;
+  transition: transform 0.2s;
+}
+.logo-box:hover { transform: translateY(-2px); }
+.logo-box .logo-render {
+  font-family: var(--font-display);
+  font-size: 36px;
+  letter-spacing: 0.01em;
+}
+.logo-box .logo-render em { font-style: italic; }
+.logo-box .logo-icon {
+  width: 36px; height: 36px;
+  border: 2.5px solid currentColor;
+  border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-right: 10px;
+  font-size: 16px;
+  vertical-align: middle;
+  position: relative;
+}
+.logo-box .logo-icon::after { content: '\2713'; font-weight: 700; }
+
+.rules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px; margin-top: 16px;
+}
+.rule-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 22px;
+  box-shadow: var(--shadow);
+  border-top: 3px solid var(--verde-profundo);
+  transition: transform 0.2s;
+}
+.rule-card:hover { transform: translateY(-2px); }
+.rule-card:nth-child(2) { border-top-color: var(--teal); }
+.rule-card:nth-child(3) { border-top-color: var(--azul-grisaceo); }
+.rule-card:nth-child(4) { border-top-color: var(--gris-azulado); }
+.rule-card h4 {
+  font-family: var(--font-body);
+  font-weight: 700; font-size: 15px;
+  color: var(--gris-azulado); margin-bottom: 8px;
+}
+.rule-card p { font-size: 14px; margin: 0; color: #4a5a6c; }
+
+.ui-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px; margin-top: 16px;
+}
+.ui-item {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 20px 16px;
+  box-shadow: var(--shadow);
+  text-align: center;
+  border: 1px solid var(--gris-claro);
+}
+.ui-item .ui-demo { margin-bottom: 10px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
+.ui-item .ui-label { font-size: 12px; color: var(--azul-grisaceo); font-weight: 500; }
+.btn-primary {
+  display: inline-block;
+  background: var(--teal); color: var(--white);
+  font-family: var(--font-body); font-weight: 600; font-size: 14px;
+  padding: 9px 22px; border-radius: 8px; border: none;
+}
+.btn-outline {
+  display: inline-block;
+  background: transparent; color: var(--verde-profundo);
+  font-family: var(--font-body); font-weight: 600; font-size: 14px;
+  padding: 8px 20px; border-radius: 8px;
+  border: 1.5px solid var(--gris-claro);
+}
+.input-demo {
+  display: inline-block;
+  background: var(--white); color: var(--azul-grisaceo);
+  font-family: var(--font-body); font-size: 13px;
+  padding: 9px 16px; border-radius: 8px;
+  border: 1.5px solid var(--gris-claro);
+  width: 100%; text-align: left;
+}
+.icon-demo {
+  width: 40px; height: 40px;
+  background: var(--gris-azulado); color: var(--white);
+  border-radius: 10px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.badge-demo {
+  display: inline-block;
+  background: var(--teal-soft); color: var(--teal-dark);
+  font-family: var(--font-body); font-weight: 600; font-size: 12px;
+  padding: 4px 12px; border-radius: 20px;
+}
+.chip-danger {
+  display: inline-block;
+  background: #FEF2F2; color: var(--danger);
+  font-family: var(--font-body); font-weight: 600; font-size: 12px;
+  padding: 4px 12px; border-radius: 20px;
+}
+
+.tokens-table {
+  width: 100%; border-collapse: collapse;
+  margin-top: 16px; font-size: 14px;
+}
+.tokens-table th {
+  background: var(--gris-azulado); color: var(--teal);
+  font-family: var(--font-mono);
+  font-weight: 600; text-align: left;
+  padding: 10px 16px; font-size: 11px;
+  text-transform: uppercase; letter-spacing: 0.08em;
+}
+.tokens-table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--gris-claro);
+}
+.tokens-table tr:hover { background: var(--teal-soft); }
+.tokens-table code {
+  background: rgba(30,42,58,0.05);
+  padding: 2px 7px; border-radius: 4px;
+  font-size: 13px;
+  font-family: var(--font-mono);
+}
+.tokens-table .separator td {
+  font-weight: 700; color: var(--gris-azulado);
+  background: rgba(23,179,163,0.06);
+  font-size: 13px;
+}
+
+footer {
+  background: var(--gris-azulado);
+  color: rgba(255,255,255,0.4);
+  text-align: center;
+  padding: 36px 28px;
+  font-size: 13px;
+  margin-top: 48px;
+  border-top: 2px solid var(--teal);
+}
+footer strong { color: var(--teal); }
+
+@media (max-width: 600px) {
+  nav { padding: 10px 16px; }
+  nav .nav-links { margin-left: 0; }
+  section { padding: 44px 18px 30px; }
+  h2 { font-size: 28px; }
+  .color-grid { grid-template-columns: repeat(2, 1fr); }
+  .logo-showcase { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand">Consen<em>tia</em></div>
+  <div class="nav-links">
+    <a href="#concepto">Concepto</a>
+    <a href="#identificador">Identificador</a>
+    <a href="#color">Color</a>
+    <a href="#tipografia">Tipografia</a>
+    <a href="#interfaz">Interfaz</a>
+    <a href="#tokens">Tokens CSS</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>Consen<em>tia</em></h1>
+  <div class="subtitle">Manual de Marca</div>
+  <div class="tagline">Seguridad · Confianza · Tecnologia · Claridad · Profesionalismo</div>
+  <div class="line-accent"></div>
+</div>
+
+<section id="concepto">
+  <div class="section-label">01 — Concepto</div>
+  <h2>Identidad de Marca</h2>
+
+  <h3>Sintesis</h3>
+  <p>Consentia es una <strong>plataforma tecnologica de gestion de consentimiento informado</strong> que garantiza seguridad, trazabilidad y cumplimiento normativo en procesos documentales sensibles. Combina la confianza institucional con la innovacion digital para transformar la manera en que organizaciones y personas gestionan acuerdos criticos.</p>
+  <p><strong>Una herramienta tecnologica al servicio de la transparencia y la confianza.</strong></p>
+  <p style="font-style:italic; color:var(--azul-grisaceo); font-size:14px;">Tono visual: profesional, confiable, moderno. Equilibrio entre autoridad tecnica y accesibilidad humana.</p>
+
+  <h3>Conceptos Clave</h3>
+  <div class="concepts-grid">
+    <div class="concept-card">
+      <h4>Seguridad</h4>
+      <ul><li>Proteccion de datos</li><li>Cifrado extremo</li><li>Integridad documental</li></ul>
+    </div>
+    <div class="concept-card">
+      <h4>Confianza</h4>
+      <ul><li>Transparencia</li><li>Trazabilidad</li><li>Cumplimiento normativo</li></ul>
+    </div>
+    <div class="concept-card">
+      <h4>Tecnologia</h4>
+      <ul><li>Innovacion</li><li>Automatizacion</li><li>Firma digital</li></ul>
+    </div>
+    <div class="concept-card">
+      <h4>Claridad</h4>
+      <ul><li>Simplicidad</li><li>Accesibilidad</li><li>Comprension</li></ul>
+    </div>
+    <div class="concept-card">
+      <h4>Profesionalismo</h4>
+      <ul><li>Rigor tecnico</li><li>Estandares altos</li><li>Excelencia operativa</li></ul>
+    </div>
+  </div>
+
+  <h3>Personalidad de Marca</h3>
+  <p>Consentia habla con <strong>autoridad serena</strong>. No grita, convence. Su presencia visual transmite solidez institucional sin ser fria: es la interseccion entre lo tecnicamente robusto y lo humanamente accesible. La paleta cromatica —dominada por tonos azul-verdosos profundos y acentos teal— refuerza las nociones de estabilidad, modernidad y accion.</p>
+</section>
+
+<section id="identificador">
+  <div class="section-label">02 — Identificador</div>
+  <h2>Logotipo</h2>
+
+  <h3>Construccion</h3>
+  <p>El logotipo de Consentia combina tipografia serif display (<strong>DM Serif Display</strong>) con un acento italico en la terminacion <em>"tia"</em>, sugiriendo movimiento y accion dentro de un marco de confianza. El icono complementario es un circulo con un check interior, representando validacion, aprobacion y consentimiento.</p>
+  <p>El logotipo <strong>siempre debe usarse en su totalidad</strong>. El icono puede funcionar de forma independiente como favicon o avatar, pero nunca como sustituto del logotipo completo en piezas de comunicacion.</p>
+
+  <div class="logo-showcase">
+    <div class="logo-box" style="background:var(--fondo); border: 1px solid var(--gris-claro);">
+      <div class="logo-render" style="color:var(--gris-azulado);">
+        <span class="logo-icon" style="color:var(--teal);"></span>Consen<em style="color:var(--teal);">tia</em>
+      </div>
+    </div>
+    <div class="logo-box" style="background:var(--gris-azulado);">
+      <div class="logo-render" style="color:var(--white);">
+        <span class="logo-icon" style="color:var(--teal);"></span>Consen<em style="color:var(--teal);">tia</em>
+      </div>
+    </div>
+    <div class="logo-box" style="background:var(--verde-profundo);">
+      <div class="logo-render" style="color:var(--white);">
+        <span class="logo-icon" style="color:var(--teal);"></span>Consen<em style="color:var(--teal);">tia</em>
+      </div>
+    </div>
+    <div class="logo-box" style="background:var(--gris-oscuro);">
+      <div class="logo-render" style="color:var(--white);">
+        <span class="logo-icon" style="color:var(--white);"></span>Consen<em>tia</em>
+      </div>
+    </div>
+  </div>
+
+  <h3>Reglas de Uso</h3>
+  <div class="rules-grid">
+    <div class="rule-card">
+      <h4>Area de Respeto</h4>
+      <p>El area libre minima alrededor del logotipo equivale a la altura de la letra "C" del logotipo en todas las direcciones. Ningun elemento ajeno puede invadir este espacio.</p>
+    </div>
+    <div class="rule-card">
+      <h4>Tamano Minimo</h4>
+      <p>En digital: 120px de ancho. En impresion: 30mm de ancho. Por debajo de estos limites se pierde legibilidad de la terminacion italica.</p>
+    </div>
+    <div class="rule-card">
+      <h4>Fondos Permitidos</h4>
+      <p>El logotipo a color puede usarse sobre fondo claro (#F5F8FC, blanco) o fondos oscuros de la paleta (#1E2A3A, #0F4C5C, #1F2937). Siempre garantizar contraste minimo WCAG AA.</p>
+    </div>
+    <div class="rule-card">
+      <h4>Usos Prohibidos</h4>
+      <p>No distorsionar proporciones, no cambiar las tipografias, no aplicar sombras o efectos de brillo, no colocar sobre fondos con bajo contraste o patrones complejos.</p>
+    </div>
+  </div>
+</section>
+
+<section id="color">
+  <div class="section-label">03 — Color</div>
+  <h2>Paleta Cromatica</h2>
+
+  <h3>Colores Principales</h3>
+  <p>La paleta principal transmite los valores centrales de la marca: seguridad, confianza y modernidad tecnologica. Los tonos azul-verdosos profundos anclan la autoridad visual, mientras que el teal aporta energia y accion.</p>
+
+  <div class="color-grid">
+    <div class="color-card">
+      <div class="color-swatch" style="background:#1E2A3A;"><span class="hex" style="color:#fff; background:rgba(0,0,0,0.25);">#1E2A3A</span></div>
+      <div class="color-info"><div class="name">Gris Azulado Oscuro</div><div class="role">Confianza, estabilidad, autoridad</div><div class="detail">RGB 30, 42, 58</div></div>
+    </div>
+    <div class="color-card">
+      <div class="color-swatch" style="background:#0F4C5C;"><span class="hex" style="color:#fff; background:rgba(0,0,0,0.25);">#0F4C5C</span></div>
+      <div class="color-info"><div class="name">Verde Azulado Profundo</div><div class="role">Seriedad, equilibrio, modernidad</div><div class="detail">RGB 15, 76, 92</div></div>
+    </div>
+    <div class="color-card">
+      <div class="color-swatch" style="background:#17B3A3;"><span class="hex">#17B3A3</span></div>
+      <div class="color-info"><div class="name">Teal Acento</div><div class="role">Accion, confirmacion, innovacion</div><div class="detail">RGB 23, 179, 163</div></div>
+    </div>
+    <div class="color-card">
+      <div class="color-swatch" style="background:#5F7D95;"><span class="hex" style="color:#fff; background:rgba(0,0,0,0.2);">#5F7D95</span></div>
+      <div class="color-info"><div class="name">Azul Grisaceo</div><div class="role">Texto secundario, iconografia, soporte</div><div class="detail">RGB 95, 125, 149</div></div>
+    </div>
+  </div>
+
+  <h3>Colores Neutros</h3>
+  <div class="color-grid">
+    <div class="color-card">
+      <div class="color-swatch" style="background:#F5F8FC; border: 1px solid #DCE5EE;"><span class="hex">#F5F8FC</span></div>
+      <div class="color-info"><div class="name">Fondo Principal</div><div class="role">Claridad, limpieza, fondo general</div></div>
+    </div>
+    <div class="color-card">
+      <div class="color-swatch" style="background:#1F2937;"><span class="hex" style="color:#fff; background:rgba(0,0,0,0.25);">#1F2937</span></div>
+      <div class="color-info"><div class="name">Gris Oscuro</div><div class="role">Texto principal, titulos, enfasis</div></div>
+    </div>
+    <div class="color-card">
+      <div class="color-swatch" style="background:#DCE5EE; border: 1px solid #c8d3df;"><span class="hex">#DCE5EE</span></div>
+      <div class="color-info"><div class="name">Gris Claro</div><div class="role">Bordes, divisores, fondos secundarios</div></div>
+    </div>
+  </div>
+
+  <h3>Colores Funcionales</h3>
+  <div class="color-grid">
+    <div class="color-card">
+      <div class="color-swatch" style="background:#E6F7F5; border: 1px solid #b5e8e2;"><span class="hex">#E6F7F5</span></div>
+      <div class="color-info"><div class="name">Teal Suave</div><div class="role">Hover, seleccion, exito sutil</div></div>
+    </div>
+    <div class="color-card">
+      <div class="color-swatch" style="background:#0E8A7D;"><span class="hex" style="color:#fff; background:rgba(0,0,0,0.2);">#0E8A7D</span></div>
+      <div class="color-info"><div class="name">Teal Oscuro</div><div class="role">Hover de botones primarios</div></div>
+    </div>
+    <div class="color-card">
+      <div class="color-swatch" style="background:#E74C3C;"><span class="hex" style="color:#fff; background:rgba(0,0,0,0.2);">#E74C3C</span></div>
+      <div class="color-info"><div class="name">Error / Alerta</div><div class="role">Validaciones, errores, acciones destructivas</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="tipografia">
+  <div class="section-label">04 — Tipografia</div>
+  <h2>Sistema Tipografico</h2>
+  <p>Tres familias tipograficas disponibles en <strong>Google Fonts</strong> bajo licencia abierta.</p>
+
+  <div class="font-specimen">
+    <div class="font-name">DM Serif Display · Display / Titulos</div>
+    <div class="sample-large" style="font-family:'DM Serif Display',serif;">DM Serif Display</div>
+    <div class="sample-alphabet" style="font-family:'DM Serif Display',serif;">ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>abcdefghijklmnopqrstuvwxyz<br>1234567890()!"$?&amp;/*^:;</div>
+    <div class="weights">
+      <span class="weight-tag" style="font-family:'DM Serif Display'; font-weight:400;">Regular (400)</span>
+      <span class="weight-tag" style="font-family:'DM Serif Display'; font-style:italic;">Italic</span>
+    </div>
+    <p class="uso"><strong>Uso:</strong> Logotipo, titulos principales (h1, h2), hero sections.</p>
+  </div>
+
+  <div class="font-specimen">
+    <div class="font-name">DM Sans · Cuerpo / UI</div>
+    <div class="sample-large" style="font-family:'DM Sans',sans-serif; font-weight:400;">DM Sans Regular</div>
+    <div class="sample-alphabet" style="font-family:'DM Sans',sans-serif;">ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>abcdefghijklmnopqrstuvwxyz<br>1234567890()!"$?&amp;/*^:;</div>
+    <div class="weights">
+      <span class="weight-tag" style="font-family:'DM Sans'; font-weight:300;">Light (300)</span>
+      <span class="weight-tag" style="font-family:'DM Sans'; font-weight:400;">Regular (400)</span>
+      <span class="weight-tag" style="font-family:'DM Sans'; font-weight:500;">Medium (500)</span>
+      <span class="weight-tag" style="font-family:'DM Sans'; font-weight:600;">SemiBold (600)</span>
+      <span class="weight-tag" style="font-family:'DM Sans'; font-weight:700;">Bold (700)</span>
+      <span class="weight-tag" style="font-family:'DM Sans'; font-weight:800;">ExtraBold (800)</span>
+    </div>
+    <p class="uso"><strong>Uso:</strong> Texto de cuerpo, subtitulos, botones, formularios, interfaz de usuario.</p>
+  </div>
+
+  <div class="font-specimen">
+    <div class="font-name">IBM Plex Mono · Codigo / Datos</div>
+    <div class="sample-large" style="font-family:'IBM Plex Mono',monospace; font-weight:400;">IBM Plex Mono</div>
+    <div class="sample-alphabet" style="font-family:'IBM Plex Mono',monospace;">ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>abcdefghijklmnopqrstuvwxyz<br>1234567890()!"$?&amp;/*^:;</div>
+    <div class="weights">
+      <span class="weight-tag" style="font-family:'IBM Plex Mono'; font-weight:400;">Regular (400)</span>
+      <span class="weight-tag" style="font-family:'IBM Plex Mono'; font-weight:500;">Medium (500)</span>
+      <span class="weight-tag" style="font-family:'IBM Plex Mono'; font-weight:600;">SemiBold (600)</span>
+    </div>
+    <p class="uso"><strong>Uso:</strong> Etiquetas de seccion, codigos, tokens CSS, datos tecnicos, folios.</p>
+  </div>
+</section>
+
+<section id="interfaz">
+  <div class="section-label">05 — Interfaz</div>
+  <h2>Componentes de UI</h2>
+
+  <div class="ui-grid">
+    <div class="ui-item"><div class="ui-demo"><span class="btn-primary">Firmar</span></div><div class="ui-label">Accion Principal</div></div>
+    <div class="ui-item"><div class="ui-demo"><span class="btn-outline">Cancelar</span></div><div class="ui-label">Accion Secundaria</div></div>
+    <div class="ui-item"><div class="ui-demo"><span class="icon-demo" style="background:var(--teal); border-radius:50%;">&#10003;</span></div><div class="ui-label">Confirmacion</div></div>
+    <div class="ui-item"><div class="ui-demo"><span class="input-demo">correo@empresa.com</span></div><div class="ui-label">Campos</div></div>
+    <div class="ui-item"><div class="ui-demo"><span class="badge-demo">&#10003; Firmado</span></div><div class="ui-label">Estado Exito</div></div>
+    <div class="ui-item"><div class="ui-demo"><span class="chip-danger">&#10005; Rechazado</span></div><div class="ui-label">Estado Error</div></div>
+  </div>
+
+  <h3>Principios de Interfaz</h3>
+  <div class="rules-grid">
+    <div class="rule-card"><h4>Jerarquia Clara</h4><p>Cada pantalla tiene una accion principal destacada en teal. Las acciones secundarias usan contorno.</p></div>
+    <div class="rule-card"><h4>Espaciado Generoso</h4><p>Minimo 16px entre elementos, 24px entre secciones. El fondo claro permite que los componentes respiren.</p></div>
+    <div class="rule-card"><h4>Bordes Suaves</h4><p>Border-radius de 10px para tarjetas, 8px para botones e inputs.</p></div>
+    <div class="rule-card"><h4>Accesibilidad</h4><p>Todos los pares de color cumplen contraste WCAG AA. Estados hover, focus y active diferenciados.</p></div>
+  </div>
+</section>
+
+<section id="tokens">
+  <div class="section-label">06 — Tokens</div>
+  <h2>Tokens CSS para Desarrollo</h2>
+
+  <div style="overflow-x:auto;">
+    <table class="tokens-table">
+      <thead><tr><th>Variable</th><th>Valor</th><th>Uso</th></tr></thead>
+      <tbody>
+        <tr><td><code>--gris-azulado</code></td><td><code>#1E2A3A</code></td><td>Fondos oscuros, navegacion, headers</td></tr>
+        <tr><td><code>--verde-profundo</code></td><td><code>#0F4C5C</code></td><td>Fondos secundarios oscuros, gradientes</td></tr>
+        <tr><td><code>--teal</code></td><td><code>#17B3A3</code></td><td>CTAs, acento principal, confirmaciones</td></tr>
+        <tr><td><code>--teal-dark</code></td><td><code>#0E8A7D</code></td><td>Hover de botones teal</td></tr>
+        <tr><td><code>--teal-soft</code></td><td><code>#E6F7F5</code></td><td>Backgrounds hover, selecciones, exito</td></tr>
+        <tr><td><code>--azul-grisaceo</code></td><td><code>#5F7D95</code></td><td>Texto secundario, placeholders, iconos</td></tr>
+        <tr><td><code>--fondo</code></td><td><code>#F5F8FC</code></td><td>Background principal de la aplicacion</td></tr>
+        <tr><td><code>--gris-oscuro</code></td><td><code>#1F2937</code></td><td>Texto principal, titulos, enfasis</td></tr>
+        <tr><td><code>--gris-claro</code></td><td><code>#DCE5EE</code></td><td>Bordes, divisores, fondos de inputs</td></tr>
+        <tr><td><code>--danger</code></td><td><code>#E74C3C</code></td><td>Errores, alertas, acciones destructivas</td></tr>
+        <tr class="separator"><td colspan="3">Tipografia</td></tr>
+        <tr><td><code>--font-display</code></td><td><code>'DM Serif Display'</code></td><td>Logotipo, h1, h2, hero sections</td></tr>
+        <tr><td><code>--font-body</code></td><td><code>'DM Sans'</code></td><td>Cuerpo, UI, botones, formularios</td></tr>
+        <tr><td><code>--font-mono</code></td><td><code>'IBM Plex Mono'</code></td><td>Labels, codigos, datos tecnicos</td></tr>
+        <tr class="separator"><td colspan="3">Espaciado &amp; Forma</td></tr>
+        <tr><td><code>--radius</code></td><td><code>10px</code></td><td>Cards, contenedores</td></tr>
+        <tr><td><code>--radius-lg</code></td><td><code>16px</code></td><td>Panels grandes, modales</td></tr>
+        <tr><td><code>--shadow</code></td><td><code>0 1px 8px rgba(30,42,58,0.06)</code></td><td>Sombra sutil (cards en reposo)</td></tr>
+        <tr><td><code>--shadow-md</code></td><td><code>0 4px 20px rgba(30,42,58,0.10)</code></td><td>Sombra media (hover, modales)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  <strong>Consentia</strong> · Manual de Marca<br>
+  Seguridad · Confianza · Tecnologia · Claridad · Profesionalismo
+</footer>
+
+</body>
+</html>
