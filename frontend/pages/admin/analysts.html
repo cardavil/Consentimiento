@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Analistas | Consentia Admin</title>
+  <link rel="stylesheet" href="../../css/tokens.css">
+  <link rel="stylesheet" href="../../css/componentes.css">
+</head>
+<body>
+  <a href="#main" class="skip-link">Ir al contenido</a>
+  <div class="marca-barra"></div>
+
+  <div class="admin-layout">
+    <aside id="admin-sidebar" class="admin-sidebar"></aside>
+
+    <main id="main" class="admin-main">
+      <div class="admin-header">
+        <h1>Analistas</h1>
+        <button id="btn-invitar" class="btn btn-primary">Invitar analista</button>
+      </div>
+
+      <div class="card" style="overflow-x:auto">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Rol</th>
+              <th>Estado</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="analysts-tbody">
+            <tr><td colspan="5" class="admin-empty">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal invitar analista -->
+  <div id="modal-invite" class="modal-overlay" onclick="if(event.target===this)close_invite_modal()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Invitar analista</h3>
+        <button class="modal-close" onclick="close_invite_modal()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="invite-name">Nombre</label>
+        <input type="text" id="invite-name" class="form-input" placeholder="Nombre completo">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="invite-email">Email</label>
+        <input type="email" id="invite-email" class="form-input" placeholder="analista@empresa.com">
+      </div>
+      <p class="text-sm text-muted">El analista recibirá un código OTP en su primer login. Los permisos se asignan después.</p>
+      <div style="display:flex;gap:var(--spacing-md);justify-content:flex-end;margin-top:var(--spacing-md)">
+        <button class="btn btn-outline" onclick="close_invite_modal()">Cancelar</button>
+        <button id="btn-send-invite" class="btn btn-primary" onclick="send_invite()">Invitar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal permisos -->
+  <div id="modal-permissions" class="modal-overlay" onclick="if(event.target===this)close_permissions_modal()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Permisos de <span id="perm-user-name"></span></h3>
+        <button class="modal-close" onclick="close_permissions_modal()">&times;</button>
+      </div>
+      <input type="hidden" id="perm-user-id">
+      <div id="perm-grid" class="admin-perm-grid" style="margin-bottom:var(--spacing-lg)"></div>
+      <div style="display:flex;gap:var(--spacing-md);justify-content:flex-end">
+        <button class="btn btn-outline" onclick="close_permissions_modal()">Cancelar</button>
+        <button id="btn-save-perms" class="btn btn-primary" onclick="save_permissions()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../../js/config.js"></script>
+  <script src="../../js/supabase-client.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script src="../../js/admin-guard.js"></script>
+  <script src="../../js/admin-nav.js"></script>
+  <script src="../../js/admin-analysts.js"></script>
+</body>
+</html>

@@ -1,8 +1,8 @@
 # Base de Datos
 
-Supabase nuevo, proyecto independiente. Multi-tenant con RLS. 12 tablas.
+Supabase nuevo, proyecto independiente. Multi-tenant con RLS. 14 tablas.
 
-Schema: `supabase/migrations/001_initial_schema.sql`, `002_catalog_doc_types.sql`
+Schema: `supabase/migrations/001_initial_schema.sql`, `002_catalog_doc_types.sql`, `003_platform_users.sql`
 
 ---
 
@@ -208,6 +208,32 @@ Inmutable. INSERT solo via service_role. Sin UPDATE ni DELETE.
 | ua | TEXT | |
 | created_at | TIMESTAMPTZ | |
 
+### platform_users
+Usuarios internos de la plataforma (admin/analyst). Completamente separados de organizaciones. Un admin no es una org.
+
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | UUID PK | uuid_generate_v4() |
+| auth_user_id | UUID UNIQUE NOT NULL | auth.users(id) |
+| email | TEXT UNIQUE NOT NULL | |
+| name | TEXT NOT NULL | |
+| role | TEXT NOT NULL | CHECK: admin / analyst |
+| active | BOOLEAN | default true |
+| created_at | TIMESTAMPTZ | |
+| updated_at | TIMESTAMPTZ | trigger auto |
+
+### platform_permissions
+Permisos granulares para analysts. Admin tiene todos implícitamente.
+
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | UUID PK | uuid_generate_v4() |
+| user_id | UUID FK NOT NULL | → platform_users ON DELETE CASCADE |
+| permission | TEXT NOT NULL | CHECK: read:orgs, read:audit_log, read:sessions, read:catalogs, write:catalogs, read:metrics |
+| granted_by | UUID FK | → platform_users |
+| created_at | TIMESTAMPTZ | |
+| UNIQUE(user_id, permission) | | |
+
 ---
 
 ## Funciones
@@ -221,8 +247,17 @@ Desencripta con pgp_sym_decrypt. SECURITY DEFINER. La llave la pasa la Edge Func
 ### next_folio(p_org_id, p_code, p_year) → TEXT
 INSERT ON CONFLICT UPDATE atómico. Lee folio_prefix de organizations. Retorna folio formateado: `{prefix}-{code}-{year}-{seq_padded}`. Ejemplo: `CT-C1-2026-0007`. SECURITY DEFINER.
 
+### is_platform_user() → BOOLEAN
+Retorna true si el JWT tiene app_metadata.platform_role. SECURITY DEFINER STABLE.
+
+### is_platform_admin() → BOOLEAN
+Retorna true si platform_role = 'admin'. SECURITY DEFINER STABLE.
+
+### has_platform_permission(p_permission TEXT) → BOOLEAN
+Admin retorna true siempre. Analyst busca en platform_permissions (filtrado por auth.uid() y active=true). SECURITY DEFINER STABLE.
+
 ### get_org_id() → UUID
-Lee org_id del JWT (app_metadata) como fast path sin query. Si no existe, fallback a SELECT por email. SECURITY DEFINER STABLE. La Edge Function de login debe setear app_metadata.org_id.
+Lee org_id del JWT (app_metadata) como fast path sin query. Si no existe, fallback a SELECT por email. Guard: si platform_role existe, retorna NULL inmediatamente. SECURITY DEFINER STABLE. La Edge Function de login debe setear app_metadata.org_id.
 
 ### expire_sessions() → INTEGER
 Marca como 'expired' las sesiones vencidas. Limpia signing_sessions_temp de sesiones expired/cancelled/completed.
@@ -247,7 +282,7 @@ Patrón: operaciones sensibles (INSERT en tablas críticas, OTP) pasan exclusiva
 
 | Tabla | Regla |
 |---|---|
-| organizations | Solo ve/edita la suya. INSERT solo service_role. |
+| organizations | Solo ve/edita la suya. Admin ve/edita todas. INSERT solo service_role. |
 | org_oauth | Solo su config (select/insert/update). |
 | org_sms_config | Solo su config (select/insert/update). |
 | consent_items | Solo los suyos (CRUD completo). |
@@ -257,8 +292,10 @@ Patrón: operaciones sensibles (INSERT en tablas críticas, OTP) pasan exclusiva
 | folio_sequence | Bloqueado para todos. Solo service_role. |
 | signing_templates | Solo ve/edita las suyas (CRUD). organization_id = get_org_id(). |
 | org_whatsapp_config | Solo su config (select/insert/update). Mismo patrón que org_sms_config. |
-| catalog_doc_types | SELECT público (anon + authenticated) donde active=true. Sin INSERT/UPDATE/DELETE vía API. |
-| audit_log | Org ve los suyos. INSERT solo service_role. Sin UPDATE ni DELETE. |
+| catalog_doc_types | SELECT público (anon + authenticated) donde active=true. Admin con write:catalogs puede CRUD. |
+| audit_log | Org ve los suyos. Admin/analyst con read:audit_log ve todos. INSERT solo service_role. Sin UPDATE ni DELETE. |
+| platform_users | Admin ve todos, analyst ve solo el suyo. CRUD solo admin. |
+| platform_permissions | Admin CRUD. Analyst ve los suyos. |
 
 ---
 
@@ -270,3 +307,5 @@ Patrón: operaciones sensibles (INSERT en tablas críticas, OTP) pasan exclusiva
 - signing_templates(organization_id)
 - otp_tokens(email), otp_tokens(email, purpose)
 - audit_log(organization_id, event_type, created_at)
+- platform_users(auth_user_id)
+- platform_permissions(user_id)

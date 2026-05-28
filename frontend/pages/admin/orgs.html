@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Organizaciones | Consentia Admin</title>
+  <link rel="stylesheet" href="../../css/tokens.css">
+  <link rel="stylesheet" href="../../css/componentes.css">
+</head>
+<body>
+  <a href="#main" class="skip-link">Ir al contenido</a>
+  <div class="marca-barra"></div>
+
+  <div class="admin-layout">
+    <aside id="admin-sidebar" class="admin-sidebar"></aside>
+
+    <main id="main" class="admin-main">
+      <div class="admin-header">
+        <h1>Organizaciones</h1>
+      </div>
+
+      <div class="admin-toolbar">
+        <input type="text" id="filtro-busqueda" class="form-input" placeholder="Buscar por nombre o email...">
+        <select id="filtro-plan" class="form-input">
+          <option value="">Todos los planes</option>
+          <option value="trial">Trial</option>
+          <option value="basic">Basic</option>
+          <option value="pro">Pro</option>
+          <option value="enterprise">Enterprise</option>
+        </select>
+        <select id="filtro-estado" class="form-input">
+          <option value="">Todos</option>
+          <option value="active">Activas</option>
+          <option value="inactive">Inactivas</option>
+        </select>
+      </div>
+
+      <div class="card" style="overflow-x:auto">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Tipo</th>
+              <th>Plan</th>
+              <th>Estado</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="orgs-tbody">
+            <tr><td colspan="6" class="admin-empty">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal editar org -->
+  <div id="modal-edit-org" class="modal-overlay" onclick="if(event.target===this)close_edit_org()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="edit-org-name">Editar organización</h3>
+        <button class="modal-close" onclick="close_edit_org()">&times;</button>
+      </div>
+      <input type="hidden" id="edit-org-id">
+      <div class="form-group">
+        <label class="form-label" for="edit-org-plan">Plan</label>
+        <select id="edit-org-plan" class="form-input">
+          <option value="trial">Trial</option>
+          <option value="basic">Basic</option>
+          <option value="pro">Pro</option>
+          <option value="enterprise">Enterprise</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">
+          <input type="checkbox" id="edit-org-active" style="accent-color:var(--teal)"> Activa
+        </label>
+      </div>
+      <div style="display:flex;gap:var(--spacing-md);justify-content:flex-end">
+        <button class="btn btn-outline" onclick="close_edit_org()">Cancelar</button>
+        <button id="btn-save-org" class="btn btn-primary" onclick="save_org_changes()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../../js/config.js"></script>
+  <script src="../../js/supabase-client.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script src="../../js/admin-guard.js"></script>
+  <script src="../../js/admin-nav.js"></script>
+  <script src="../../js/admin-orgs.js"></script>
+</body>
+</html>

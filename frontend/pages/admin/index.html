@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin | Consentia</title>
+  <link rel="stylesheet" href="../../css/tokens.css">
+  <link rel="stylesheet" href="../../css/componentes.css">
+</head>
+<body>
+  <a href="#main" class="skip-link">Ir al contenido</a>
+  <div class="marca-barra"></div>
+
+  <div class="admin-layout">
+    <aside id="admin-sidebar" class="admin-sidebar"></aside>
+
+    <main id="main" class="admin-main">
+      <div class="admin-header">
+        <h1>Dashboard</h1>
+      </div>
+      <div id="stats-grid" class="admin-stats">
+        <div class="admin-empty"><p class="text-muted">Cargando...</p></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../../js/config.js"></script>
+  <script src="../../js/supabase-client.js"></script>
+  <script src="../../js/utils.js"></script>
+  <script src="../../js/admin-guard.js"></script>
+  <script src="../../js/admin-nav.js"></script>
+  <script src="../../js/admin-dashboard.js"></script>
+</body>
+</html>

@@ -71,7 +71,14 @@ async function on_verify_otp() {
     if (error) throw new Error(error.message);
     if (!data.session) throw new Error('ERROR_SERVIDOR');
 
-    window.location.href = 'dashboard.html';
+    const meta = data.session.user.app_metadata || {};
+    if (meta.platform_role) {
+      window.location.href = 'admin/index.html';
+    } else if (meta.org_id) {
+      window.location.href = 'dashboard.html';
+    } else {
+      throw new Error('CUENTA_SIN_ORG');
+    }
   } catch (err) {
     show_error(user_message(err.message));
     clear_otp('btn-verificar-otp');

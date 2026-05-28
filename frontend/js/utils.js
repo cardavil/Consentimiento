@@ -45,6 +45,7 @@ const ERROR_MESSAGES = {
   NETWORK_ERROR: 'Error de conexión. Verifica tu internet.',
   EMAIL_DUPLICADO: 'Este email ya está registrado.',
   DOCUMENTO_DUPLICADO: 'Este documento ya está registrado.',
+  CUENTA_SIN_ORG: 'Tu cuenta no tiene una organización asociada. Contacta soporte.',
 };
 
 // --- Toast notifications ---
