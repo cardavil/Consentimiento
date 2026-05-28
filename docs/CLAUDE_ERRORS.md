@@ -28,6 +28,24 @@ Este archivo documenta las veces que Claude violó el protocolo de trabajo (audi
 
 ---
 
+## 2026-05-28 — Sesión: mejoras visuales UI
+
+### Violación 6: Flex item sin width explícito — bug de layout
+**Qué pasó:** Al agregar `max-width: 95%; margin: 0 auto` a `.admin-content`, Claude no detectó que el elemento es un flex item dentro de `.pagina-app` (flex column). En flexbox, `margin: auto` anula `align-self: stretch`, y sin `width` explícito el elemento se dimensiona según su contenido. Cada página admin quedó con un ancho diferente según el largo del texto en sus tablas.
+**Por qué está mal:** Claude propuso y ejecutó el cambio sin verificar el contexto flex del elemento padre. Cuando el usuario reportó el problema, Claude insistió en que el CSS era correcto en vez de auditar visualmente. Tomó screenshots del usuario para finalmente encontrar el bug.
+**Fix:** Agregar `width: 100%` junto a `max-width: 95%`. El mismo bug se repetía en `.dash-container`.
+
+### Violación 7: Datos personales del usuario en placeholders
+**Qué pasó:** Al crear el modal de invitación de analistas, Claude usó el nombre real del usuario ("Carlos", "Dávila") como texto de placeholder en los campos del formulario.
+**Por qué está mal:** Incluir datos personales reales en el código fuente público es una violación de privacidad. Los placeholders deben usar datos genéricos ficticios.
+**Fix:** Reemplazar por "Juan" y "Pérez".
+
+### Violación 8: Diagnóstico superficial — alucinación en vez de auditoría
+**Qué pasó:** Cuando el usuario reportó que las páginas desperdiciaban espacio, Claude alucinó explicaciones ("probablemente los h2 usan algo más grande por defecto del navegador ~1.5em = 24px") en vez de leer el CSS real. Propuso cambios a grillas, distribución en 2 columnas y modificaciones que el usuario nunca pidió.
+**Por qué está mal:** Claude debe verificar en el código antes de suponer. "Probablemente" no es auditoría. El usuario tuvo que corregir múltiples propuestas incorrectas antes de que Claude leyera los valores reales.
+
+---
+
 ## Lecciones
 
 1. **Plan aprobado en sesión anterior ≠ autorización en sesión nueva.** Siempre re-confirmar.
