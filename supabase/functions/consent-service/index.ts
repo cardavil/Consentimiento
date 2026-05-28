@@ -1,8 +1,7 @@
 import { handle_cors } from '../_shared/cors.ts';
 import { err } from '../_shared/response.ts';
-import { handle_send } from './send.ts';
-import { handle_register } from './register.ts';
-import { handle_track } from './track.ts';
+import { handle_create_session } from './create_session.ts';
+import { handle_sign } from './sign.ts';
 
 Deno.serve(async (req) => {
   const cors = handle_cors(req);
@@ -13,17 +12,15 @@ Deno.serve(async (req) => {
     const action = body.action as string;
 
     switch (action) {
-      case 'send':
-        return await handle_send(body, req);
-      case 'register':
-        return await handle_register(body, req);
-      case 'track':
-        return await handle_track(body);
+      case 'create_session':
+        return await handle_create_session(body, req);
+      case 'sign':
+        return await handle_sign(body, req);
       default:
         return err('INVALID_ACTION');
     }
   } catch (e) {
-    console.error({ fn: 'otp-service', error: (e as Error).message });
+    console.error({ fn: 'consent-service', error: (e as Error).message });
     return err('ERROR_SERVIDOR', 500);
   }
 });

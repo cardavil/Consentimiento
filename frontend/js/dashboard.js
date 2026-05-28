@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         on_logout: org_sign_out,
       });
       await load_historial(session.access_token, meta.org_id);
+      await load_onboarding_status();
     } else {
       render_app_header({
         container_id: 'app-header',
@@ -55,6 +56,22 @@ async function load_historial(jwt, org_id) {
     }
     html += '</tbody></table>';
     document.getElementById('dash-historial').innerHTML = html;
+  } catch (_e) {}
+}
+
+async function load_onboarding_status() {
+  try {
+    var s = await call_edge_function('drive-service', { action: 'get_status' });
+    if (!s || !s.connected) return;
+
+    var item = document.getElementById('chk-cloud');
+    if (item) {
+      item.classList.add('dash-check-done');
+      var icon = item.querySelector('.dash-check-icon');
+      if (icon) { icon.classList.remove('dash-check-pending'); icon.innerHTML = '&#10003;'; }
+    }
+    var badge = document.getElementById('onb-badge');
+    if (badge) { badge.className = 'badge badge-success'; badge.textContent = 'Nube conectada'; }
   } catch (_e) {}
 }
 

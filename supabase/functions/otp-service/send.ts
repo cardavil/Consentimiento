@@ -1,12 +1,14 @@
 import { ok, err } from '../_shared/response.ts';
 import { create_admin_client } from '../_shared/supabase.ts';
-import { generate_otp, hash_code } from './otp_check.ts';
+import { generate_otp, hash_code } from '../_shared/otp.ts';
+import { get_org_connection } from '../drive-service/connection.ts';
+import { otp_email } from '../_shared/email_templates.ts';
 
 const OTP_TTL_MS = 5 * 60 * 1000;
 const RATE_WINDOW_MS = 10 * 60 * 1000;
 const MAX_ACTIVE_OTPS = 3;
 
-export async function handle_send(body: Record<string, unknown>): Promise<Response> {
+export async function handle_send(body: Record<string, unknown>, req: Request): Promise<Response> {
   const email = (body.email as string || '').trim().toLowerCase();
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return err('EMAIL_INVALID');
@@ -24,7 +26,7 @@ export async function handle_send(body: Record<string, unknown>): Promise<Respon
 
   if ((count ?? 0) >= MAX_ACTIVE_OTPS) return err('RATE_LIMITED', 429);
 
-  const code = generate_otp(6);
+  const code = generate_otp(8);
   const code_hash = await hash_code(code);
 
   const { error: insert_err } = await admin.from('otp_tokens').insert({
@@ -39,13 +41,31 @@ export async function handle_send(body: Record<string, unknown>): Promise<Respon
     return err('ERROR_SERVIDOR', 500);
   }
 
-  // Email transport for signing OTP — uses client's OAuth (Gmail/Microsoft)
-  // via org_oauth table. Implementation pending with consent-service.
-  console.log({ fn: 'send', email, purpose, code_length: code.length });
-
+  // Signer OTP: send from the client's own email account (zero-knowledge).
   if (purpose === 'sign') {
+    const access_token = req.headers.get('x-access-token');
+    if (!access_token) return err('TOKEN_REQUERIDO', 401);
+
+    const { data: session } = await admin
+      .from('signing_sessions_results')
+      .select('id, organization_id')
+      .eq('access_token', access_token)
+      .maybeSingle();
+    if (!session) return err('SESION_INVALIDA', 404);
+
+    const conn = await get_org_connection(admin, session.organization_id);
+    if (!conn || !conn.sender_email) return err('SIN_NUBE_CONECTADA');
+
+    try {
+      const tpl = otp_email(code, 'Verificación de tu consentimiento.');
+      await conn.provider.send_email(conn.access_token, conn.sender_email, email, tpl.subject, tpl.html, tpl.text);
+    } catch (e) {
+      console.error({ fn: 'send.email', error: (e as Error).message });
+      return err('EMAIL_ENVIO_FALLIDO', 502);
+    }
+
     await admin.from('audit_log').insert({
-      organization_id: null,
+      organization_id: session.organization_id,
       event_type: 'signing_otp_sent',
       event_data: { email_domain: email.split('@')[1] },
     });

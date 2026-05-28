@@ -69,11 +69,11 @@ Proyecto Consentia (antes FirmaConsent) con documentación estructurada, schema 
 | Marca | Consentia — manual aprobado en docs/mockups/manual-marca-consentia.html |
 | Documentación | Sincronizada con el código real (README + 7 docs) |
 | Schema BD (docs) | 12 tablas implementadas + 2 pendientes (signing_templates F2, org_whatsapp_config F3) |
-| Migraciones SQL | 001–006 aplicadas (12 tablas). Pendiente: signing_templates (F2) y org_whatsapp_config (F3) |
+| Migraciones SQL | 001–006 aplicadas; 007–008 creadas (pendiente aplicar). Pendiente: signing_templates (F2) y org_whatsapp_config (F3) |
 | Supabase | ACTIVE_HEALTHY, 12 tablas, RLS habilitado, dual-role |
 | Cloudflare | CLI instalada, autenticada. Tunnel pendiente |
-| Frontend | Fase 1 construida: login, registro, dashboard, firmar + panel admin (5 páginas). Pendiente: onboarding, consentimiento-solicitar |
-| Edge Functions | `admin-service` (completa), `otp-service` (envío de email STUB). Pendiente: consent-service, drive-service, pdf-generator |
+| Frontend | Fase 1 completa: login, registro, dashboard, onboarding, consentimientos, consentimiento-solicitar, firmar + panel admin (5 páginas) |
+| Edge Functions | `admin-service`, `otp-service`, `consent-service`, `drive-service` (Google+Microsoft). Pendiente runtime (OAuth/secrets/deploy) |
 | App Android | No existe. Cero código (Fase 3) |
 | Landing page | index.html en la raíz |
 
@@ -81,10 +81,16 @@ Proyecto Consentia (antes FirmaConsent) con documentación estructurada, schema 
 
 ## Pendiente
 
-### Issues señalados (a resolver — no son diseño)
-- [ ] **OTP largo inconsistente:** `config.js`/UI usan 8 dígitos, pero `otp-service/otp_check.ts` genera 6. Estandarizar `otp-service` a **8**.
-- [ ] **Envío de email OTP es STUB:** `otp-service/send.ts` solo hace `console.log`. Falta integrar Gmail/Graph del cliente (firmante, zero-knowledge).
-- [ ] Verificar que el OTP de Supabase Auth (auth de cliente) esté configurado en 8 dígitos para cuadrar con la UI.
+### Issues señalados
+- [x] **OTP a 8 dígitos:** estandarizado en `_shared/otp.ts` (generate_otp default 8) y `send.ts`.
+- [x] **Envío de email OTP:** implementado en `send.ts` vía `drive-service/connection` + providers (Gmail/Graph del cliente, zero-knowledge).
+- [ ] Verificar que el OTP de Supabase Auth (auth de cliente) esté configurado en 8 dígitos para cuadrar con la UI (ajuste manual en dashboard).
+
+### Prerrequisitos para que Fase 1 funcione en runtime
+- [ ] Configurar OAuth de Google (client ID/secret, scopes drive/gmail/sheets) y Microsoft (Entra app, Files/Mail).
+- [ ] Supabase Secrets: `GOOGLE_CLIENT_ID/SECRET`, `MS_CLIENT_ID/SECRET`, `OAUTH_REDIRECT_BASE`.
+- [ ] Aplicar migraciones 007 y 008 (`supabase db push`) y desplegar Edge Functions (`drive-service`, `consent-service`, `otp-service`).
+- [ ] Habilitar pg_cron en Supabase (para migración 008).
 
 ### Inmediato
 - [x] Agregar `ENCRYPTION_KEY` como Supabase Secret (completado sesión 2)
@@ -94,18 +100,25 @@ Proyecto Consentia (antes FirmaConsent) con documentación estructurada, schema 
 - [ ] Elegir y configurar dominio
 - [ ] Commit con los docs actualizados + rebrand
 
-### Fase 1 — Consentimiento
-1. ✅ Schema + migraciones (001–006 aplicadas)
-2. Edge Functions: ⏳ otp-service (envío email STUB), ❌ consent-service, ❌ drive-service, ❌ pdf-generator
-3. Frontend: ✅ login, registro, dashboard, firmar · ❌ onboarding, consentimiento-solicitar
-4. ⏳ Landing page (index.html existe)
-5. ❌ Drive/OneDrive integration (OAuth, file picker, preview)
-6. ❌ Google Sheets historial
-7. ❌ PDF con pdf-lib
+### Fase 1 — Consentimiento (código completo, pendiente runtime)
+1. ✅ Schema + migraciones (001–006 aplicadas; 007–008 creadas, pendiente aplicar)
+2. ✅ Edge Functions: otp-service (envío real), consent-service (create_session + sign + pdf.ts), drive-service (OAuth + providers Google/Microsoft)
+3. ✅ Frontend: login, registro, dashboard, firmar, onboarding, consentimientos, consentimiento-solicitar
+4. ⏳ Landing page (index.html redirige a login)
+5. ✅ Drive/OneDrive integration (OAuth, list, download, upload) — Google + Microsoft
+6. ✅ Google Sheets / CSV historial (append por proveedor)
+7. ✅ PDF con pdf-lib (constancia autocontenida: documentos + evidencia)
 
 OTP factor 2: email-only en esta fase (firmante zero-knowledge vía cliente).
 
-> **Adicional construido (no estaba en el plan original de Fase 1):** panel admin dual-role completo (`admin-service` + 5 páginas) con métricas, CRUD orgs, catálogos, auditoría y gestión de analistas.
+> **Nota:** el código de Fase 1 está completo pero **no probado en runtime** (requiere credenciales OAuth + secrets + despliegue, ver prerrequisitos arriba). Las integraciones con Gmail/Drive/Sheets y Graph se escribieron correct-by-construction vía REST.
+
+> **Adicional ya construido:** panel admin dual-role completo (`admin-service` + 5 páginas) con métricas, CRUD orgs, catálogos, auditoría y gestión de analistas.
+
+### Limitaciones conocidas (a pulir)
+- Preview de documentos en `firmar.html` usa iframe de Google Drive; documentos de OneDrive no previsualizan (el PDF final sí embebe sus páginas).
+- Microsoft: historial se guarda como CSV en OneDrive (no workbook xlsx).
+- Landing real pendiente (hoy redirige a login).
 
 ### Fase 2 — Editor visual de firma electrónica
 1. Frontend: documento-editor (drag & drop), documento-solicitar

@@ -46,6 +46,19 @@ const ERROR_MESSAGES = {
   EMAIL_DUPLICADO: 'Este email ya está registrado.',
   DOCUMENTO_DUPLICADO: 'Este documento ya está registrado.',
   CUENTA_SIN_ORG: 'Tu cuenta no tiene una organización asociada. Contacta soporte.',
+  SIN_NUBE_CONECTADA: 'No hay una nube conectada. Conecta tu Drive/OneDrive en Primeros pasos.',
+  EMAIL_ENVIO_FALLIDO: 'No se pudo enviar el correo. Verifica tu conexión de nube.',
+  SESION_INVALIDA: 'Este enlace no es válido.',
+  SESION_EXPIRADA: 'Este enlace ha expirado.',
+  SESION_COMPLETADA: 'Esta sesión ya fue completada.',
+  OBLIGATORIOS_FALTANTES: 'Debes aceptar los consentimientos obligatorios.',
+  SUBIDA_FALLIDA: 'No se pudo guardar la constancia en tu nube.',
+  TOKEN_REQUERIDO: 'Falta el token de acceso.',
+  OAUTH_FALLIDO: 'No se pudo conectar la cuenta. Intenta de nuevo.',
+  DOCUMENTOS_REQUERIDOS: 'Selecciona al menos un documento.',
+  CONSENTIMIENTOS_REQUERIDOS: 'Selecciona al menos un consentimiento.',
+  MODE_INVALID: 'Tipo de firmante inválido.',
+  PROVIDER_INVALID: 'Proveedor de nube no soportado.',
 };
 
 // --- Toast notifications ---

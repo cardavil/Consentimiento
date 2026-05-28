@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Consentimientos | Consentia</title>
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/componentes.css">
+</head>
+<body class="pagina-app">
+  <a href="#main" class="skip-link">Ir al contenido</a>
+  <div class="marca-barra"></div>
+  <header id="app-header" class="app-header"></header>
+
+  <main id="main">
+    <div class="dash-container">
+      <div class="flex-between mb-md">
+        <h2 class="m-0">Mis consentimientos</h2>
+        <button id="btn-nuevo" class="btn btn-primary">Nuevo consentimiento</button>
+      </div>
+
+      <div class="card overflow-x-auto">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Título</th>
+              <th>Obligatorio</th>
+              <th>Estado</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="consent-tbody">
+            <tr><td colspan="5" class="admin-empty">Cargando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <div id="modal-edit-consent" class="modal-overlay" onclick="if(event.target===this)close_consent_modal()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title">Consentimiento</h3>
+        <button class="modal-close" onclick="close_consent_modal()">&times;</button>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="edit-code">Código</label>
+        <input type="text" id="edit-code" class="form-input" placeholder="C1">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="edit-title">Título</label>
+        <input type="text" id="edit-title" class="form-input" placeholder="Tratamiento de datos personales">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="edit-description">Texto del consentimiento</label>
+        <textarea id="edit-description" class="form-input" rows="5" placeholder="Autorizo el tratamiento de mis datos…"></textarea>
+      </div>
+      <div class="form-row-2col">
+        <div class="form-group">
+          <label class="form-label" for="edit-sort-order">Orden</label>
+          <input type="number" id="edit-sort-order" class="form-input" value="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label mt-lg">
+            <input type="checkbox" id="edit-required" class="check-teal"> Obligatorio por defecto
+          </label>
+          <label class="form-label">
+            <input type="checkbox" id="edit-active" checked class="check-teal"> Activo
+          </label>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-outline" onclick="close_consent_modal()">Cancelar</button>
+        <button id="btn-save-consent" class="btn btn-primary" onclick="save_consent()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="pie-app">
+    <p>Consen<em>tia</em> | Consentimiento informado y firma electr&oacute;nica | by CARDAVIL</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/supabase-client.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/app-header.js"></script>
+  <script src="../js/consentimientos.js"></script>
+</body>
+</html>

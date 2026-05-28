@@ -119,8 +119,11 @@ function render_documents(docs) {
 
   let html = '';
   for (const doc of docs) {
+    const file_id = typeof doc === 'string' ? doc : (doc.id || '');
+    const name = typeof doc === 'object' && doc.name ? doc.name : '';
     html += '<div class="mb-md">' +
-      '<iframe src="https://drive.google.com/file/d/' + escape_html(doc) + '/preview" ' +
+      (name ? '<p class="text-sm text-muted mb-sm">' + escape_html(name) + '</p>' : '') +
+      '<iframe src="https://drive.google.com/file/d/' + escape_html(file_id) + '/preview" ' +
       'width="100%" height="400" class="iframe-preview" ' +
       'allow="autoplay" loading="lazy"></iframe></div>';
   }

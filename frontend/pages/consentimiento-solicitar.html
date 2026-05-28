@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Solicitar consentimiento | Consentia</title>
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/componentes.css">
+</head>
+<body class="pagina-app">
+  <a href="#main" class="skip-link">Ir al contenido</a>
+  <div class="marca-barra"></div>
+  <header id="app-header" class="app-header"></header>
+
+  <main id="main">
+    <div class="dash-container">
+      <h2 class="m-0 mb-md">Solicitar consentimiento</h2>
+
+      <form id="form-solicitar" novalidate>
+
+        <!-- Modo de firmante -->
+        <div class="card mb-md">
+          <div class="form-group">
+            <label class="form-label" for="modo">Tipo de firmante</label>
+            <select id="modo" class="form-input">
+              <option value="natural_personal">Persona natural</option>
+              <option value="natural_tutor">Con representante legal</option>
+              <option value="juridica">Persona jurídica</option>
+            </select>
+          </div>
+
+          <!-- natural_personal -->
+          <div id="campos-natural" class="modo-campos">
+            <div class="form-row-2col">
+              <div class="form-group"><label class="form-label" for="np-nombre">Nombre</label><input id="np-nombre" class="form-input"></div>
+              <div class="form-group"><label class="form-label" for="np-apellido">Apellido</label><input id="np-apellido" class="form-input"></div>
+            </div>
+            <div class="form-row-2col">
+              <div class="form-group"><label class="form-label" for="np-tipodoc">Tipo doc.</label><select id="np-tipodoc" class="form-input"></select></div>
+              <div class="form-group"><label class="form-label" for="np-numero">Número</label><input id="np-numero" class="form-input"></div>
+            </div>
+            <div class="form-row-2col">
+              <div class="form-group"><label class="form-label" for="np-email">Email</label><input id="np-email" type="email" class="form-input"></div>
+              <div class="form-group"><label class="form-label" for="np-telefono">Teléfono</label><input id="np-telefono" class="form-input"></div>
+            </div>
+          </div>
+
+          <!-- natural_tutor -->
+          <div id="campos-tutor" class="modo-campos" hidden>
+            <h4 class="mb-sm">Representado</h4>
+            <div class="form-row-2col">
+              <div class="form-group"><label class="form-label" for="tr-nombre">Nombre</label><input id="tr-nombre" class="form-input"></div>
+              <div class="form-group"><label class="form-label" for="tr-apellido">Apellido</label><input id="tr-apellido" class="form-input"></div>
+            </div>
+            <div class="form-row-2col">
+              <div class="form-group"><label class="form-label" for="tr-tipodoc">Tipo doc.</label><select id="tr-tipodoc" class="form-input"></select></div>
+              <div class="form-group"><label class="form-label" for="tr-numero">Número</label><input id="tr-numero" class="form-input"></div>
+            </div>
+            <div class="form-group"><label class="form-label" for="tr-nacimiento">Fecha de nacimiento (si TI/RC)</label><input id="tr-nacimiento" type="date" class="form-input"></div>
+            <h4 class="mb-sm mt-md">Representante legal</h4>
+            <div class="form-row-2col">
+              <div class="form-group"><label class="form-label" for="rp-nombre">Nombre</label><input id="rp-nombre" class="form-input"></div>
+              <div class="form-group"><label class="form-label" for="rp-apellido">Apellido</label><input id="rp-apellido" class="form-input"></div>
+            </div>
+            <div class="form-row-2col">
+              <div class="form-group"><label class="form-label" for="rp-tipodoc">Tipo doc.</label><select id="rp-tipodoc" class="form-input"></select></div>
+              <div class="form-group"><label class="form-label" for="rp-numero">Número</label><input id="rp-numero" class="form-input"></div>
+            </div>
+            <div class="form-group"><label class="form-label" for="rp-calidad">Calidad</label>
+              <select id="rp-calidad" class="form-input">
+                <option value="madre">Madre</option><option value="padre">Padre</option>
+                <option value="tutor legal">Tutor legal</option><option value="representante legal">Representante legal</option>
+                <option value="curador">Curador</option>
+              </select>
+            </div>
+            <div class="form-row-2col">
+              <div class="form-group"><label class="form-label" for="rp-email">Email (recibe el enlace)</label><input id="rp-email" type="email" class="form-input"></div>
+              <div class="form-group"><label class="form-label" for="rp-telefono">Teléfono</label><input id="rp-telefono" class="form-input"></div>
+            </div>
+          </div>
+
+          <!-- juridica -->
+          <div id="campos-juridica" class="modo-campos" hidden>
+            <div class="form-row-2col">
+              <div class="form-group"><label class="form-label" for="ju-razon">Razón social</label><input id="ju-razon" class="form-input"></div>
+              <div class="form-group"><label class="form-label" for="ju-nit">NIT</label><input id="ju-nit" class="form-input"></div>
+            </div>
+            <div class="form-row-2col">
+              <div class="form-group"><label class="form-label" for="ju-email">Email</label><input id="ju-email" type="email" class="form-input"></div>
+              <div class="form-group"><label class="form-label" for="ju-telefono">Teléfono</label><input id="ju-telefono" class="form-input"></div>
+            </div>
+            <h4 class="mb-sm mt-md">Firmante</h4>
+            <div class="form-row-2col">
+              <div class="form-group"><label class="form-label" for="ju-nombre">Nombre</label><input id="ju-nombre" class="form-input"></div>
+              <div class="form-group"><label class="form-label" for="ju-apellido">Apellido</label><input id="ju-apellido" class="form-input"></div>
+            </div>
+            <div class="form-row-2col">
+              <div class="form-group"><label class="form-label" for="ju-tipodoc">Tipo doc.</label><select id="ju-tipodoc" class="form-input"></select></div>
+              <div class="form-group"><label class="form-label" for="ju-numero">Número</label><input id="ju-numero" class="form-input"></div>
+            </div>
+            <div class="form-group"><label class="form-label" for="ju-cargo">Cargo</label><input id="ju-cargo" class="form-input"></div>
+          </div>
+        </div>
+
+        <!-- Documentos -->
+        <div class="card mb-md">
+          <h3 class="m-0 mb-sm">Documentos a incluir</h3>
+          <div id="docs-container"><p class="text-sm text-muted">Cargando documentos…</p></div>
+        </div>
+
+        <!-- Consentimientos -->
+        <div class="card mb-md">
+          <h3 class="m-0 mb-sm">Consentimientos</h3>
+          <div id="consents-container"><p class="text-sm text-muted">Cargando consentimientos…</p></div>
+        </div>
+
+        <!-- Expiración -->
+        <div class="card mb-md">
+          <div class="form-row-2col">
+            <div class="form-group">
+              <label class="form-label" for="exp-valor">Expiración del enlace</label>
+              <input id="exp-valor" type="number" class="form-input" value="3" min="1">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="exp-unidad">Unidad</label>
+              <select id="exp-unidad" class="form-input"><option value="days">Días</option><option value="hours">Horas</option></select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="contexto">Contexto (opcional)</label>
+            <input id="contexto" class="form-input" placeholder="Programa, propósito…">
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <a href="dashboard.html" class="btn btn-outline">Cancelar</a>
+          <button type="submit" id="btn-solicitar" class="btn btn-primary">Crear y enviar enlace</button>
+        </div>
+      </form>
+
+      <!-- Resultado -->
+      <div id="resultado" class="card mt-md" hidden>
+        <h3 class="m-0 mb-sm">Solicitud creada</h3>
+        <p class="text-sm" id="res-email-status"></p>
+        <div class="form-group">
+          <label class="form-label">Enlace de firma</label>
+          <input id="res-url" class="form-input text-mono" readonly>
+        </div>
+        <button id="btn-copiar" class="btn btn-secondary btn-sm">Copiar enlace</button>
+        <a href="dashboard.html" class="btn btn-ghost btn-sm">Volver al dashboard</a>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="pie-app">
+    <p>Consen<em>tia</em> | Consentimiento informado y firma electr&oacute;nica | by CARDAVIL</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/supabase-client.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/app-header.js"></script>
+  <script src="../js/consentimiento-solicitar.js"></script>
+</body>
+</html>

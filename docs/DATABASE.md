@@ -12,6 +12,8 @@ Migraciones aplicadas (`supabase/migrations/`):
 | `004_admin_org_dual_role.sql` | Redefine `get_org_id()` para identidad dual admin/org (fast-path org_id en JWT antes del guard platform_role) |
 | `005_platform_users_identity.sql` | Expande `platform_users` con nombre, apellido, documento, teléfono |
 | `006_get_db_size.sql` | Función `get_db_size()` para métricas admin |
+| `007_session_type_otp_channel.sql` | Agrega `session_type` (consent/firma) y `otp_channel` (email/sms/whatsapp) a `signing_sessions_results` |
+| `008_schedule_cleanup.sql` | Programa `expire_sessions()` (cada 15 min) y `cleanup_otps()` (cada hora) vía pg_cron |
 
 ---
 

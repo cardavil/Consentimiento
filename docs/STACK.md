@@ -78,9 +78,10 @@ consentia/
 │   ├── pages/
 │   │   ├── login.html                    (OTP email)
 │   │   ├── registro.html                 (registro cliente)
-│   │   ├── onboarding.html               (nube + canales Fase 3 — PENDIENTE)
+│   │   ├── onboarding.html               (conectar nube + correo, OAuth)
 │   │   ├── dashboard.html                (panel cliente)
-│   │   ├── consentimiento-solicitar.html (solicitar consentimiento — PENDIENTE)
+│   │   ├── consentimientos.html          (CRUD consent_items del cliente)
+│   │   ├── consentimiento-solicitar.html (solicitar consentimiento, 3 modos)
 │   │   ├── documento-solicitar.html      (solicitar firma — Fase 2)
 │   │   ├── documento-editor.html         (editor visual drag & drop — Fase 2)
 │   │   ├── firmar.html                   (portal firmante, ambos modos)
@@ -104,9 +105,10 @@ consentia/
 │   │   ├── admin-nav.js                  (nav tabs admin por permiso)
 │   │   ├── login.js
 │   │   ├── registro.js
-│   │   ├── onboarding.js                 (PENDIENTE)
+│   │   ├── onboarding.js                 (OAuth Google/Microsoft)
 │   │   ├── dashboard.js
-│   │   ├── consentimiento-solicitar.js   (PENDIENTE)
+│   │   ├── consentimientos.js            (CRUD consent_items)
+│   │   ├── consentimiento-solicitar.js   (crear sesión de consentimiento)
 │   │   ├── documento-solicitar.js        (Fase 2)
 │   │   ├── documento-editor.js           (Fase 2)
 │   │   ├── firmar.js                     (ambos modos, detecta session_type)
@@ -118,21 +120,17 @@ consentia/
 │   └── assets/
 ├── supabase/
 │   ├── migrations/
-│   │   ├── 001_initial_schema.sql
-│   │   ├── 002_catalog_doc_types.sql
-│   │   ├── 003_platform_users.sql
-│   │   ├── 004_admin_org_dual_role.sql
-│   │   ├── 005_platform_users_identity.sql
-│   │   └── 006_get_db_size.sql
+│   │   ├── 001_initial_schema.sql … 006_get_db_size.sql
+│   │   ├── 007_session_type_otp_channel.sql
+│   │   └── 008_schedule_cleanup.sql
 │   └── functions/
-│       ├── _shared/                       (cors, response, supabase client)
+│       ├── _shared/                       (cors, response, supabase, auth, otp, email_templates)
 │       ├── admin-service/                 (métricas, orgs, invitaciones, permisos)
-│       ├── otp-service/                   (envío email aún STUB)
-│       ├── consent-service/               (PENDIENTE)
+│       ├── otp-service/                   (OTP firmante vía correo del cliente)
+│       ├── consent-service/               (create_session, sign, pdf.ts con pdf-lib)
+│       ├── drive-service/                 (OAuth + providers/google + providers/microsoft)
 │       ├── signing-service/               (Fase 2)
-│       ├── drive-service/                 (PENDIENTE)
-│       ├── whatsapp-service/              (Fase 3)
-│       └── pdf-generator/                 (PENDIENTE)
+│       └── whatsapp-service/              (Fase 3)
 ├── android/                              (Fase 3)
 └── docs/
 ```

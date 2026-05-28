@@ -52,9 +52,10 @@ Cada archivo HTML corresponde a una vista/pantalla concreta:
 |---|---|---|---|
 | login.html | Inicio de sesión OTP email | Clientes / admin | 1 |
 | registro.html | Registro cliente | Clientes nuevos | 1 |
-| onboarding.html | Configurar nube + canales (SMS/WhatsApp en F3) | Clientes primera vez | 1 (PENDIENTE) |
+| onboarding.html | Conectar nube + correo (OAuth Google/Microsoft) | Clientes primera vez | 1 |
 | dashboard.html | Panel del cliente | Clientes activos | 1 |
-| consentimiento-solicitar.html | Formulario solicitar consentimiento (3 modos) | Clientes activos | 1 (PENDIENTE) |
+| consentimientos.html | CRUD de consentimientos del cliente (consent_items) | Clientes activos | 1 |
+| consentimiento-solicitar.html | Formulario solicitar consentimiento (3 modos) | Clientes activos | 1 |
 | documento-solicitar.html | Formulario solicitar firma electrónica | Clientes activos | 2 |
 | documento-editor.html | Editor visual drag & drop plantillas | Clientes activos | 2 |
 | firmar.html | Portal del firmante (ambos modos, detecta session_type) | Firmantes | 1 |
@@ -97,9 +98,10 @@ Usados por 2+ páginas.
 |---|---|---|
 | login.js | login.html | 1 |
 | registro.js | registro.html | 1 |
-| onboarding.js | onboarding.html | 1 (PENDIENTE) |
+| onboarding.js | onboarding.html | 1 |
 | dashboard.js | dashboard.html | 1 |
-| consentimiento-solicitar.js | consentimiento-solicitar.html | 1 (PENDIENTE) |
+| consentimientos.js | consentimientos.html | 1 |
+| consentimiento-solicitar.js | consentimiento-solicitar.html | 1 |
 | documento-solicitar.js | documento-solicitar.html | 2 |
 | documento-editor.js | documento-editor.html | 2 |
 | firmar.js | firmar.html (ambos modos) | 1 |
@@ -140,12 +142,11 @@ Usados por 2+ páginas.
 | Función | Responsabilidad | Fase |
 |---|---|---|
 | admin-service | Panel plataforma: métricas, CRUD orgs, invitar analistas, permisos, bootstrap org | 1 |
-| otp-service | Generar/verificar OTP (envío de email aún STUB; SMS y WhatsApp en Fase 3) | 1 |
-| consent-service | Crear sesiones de consentimiento, procesar consent_items | 1 (PENDIENTE) |
+| otp-service | Generar/verificar OTP; OTP del firmante se envía por el correo del cliente | 1 |
+| consent-service | create_session + sign; incluye `pdf.ts` (constancia con pdf-lib) | 1 |
+| drive-service | OAuth, list/upload/download, Sheet, envío de correo; `providers/google` + `providers/microsoft` | 1 |
 | signing-service | Crear sesiones de firma electrónica, procesar campos visuales | 2 |
-| drive-service | Listar archivos, subir PDF, actualizar Sheet | 1 (PENDIENTE) |
 | whatsapp-service | Enviar OTP via WhatsApp Business API | 3 |
-| pdf-generator | Generar PDF con pdf-lib (consentimiento y firma) | 1 (PENDIENTE) |
 
 ### Convenciones Edge Functions
 

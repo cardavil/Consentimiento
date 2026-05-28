@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Conectar nube | Consentia</title>
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/componentes.css">
+</head>
+<body class="pagina-app">
+  <a href="#main" class="skip-link">Ir al contenido</a>
+  <div class="marca-barra"></div>
+  <header id="app-header" class="app-header"></header>
+
+  <main id="main">
+    <div class="dash-container">
+
+      <div class="card">
+        <h2 class="m-0 mb-sm">Conectar tu nube y correo</h2>
+        <p class="text-sm text-muted mb-md">
+          Consentia guarda las constancias en tu propio Drive/OneDrive y env&iacute;a los c&oacute;digos
+          de verificaci&oacute;n desde tu propio correo. Una sola conexi&oacute;n por proveedor cubre
+          almacenamiento, correo e historial. El correo y la nube ser&aacute;n la <strong>misma cuenta</strong>.
+        </p>
+
+        <div id="onb-status" class="mb-md"></div>
+
+        <div class="onb-providers">
+          <button id="btn-google" class="btn btn-secondary">Conectar Google (Drive + Gmail + Sheets)</button>
+          <button id="btn-microsoft" class="btn btn-secondary">Conectar Microsoft (OneDrive + Outlook)</button>
+        </div>
+
+        <div id="onb-connected" hidden class="mt-md"></div>
+      </div>
+
+      <div class="card mt-md">
+        <h3 class="m-0 mb-sm">&iquest;Qu&eacute; permisos se solicitan?</h3>
+        <ul class="text-sm text-muted">
+          <li>Leer los documentos PDF que elijas para firmar.</li>
+          <li>Guardar las constancias generadas en una carpeta <strong>Consentia</strong>.</li>
+          <li>Registrar el historial en una hoja de c&aacute;lculo.</li>
+          <li>Enviar los c&oacute;digos de verificaci&oacute;n a los firmantes desde tu correo.</li>
+        </ul>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="pie-app">
+    <p>Consen<em>tia</em> | Consentimiento informado y firma electr&oacute;nica | by CARDAVIL</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/supabase-client.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/app-header.js"></script>
+  <script src="../js/onboarding.js"></script>
+</body>
+</html>
