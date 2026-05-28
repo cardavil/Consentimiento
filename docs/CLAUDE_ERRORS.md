@@ -46,6 +46,26 @@ Este archivo documenta las veces que Claude violó el protocolo de trabajo (audi
 
 ---
 
+## 2026-05-28 — Sesión: compactar tipografía y dashboard admin
+
+### Violación 9: h2 y h3 quedaron idénticos — romper jerarquía sin auditar
+**Qué pasó:** Al cambiar h1 de text-3xl a text-2xl y h2 de text-2xl a text-xl, Claude no verificó que h3 ya usaba text-xl. Resultado: h2 y h3 quedaron con el mismo tamaño (20px) y margin, perdiendo toda distinción visual.
+**Por qué está mal:** Cada cambio en cascada debe auditarse. Cambiar h2 sin verificar h3 es modificar sin auditar el impacto completo.
+
+### Violación 10: Formato de plan inconsistente — 4 rechazos consecutivos
+**Qué pasó:** El usuario pidió un plan y Claude lo presentó en 4 formatos distintos: primero excesivamente detallado con tablas enormes, luego demasiado minimalista sin tabla, luego con tabla pero sin contexto, luego con tabla pero "monstruoso". El usuario tuvo que rechazar 4 veces antes de obtener un formato aceptable.
+**Por qué está mal:** Claude debe mantener un formato consistente para los planes: contexto breve + tabla antes/después + archivos a modificar. No cambiar el formato radicalmente en cada intento.
+
+### Violación 11: No entender el problema del usuario — insistir con solución equivocada
+**Qué pasó:** El usuario señaló que los nombres de página se repiten 3 veces (tab navegador, header, nav tab). Claude propuso repetidamente quitar el nombre del header. El usuario dijo "NO", "ese no es el problema", "el titulo es el problema, se logico". Claude no logró entender qué quería el usuario y tuvo que pedir que lo explicara.
+**Por qué está mal:** Claude se fijó en una solución (quitar del header) en vez de escuchar al usuario. Cuando el usuario dice "no es el problema", hay que detenerse y preguntar, no insistir con la misma propuesta.
+
+### Violación 12: Alucinar estado de la UI sin verificar
+**Qué pasó:** Claude describió cómo se veía la página de Indicadores sin verificar el estado real. El usuario dijo "alucinas! indicadores no se ve asi". Claude tuvo que leer el HTML para confirmar el estado actual.
+**Por qué está mal:** Antes de describir cómo se ve algo, leer el código. No reconstruir de memoria lo que debería ser.
+
+---
+
 ## Lecciones
 
 1. **Plan aprobado en sesión anterior ≠ autorización en sesión nueva.** Siempre re-confirmar.
@@ -54,3 +74,7 @@ Este archivo documenta las veces que Claude violó el protocolo de trabajo (audi
 4. **Nunca asumir el propósito de datos.** Preguntar antes de eliminar o modificar.
 5. **Nunca commitear sin autorización.** El commit es una acción irreversible en producción.
 6. **Ante la duda, presentar el plan.** El costo de preguntar es cero. El costo de actuar sin permiso puede ser alto.
+7. **Auditar el impacto completo de cada cambio en cascada.** Si cambias h2, verifica h3.
+8. **Formato de plan consistente.** Contexto breve + tabla antes/después + archivos. No cambiar formato entre intentos.
+9. **Cuando el usuario dice "no es el problema", detenerse y escuchar.** No insistir con la misma solución.
+10. **Nunca describir UI de memoria.** Leer el código antes de afirmar cómo se ve algo.
