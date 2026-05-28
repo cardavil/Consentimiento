@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Firmar | Consentia</title>
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/componentes.css">
+</head>
+<body>
+  <a href="#main" class="skip-link">Ir al contenido</a>
+  <div class="marca-barra"></div>
+
+  <main id="main">
+    <div class="auth-container" style="align-items:flex-start;padding-top:var(--spacing-xl)">
+      <div style="width:100%;max-width:640px">
+
+        <!-- Loading -->
+        <div id="seccion-cargando" class="card card-lg text-center">
+          <div class="spinner" style="width:32px;height:32px;border-width:3px;margin:var(--spacing-lg) auto"></div>
+          <p class="text-sm text-muted" style="margin-top:var(--spacing-md)">Cargando sesión de firma...</p>
+        </div>
+
+        <!-- Error -->
+        <div id="seccion-error" class="card card-lg card-danger text-center" hidden>
+          <h2>Enlace inválido</h2>
+          <p class="text-sm text-muted" id="error-mensaje">Este enlace no es válido o ha expirado.</p>
+        </div>
+
+        <!-- Main content: Consent mode -->
+        <div id="seccion-consent" hidden>
+          <div class="text-center" style="margin-bottom:var(--spacing-lg)">
+            <div class="auth-brand">Consen<em>tia</em></div>
+            <p class="auth-subtitle">Consentimiento informado</p>
+          </div>
+
+          <!-- Signer data (read-only) -->
+          <section class="card" style="margin-bottom:var(--spacing-md)">
+            <h3>Tus datos</h3>
+            <div id="datos-firmante" class="text-sm">
+              <!-- Populated by JS -->
+            </div>
+            <p class="text-xs text-muted" style="margin-top:var(--spacing-sm)">
+              <span id="firma-fecha"></span> · IP: <span id="firma-ip"></span>
+            </p>
+          </section>
+
+          <!-- Documents -->
+          <section class="card" style="margin-bottom:var(--spacing-md)">
+            <h3>Documentos</h3>
+            <div id="documentos-container">
+              <!-- Document iframes populated by JS -->
+            </div>
+          </section>
+
+          <!-- Consent items -->
+          <section class="card" style="margin-bottom:var(--spacing-md)">
+            <h3>Consentimientos</h3>
+            <div id="lista-consentimientos">
+              <!-- Consent checkboxes populated by JS -->
+            </div>
+          </section>
+
+          <!-- OTP verification -->
+          <section class="card" id="seccion-otp" style="margin-bottom:var(--spacing-md)">
+            <h3>Verificación</h3>
+            <div id="sub-enviar-otp-firma">
+              <p class="text-sm" style="margin-bottom:var(--spacing-md)">
+                Para confirmar tu identidad, enviaremos un código a tu email.
+              </p>
+              <button type="button" id="btn-enviar-otp-firma" class="btn btn-primary btn-block" disabled>
+                Enviar código de verificación
+              </button>
+            </div>
+
+            <div id="sub-ingresar-otp-firma" hidden>
+              <p class="text-sm text-center" style="margin-bottom:var(--spacing-sm)">
+                Código enviado a <strong id="otp-email-firma"></strong>
+              </p>
+              <div class="otp-grupo" role="group" aria-label="Código de verificación">
+                <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 1">
+                <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 2">
+                <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 3">
+                <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 4">
+                <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 5">
+                <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 6">
+              </div>
+              <button type="button" id="btn-verificar-firma" class="btn btn-primary btn-block" disabled>
+                Firmar
+              </button>
+              <div class="text-sm text-muted text-center" style="margin-top:var(--spacing-md)">
+                <span id="otp-timer">60s</span>
+                <button type="button" id="btn-reenviar" class="btn btn-ghost btn-sm" hidden>Reenviar código</button>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Main content: Firma mode (Phase 2 placeholder) -->
+        <div id="seccion-firma" hidden>
+          <div class="card card-lg text-center">
+            <h2>Firma electrónica</h2>
+            <p class="text-muted">Disponible en Fase 2</p>
+          </div>
+        </div>
+
+        <!-- Confirmation -->
+        <div id="seccion-confirmacion" hidden>
+          <div class="card card-lg">
+            <div class="confirmacion-resumen">
+              <div class="confirmacion-icono">✓</div>
+              <h3>¡Firma completada!</h3>
+              <p class="text-sm text-muted" style="margin:var(--spacing-md) 0">
+                Recibirás una copia del documento firmado en tu email.
+              </p>
+            </div>
+            <table class="tabla">
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Decisión</th>
+                  <th>Folio</th>
+                  <th>Hash SHA-256</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-confirmacion">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+            <div class="text-xs text-muted text-center" style="margin-top:var(--spacing-md)">
+              <span id="confirmacion-fecha"></span> · IP: <span id="confirmacion-ip"></span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/supabase-client.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/otp-ui.js"></script>
+  <script src="../js/firmar.js"></script>
+</body>
+</html>

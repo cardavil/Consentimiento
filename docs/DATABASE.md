@@ -1,8 +1,8 @@
 # Base de Datos
 
-Supabase nuevo, proyecto independiente. Multi-tenant con RLS. 11 tablas.
+Supabase nuevo, proyecto independiente. Multi-tenant con RLS. 12 tablas.
 
-Schema: `supabase/migrations/001_initial_schema.sql`
+Schema: `supabase/migrations/001_initial_schema.sql`, `002_catalog_doc_types.sql`
 
 ---
 
@@ -173,6 +173,18 @@ Config de WhatsApp Business API del cliente. Fase 3. Secrets encriptados con pgc
 | created_at | TIMESTAMPTZ | |
 | updated_at | TIMESTAMPTZ | trigger auto |
 
+### catalog_doc_types
+Catálogo de tipos de documento colombianos. Lectura pública, escritura solo admin. Cuando el gobierno agrega un tipo nuevo, basta un INSERT.
+
+| Columna | Tipo | Notas |
+|---|---|---|
+| code | TEXT PK | CC, CE, PA, PEP, PPT, TI, RC, NIT |
+| label | TEXT | Nombre legible (Cédula de Ciudadanía, etc.) |
+| contexts | TEXT[] | Contextos donde aplica: natural, natural_tutor_represented, natural_tutor_representative, juridica_signer, organization |
+| regex | TEXT | Patrón de validación frontend |
+| sort_order | INTEGER | Orden en dropdowns |
+| active | BOOLEAN | default true. Desactivar en vez de borrar |
+
 ### folio_sequence
 Secuencial atómico. PK compuesta. Solo accesible por service_role.
 
@@ -245,6 +257,7 @@ Patrón: operaciones sensibles (INSERT en tablas críticas, OTP) pasan exclusiva
 | folio_sequence | Bloqueado para todos. Solo service_role. |
 | signing_templates | Solo ve/edita las suyas (CRUD). organization_id = get_org_id(). |
 | org_whatsapp_config | Solo su config (select/insert/update). Mismo patrón que org_sms_config. |
+| catalog_doc_types | SELECT público (anon + authenticated) donde active=true. Sin INSERT/UPDATE/DELETE vía API. |
 | audit_log | Org ve los suyos. INSERT solo service_role. Sin UPDATE ni DELETE. |
 
 ---

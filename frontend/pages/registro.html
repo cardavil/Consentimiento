@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registro | Consentia</title>
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/componentes.css">
+</head>
+<body>
+  <a href="#main" class="skip-link">Ir al contenido</a>
+  <div class="marca-barra"></div>
+
+  <main id="main">
+    <div class="auth-container" style="align-items:flex-start;padding-top:var(--spacing-xl)">
+      <div style="width:100%;max-width:560px">
+        <div class="text-center" style="margin-bottom:var(--spacing-lg)">
+          <div class="auth-brand">Consen<em>tia</em></div>
+          <p class="auth-subtitle">Crea tu cuenta para gestionar consentimientos y firmas</p>
+        </div>
+
+        <!-- Step indicator -->
+        <div class="pasos-indicador" role="navigation" aria-label="Progreso del registro">
+          <span class="paso paso-activo" id="paso-circulo-1" aria-current="step">1</span>
+          <span class="paso-linea" id="paso-linea-1"></span>
+          <span class="paso" id="paso-circulo-2">2</span>
+          <span class="paso-linea" id="paso-linea-2"></span>
+          <span class="paso" id="paso-circulo-3">3</span>
+        </div>
+
+        <!-- Step 1: Tipo -->
+        <section id="paso-tipo" class="card card-lg">
+          <h2>¿Cómo te registras?</h2>
+          <div class="tipo-grid" id="tipo-grid">
+            <div class="tipo-card" data-tipo="natural">
+              <div style="font-size:2rem">👤</div>
+              <div class="tipo-card-titulo">Persona natural</div>
+              <div class="tipo-card-desc">Profesional independiente</div>
+            </div>
+            <div class="tipo-card" data-tipo="juridica">
+              <div style="font-size:2rem">🏢</div>
+              <div class="tipo-card-titulo">Persona jurídica</div>
+              <div class="tipo-card-desc">Empresa u organización</div>
+            </div>
+          </div>
+          <button type="button" id="btn-paso-1" class="btn btn-primary btn-block" disabled>Continuar</button>
+          <p class="text-sm text-muted text-center" style="margin-top:var(--spacing-md)">
+            ¿Ya tienes cuenta? <a href="login.html" style="color:var(--teal);font-weight:600">Inicia sesión</a>
+          </p>
+        </section>
+
+        <!-- Step 2: Datos -->
+        <section id="paso-datos" class="card card-lg" hidden>
+          <h2>Tus datos</h2>
+          <form id="form-datos" novalidate>
+            <!-- Natural fields -->
+            <div id="campos-natural">
+              <div class="form-group">
+                <label for="campo-nombre" class="form-label">Nombre</label>
+                <input type="text" id="campo-nombre" class="form-input" aria-required="true" aria-describedby="campo-nombre-error" autocomplete="given-name">
+                <p id="campo-nombre-error" class="form-error" hidden>Requerido</p>
+              </div>
+              <div class="form-group">
+                <label for="campo-apellido" class="form-label">Apellido</label>
+                <input type="text" id="campo-apellido" class="form-input" aria-required="true" aria-describedby="campo-apellido-error" autocomplete="family-name">
+                <p id="campo-apellido-error" class="form-error" hidden>Requerido</p>
+              </div>
+            </div>
+
+            <!-- Juridica fields -->
+            <div id="campos-juridica" hidden>
+              <div class="form-group">
+                <label for="campo-razon-social" class="form-label">Razón social</label>
+                <input type="text" id="campo-razon-social" class="form-input" aria-required="true" aria-describedby="campo-razon-social-error" autocomplete="organization">
+                <p id="campo-razon-social-error" class="form-error" hidden>Requerido</p>
+              </div>
+              <div class="form-group">
+                <label for="campo-nit" class="form-label">NIT</label>
+                <input type="text" id="campo-nit" class="form-input" placeholder="900123456-7" aria-required="true" aria-describedby="campo-nit-error">
+                <p id="campo-nit-error" class="form-error" hidden>NIT inválido</p>
+              </div>
+              <hr style="border:none;border-top:1px solid var(--gris-claro);margin:var(--spacing-md) 0">
+              <p class="text-sm text-muted" style="margin-bottom:var(--spacing-md)">Datos del firmante autorizado</p>
+              <div class="form-group">
+                <label for="campo-nombre-firmante" class="form-label">Nombre</label>
+                <input type="text" id="campo-nombre-firmante" class="form-input" aria-required="true" aria-describedby="campo-nombre-firmante-error">
+                <p id="campo-nombre-firmante-error" class="form-error" hidden>Requerido</p>
+              </div>
+              <div class="form-group">
+                <label for="campo-apellido-firmante" class="form-label">Apellido</label>
+                <input type="text" id="campo-apellido-firmante" class="form-input" aria-required="true" aria-describedby="campo-apellido-firmante-error">
+                <p id="campo-apellido-firmante-error" class="form-error" hidden>Requerido</p>
+              </div>
+              <div class="form-group">
+                <label for="campo-cargo" class="form-label">Cargo</label>
+                <input type="text" id="campo-cargo" class="form-input" aria-required="true" aria-describedby="campo-cargo-error">
+                <p id="campo-cargo-error" class="form-error" hidden>Requerido</p>
+              </div>
+            </div>
+
+            <!-- Common fields -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-md)">
+              <div class="form-group">
+                <label for="campo-tipo-doc" class="form-label">Tipo documento</label>
+                <select id="campo-tipo-doc" class="form-input" aria-required="true" aria-describedby="campo-tipo-doc-error">
+                  <option value="">Seleccionar</option>
+                </select>
+                <p id="campo-tipo-doc-error" class="form-error" hidden>Requerido</p>
+              </div>
+              <div class="form-group">
+                <label for="campo-num-doc" class="form-label">Número</label>
+                <input type="text" id="campo-num-doc" class="form-input" aria-required="true" aria-describedby="campo-num-doc-error">
+                <p id="campo-num-doc-error" class="form-error" hidden>Documento inválido</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="campo-email" class="form-label">Correo electrónico</label>
+              <input type="email" id="campo-email" class="form-input" aria-required="true" aria-describedby="campo-email-error" autocomplete="email">
+              <p id="campo-email-error" class="form-error" hidden>Email inválido</p>
+            </div>
+            <div class="form-group">
+              <label for="campo-telefono" class="form-label">Teléfono</label>
+              <input type="tel" id="campo-telefono" class="form-input" aria-required="true" aria-describedby="campo-telefono-error" autocomplete="tel">
+              <p id="campo-telefono-error" class="form-error" hidden>Teléfono inválido</p>
+            </div>
+
+            <div style="display:flex;gap:var(--spacing-md)">
+              <button type="button" id="btn-volver-1" class="btn btn-outline">← Volver</button>
+              <button type="button" id="btn-paso-2" class="btn btn-primary" style="flex:1">Continuar</button>
+            </div>
+          </form>
+        </section>
+
+        <!-- Step 3: Verificación -->
+        <section id="paso-verificacion" class="card card-lg" hidden>
+          <h2>Verificación</h2>
+          <p class="text-sm" style="margin-bottom:var(--spacing-md)">
+            Acepta los términos de servicio y verifica tu email para completar el registro.
+          </p>
+
+          <div class="consentimiento">
+            <div class="consentimiento-cabecera">
+              <span class="consentimiento-titulo-texto">Términos de servicio de Consentia</span>
+              <span class="badge badge-danger">OBLIGATORIO</span>
+            </div>
+            <div class="consentimiento-detalle">
+              <p>Al registrarte, aceptas los términos de servicio de la plataforma Consentia, incluyendo el tratamiento de datos como encargado y las condiciones de uso del servicio.</p>
+              <div class="consentimiento-aceptacion">
+                <input type="checkbox" id="check-terminos" class="consentimiento-check" aria-describedby="terminos-detalle">
+                <label for="check-terminos">Leí y acepto los términos de servicio</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- OTP section -->
+          <div id="sub-enviar-otp">
+            <button type="button" id="btn-enviar-codigo" class="btn btn-primary btn-block" disabled>
+              Enviar código de verificación
+            </button>
+          </div>
+
+          <div id="sub-ingresar-otp" hidden>
+            <p class="text-sm text-center" style="margin-bottom:var(--spacing-sm)">
+              Código enviado a <strong id="otp-email-confirmado"></strong>
+            </p>
+            <div class="otp-grupo" role="group" aria-label="Código de verificación">
+              <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 1">
+              <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 2">
+              <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 3">
+              <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 4">
+              <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 5">
+              <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 6">
+            </div>
+            <button type="button" id="btn-verificar-otp" class="btn btn-primary btn-block" disabled>
+              Registrarme
+            </button>
+            <div class="text-sm text-muted text-center" style="margin-top:var(--spacing-md)">
+              <span id="otp-timer">60s</span>
+              <button type="button" id="btn-reenviar" class="btn btn-ghost btn-sm" hidden>Reenviar código</button>
+            </div>
+          </div>
+
+          <!-- Confirmacion -->
+          <div id="seccion-confirmacion" hidden>
+            <div class="confirmacion-resumen">
+              <div class="confirmacion-icono">✓</div>
+              <h3>¡Registro exitoso!</h3>
+              <p class="text-sm text-muted" style="margin:var(--spacing-md) 0">Tu cuenta ha sido creada. Serás redirigido al onboarding.</p>
+            </div>
+          </div>
+
+          <div id="nav-paso-3" style="margin-top:var(--spacing-md)">
+            <button type="button" id="btn-volver-2" class="btn btn-ghost btn-sm">← Volver a datos</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/supabase-client.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/otp-ui.js"></script>
+  <script src="../js/registro.js"></script>
+</body>
+</html>

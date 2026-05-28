@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Iniciar sesión | Consentia</title>
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/componentes.css">
+</head>
+<body>
+  <a href="#main" class="skip-link">Ir al contenido</a>
+  <div class="marca-barra"></div>
+
+  <main id="main">
+    <div class="auth-container">
+      <div class="auth-card">
+        <div class="auth-brand">Consen<em>tia</em></div>
+        <p class="auth-subtitle">Plataforma de consentimiento informado y firma electrónica</p>
+
+        <!-- Phase 1: Email -->
+        <div id="fase-email">
+          <form id="form-email" novalidate>
+            <div class="form-group" style="text-align:left">
+              <label for="campo-email" class="form-label">Correo electrónico</label>
+              <input type="email" id="campo-email" class="form-input" placeholder="tu@empresa.com"
+                     aria-required="true" aria-describedby="email-error" autocomplete="email">
+              <p id="email-error" class="form-error" hidden>Ingresa un email válido</p>
+            </div>
+            <button type="submit" id="btn-enviar-email" class="btn btn-primary btn-block">
+              Enviar código de verificación
+            </button>
+          </form>
+          <p class="text-sm text-muted" style="margin-top:var(--spacing-lg)">
+            ¿No tienes cuenta? <a href="registro.html" style="color:var(--teal);font-weight:600">Regístrate</a>
+          </p>
+        </div>
+
+        <!-- Phase 2: OTP -->
+        <div id="fase-otp" hidden>
+          <p class="text-sm" style="margin-bottom:var(--spacing-md)">
+            Código enviado a <strong id="otp-email-destino"></strong>
+          </p>
+          <div class="otp-grupo" role="group" aria-label="Código de verificación">
+            <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 1">
+            <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 2">
+            <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 3">
+            <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 4">
+            <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 5">
+            <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 6">
+          </div>
+          <button type="button" id="btn-verificar-otp" class="btn btn-primary btn-block" disabled>
+            Verificar
+          </button>
+          <div class="text-sm text-muted text-center" style="margin-top:var(--spacing-md)">
+            <span id="otp-timer">60s</span>
+            <button type="button" id="btn-reenviar" class="btn btn-ghost btn-sm" hidden>
+              Reenviar código
+            </button>
+          </div>
+          <button type="button" id="btn-volver-email" class="btn btn-ghost btn-sm" style="margin-top:var(--spacing-sm)">
+            ← Cambiar email
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/supabase-client.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/otp-ui.js"></script>
+  <script src="../js/login.js"></script>
+</body>
+</html>
