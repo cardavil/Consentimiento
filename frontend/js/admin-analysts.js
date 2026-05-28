@@ -21,14 +21,30 @@ document.addEventListener('DOMContentLoaded', async function () {
   }
 
   document.getElementById('btn-invitar').addEventListener('click', open_invite_modal);
+  await load_doc_types();
   await load_analysts();
 });
+
+async function load_doc_types() {
+  try {
+    var client = get_supabase();
+    var { data } = await client.from('catalog_doc_types').select('code,label').eq('active', true).order('sort_order');
+    var select = document.getElementById('invite-doc-type');
+    select.innerHTML = '<option value="">Seleccionar...</option>';
+    for (var i = 0; i < (data || []).length; i++) {
+      var opt = document.createElement('option');
+      opt.value = data[i].code;
+      opt.textContent = data[i].code + ' — ' + data[i].label;
+      select.appendChild(opt);
+    }
+  } catch (_e) {}
+}
 
 async function load_analysts() {
   var jwt = _admin_session.session.access_token;
   try {
     _analysts_all = await supabase_fetch(
-      '/platform_users?select=id,email,name,role,active,created_at&order=created_at.desc',
+      '/platform_users?select=id,email,first_name,last_name,doc_type,doc_number,phone,role,active,created_at&order=created_at.desc',
       jwt
     ) || [];
 
@@ -54,20 +70,25 @@ function render_analysts_table() {
   var tbody = document.getElementById('analysts-tbody');
 
   if (_analysts_all.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" class="admin-empty">Sin usuarios de plataforma</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="admin-empty">Sin usuarios de plataforma</td></tr>';
     return;
   }
 
   var html = '';
   for (var i = 0; i < _analysts_all.length; i++) {
     var a = _analysts_all[i];
+    var full_name = (a.first_name || '') + ' ' + (a.last_name || '');
+    var doc_info = a.doc_type ? a.doc_type + ' ' + (a.doc_number || '') : '';
+    var contact = escape_html(a.email);
+    if (a.phone) contact += '<br><span class="text-muted text-xs">' + escape_html(a.phone) + '</span>';
     var role_badge = a.role === 'admin' ? 'badge-teal' : 'badge-neutral';
     var status_badge = a.active ? 'badge-teal' : 'badge-danger';
     var status_text = a.active ? 'Activo' : 'Inactivo';
 
     html += '<tr>';
-    html += '<td>' + escape_html(a.name) + '</td>';
-    html += '<td>' + escape_html(a.email) + '</td>';
+    html += '<td>' + escape_html(full_name.trim()) + '</td>';
+    html += '<td class="text-sm">' + escape_html(doc_info) + '</td>';
+    html += '<td class="text-sm">' + contact + '</td>';
     html += '<td><span class="badge ' + role_badge + '">' + escape_html(a.role) + '</span></td>';
     html += '<td><span class="badge ' + status_badge + '">' + status_text + '</span></td>';
     html += '<td>';
@@ -83,8 +104,12 @@ function render_analysts_table() {
 }
 
 function open_invite_modal() {
+  document.getElementById('invite-first-name').value = '';
+  document.getElementById('invite-last-name').value = '';
+  document.getElementById('invite-doc-type').value = '';
+  document.getElementById('invite-doc-number').value = '';
   document.getElementById('invite-email').value = '';
-  document.getElementById('invite-name').value = '';
+  document.getElementById('invite-phone').value = '';
   document.getElementById('modal-invite').classList.add('modal-visible');
 }
 
@@ -93,11 +118,15 @@ function close_invite_modal() {
 }
 
 async function send_invite() {
+  var first_name = document.getElementById('invite-first-name').value.trim();
+  var last_name = document.getElementById('invite-last-name').value.trim();
+  var doc_type = document.getElementById('invite-doc-type').value;
+  var doc_number = document.getElementById('invite-doc-number').value.trim();
   var email = document.getElementById('invite-email').value.trim().toLowerCase();
-  var name = document.getElementById('invite-name').value.trim();
+  var phone = document.getElementById('invite-phone').value.trim();
 
-  if (!validate_email(email) || !name) {
-    show_error('Completa email y nombre');
+  if (!first_name || !last_name || !doc_type || !doc_number || !validate_email(email)) {
+    show_error('Completa todos los campos obligatorios');
     return;
   }
 
@@ -107,8 +136,12 @@ async function send_invite() {
   try {
     await call_edge_function('admin-service', {
       action: 'invite',
+      first_name: first_name,
+      last_name: last_name,
+      doc_type: doc_type,
+      doc_number: doc_number,
       email: email,
-      name: name,
+      phone: phone,
     });
     close_invite_modal();
     show_success('Analista invitado: ' + email);
@@ -128,7 +161,7 @@ function open_permissions(user_id) {
   if (!user) return;
 
   document.getElementById('perm-user-id').value = user.id;
-  document.getElementById('perm-user-name').textContent = user.name;
+  document.getElementById('perm-user-name').textContent = (user.first_name || '') + ' ' + (user.last_name || '');
 
   var grid = document.getElementById('perm-grid');
   var html = '';

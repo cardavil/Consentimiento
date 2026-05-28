@@ -3,9 +3,13 @@ import { create_admin_client } from '../_shared/supabase.ts';
 
 export async function handle_invite(body: Record<string, unknown>): Promise<Response> {
   const email = (body.email as string || '').trim().toLowerCase();
-  const name = (body.name as string || '').trim();
+  const first_name = (body.first_name as string || '').trim();
+  const last_name = (body.last_name as string || '').trim();
+  const doc_type = (body.doc_type as string || '').trim();
+  const doc_number = (body.doc_number as string || '').trim();
+  const phone = (body.phone as string || '').trim();
 
-  if (!email || !name) return err('DATOS_INCOMPLETOS');
+  if (!email || !first_name || !last_name || !doc_type || !doc_number) return err('DATOS_INCOMPLETOS');
 
   const admin = create_admin_client();
 
@@ -35,7 +39,11 @@ export async function handle_invite(body: Record<string, unknown>): Promise<Resp
         const { error: insert_err } = await admin.from('platform_users').insert({
           auth_user_id: found.id,
           email,
-          name,
+          first_name,
+          last_name,
+          doc_type,
+          doc_number,
+          phone: phone || null,
           role: 'analyst',
         });
 
@@ -50,7 +58,11 @@ export async function handle_invite(body: Record<string, unknown>): Promise<Resp
   const { error: insert_err } = await admin.from('platform_users').insert({
     auth_user_id: auth_user.user.id,
     email,
-    name,
+    first_name,
+    last_name,
+    doc_type,
+    doc_number,
+    phone: phone || null,
     role: 'analyst',
   });
 

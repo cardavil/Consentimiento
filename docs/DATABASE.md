@@ -216,7 +216,11 @@ Usuarios internos de la plataforma (admin/analyst). Completamente separados de o
 | id | UUID PK | uuid_generate_v4() |
 | auth_user_id | UUID UNIQUE NOT NULL | auth.users(id) |
 | email | TEXT UNIQUE NOT NULL | |
-| name | TEXT NOT NULL | |
+| first_name | TEXT NOT NULL | |
+| last_name | TEXT NOT NULL | |
+| doc_type | TEXT | CC/CE/PA/PEP/PPT/TI/NIT |
+| doc_number | TEXT | |
+| phone | TEXT | |
 | role | TEXT NOT NULL | CHECK: admin / analyst |
 | active | BOOLEAN | default true |
 | created_at | TIMESTAMPTZ | |
