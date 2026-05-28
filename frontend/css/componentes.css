@@ -841,7 +841,7 @@ select.form-input {
 
 .admin-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--spacing-md);
   margin-bottom: var(--spacing-xl);
 }
@@ -878,8 +878,9 @@ select.form-input {
 }
 
 .admin-limit-row {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: var(--spacing-lg);
   padding: var(--spacing-sm) var(--spacing-md);
   background: #fff;
   font-size: var(--text-sm);
@@ -889,10 +890,19 @@ select.form-input {
   color: var(--gris-oscuro);
 }
 
+.admin-limit-current {
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  color: var(--gris-azulado);
+  font-weight: 600;
+  text-align: right;
+}
+
 .admin-limit-value {
   font-weight: 600;
   color: var(--verde-profundo);
   font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+  text-align: right;
+  min-width: 100px;
 }
 
 /* ── Org Dashboard ── */

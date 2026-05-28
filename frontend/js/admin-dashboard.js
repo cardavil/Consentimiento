@@ -48,12 +48,14 @@ function render_metrics(container, m) {
   html += '</div>';
 
   html += '<h2 class="mt-xl mb-md">Límites Supabase (Free)</h2>';
+  html += '<div class="card" style="padding:0;overflow:hidden">';
   html += '<div class="admin-limits">';
-  html += limit_row('MAUs', '50,000', '—');
+  html += limit_row('MAUs', '50,000', m.orgs_total || '—');
   html += limit_row('Database', '500 MB', '—');
-  html += limit_row('Edge Function invocations', '500,000/mes', '—');
-  html += limit_row('Auth emails (custom SMTP)', 'Sin límite', '—');
+  html += limit_row('Edge Function invocations', '500,000/mes', (m.sessions_created_month || 0) + (m.signing_otps_month || 0) + (m.auth_otps_month || 0) || '—');
+  html += limit_row('Auth emails (custom SMTP)', 'Sin límite', m.auth_otps_month || '—');
   html += limit_row('Storage', '1 GB', '—');
+  html += '</div>';
   html += '</div>';
 
   container.innerHTML = html;
@@ -71,6 +73,7 @@ function stat_card(value, label, extra_class) {
 function limit_row(resource, limit, current) {
   return '<div class="admin-limit-row">' +
     '<span class="admin-limit-resource">' + escape_html(resource) + '</span>' +
+    '<span class="admin-limit-current">' + escape_html(String(current)) + '</span>' +
     '<span class="admin-limit-value">' + escape_html(limit) + '</span>' +
     '</div>';
 }
