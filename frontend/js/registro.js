@@ -199,12 +199,23 @@ async function on_verify_and_register() {
     if (error) throw new Error(error.message);
     if (!data.session) throw new Error('ERROR_SERVIDOR');
 
-    await call_edge_function('otp-service', {
-      action: 'register',
-      org_data: build_org_data(),
-      ip: state.client_ip,
-      user_agent: navigator.userAgent,
+    var jwt = data.session.access_token;
+    var reg_res = await fetch(CONFIG.edge_fn_base + '/otp-service', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': CONFIG.supabase_key,
+        'Authorization': 'Bearer ' + jwt,
+      },
+      body: JSON.stringify({
+        action: 'register',
+        org_data: build_org_data(),
+        ip: state.client_ip,
+        user_agent: navigator.userAgent,
+      }),
     });
+    var reg_data = await reg_res.json();
+    if (!reg_data.ok) throw new Error(reg_data.error || 'ERROR_EDGE_FUNCTION');
 
     await client.auth.refreshSession();
 
