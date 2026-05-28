@@ -14,6 +14,7 @@ export async function handle_metrics(): Promise<Response> {
     signing_otps,
     auth_otps,
     active_orgs,
+    db_size,
   ] = await Promise.all([
     admin.from('organizations').select('*', { count: 'exact', head: true }),
 
@@ -35,6 +36,8 @@ export async function handle_metrics(): Promise<Response> {
 
     admin.from('signing_sessions_results').select('organization_id')
       .gte('created_at', month_start),
+
+    admin.rpc('get_db_size'),
   ]);
 
   const plan_counts: Record<string, number> = { trial: 0, basic: 0, pro: 0, enterprise: 0 };
@@ -49,6 +52,9 @@ export async function handle_metrics(): Promise<Response> {
     (active_orgs.data || []).map((r: { organization_id: string }) => r.organization_id),
   ).size;
 
+  const sizes = db_size.data ?? { db_bytes: 0, storage_bytes: 0 };
+  const to_mb = (b: number) => Math.round((b / 1024 / 1024) * 10) / 10;
+
   return ok({
     orgs_total: orgs_total.count ?? 0,
     orgs_by_plan: plan_counts,
@@ -57,5 +63,7 @@ export async function handle_metrics(): Promise<Response> {
     signing_otps_month: signing_otps.count ?? 0,
     auth_otps_month: auth_otps.count ?? 0,
     active_orgs_month: unique_active,
+    db_size_mb: to_mb(sizes.db_bytes ?? 0),
+    storage_size_mb: to_mb(sizes.storage_bytes ?? 0),
   });
 }

@@ -27,14 +27,23 @@ async function load_dashboard() {
 
 function render_metrics(container, m) {
   var html = '';
+  var edge_approx = (m.sessions_created_month || 0) + (m.signing_otps_month || 0) + (m.auth_otps_month || 0);
 
-  html += '<div class="admin-stats">';
-  html += stat_card(m.orgs_total, 'Organizaciones totales');
-  html += stat_card(m.active_orgs_month, 'Orgs activas este mes');
-  html += stat_card(m.sessions_created_month, 'Sesiones creadas');
-  html += stat_card(m.sessions_completed_month, 'Sesiones completadas');
-  html += stat_card(m.auth_otps_month, 'OTPs auth (mes)');
-  html += stat_card(m.signing_otps_month, 'OTPs firma (mes)');
+  html += '<h2 class="mb-sm">Recursos — Etapa 1</h2>';
+  html += '<div class="card" style="padding:0;overflow:hidden">';
+  html += '<div class="admin-limits">';
+  html += limit_row('Organizaciones', m.orgs_total, 'Sin límite');
+  html += limit_row('Orgs activas (mes)', m.active_orgs_month, '—');
+  html += limit_row('Sesiones creadas (mes)', m.sessions_created_month, '—');
+  html += limit_row('Sesiones completadas (mes)', m.sessions_completed_month, '—');
+  html += limit_row('OTPs autenticación (mes)', m.auth_otps_month, '—');
+  html += limit_row('OTPs firma (mes)', m.signing_otps_month, '—');
+  html += limit_row('Usuarios activos (mes)', m.orgs_total || '—', '50,000');
+  html += limit_row('Base de datos', (m.db_size_mb || 0) + ' MB', '500 MB');
+  html += limit_row('Edge Functions (mes)', '~' + edge_approx, '500,000');
+  html += limit_row('Emails auth (SMTP propio)', m.auth_otps_month || '—', 'Sin límite');
+  html += limit_row('Almacenamiento', (m.storage_size_mb || 0) + ' MB', '1 GB');
+  html += '</div>';
   html += '</div>';
 
   html += '<h2 class="mt-md mb-sm">Organizaciones por plan</h2>';
@@ -45,17 +54,6 @@ function render_metrics(container, m) {
     var p = plans[i];
     html += stat_card(m.orgs_by_plan[p] || 0, plan_labels[p], 'plan-' + p);
   }
-  html += '</div>';
-
-  html += '<h2 class="mt-md mb-sm">Límites Supabase (Free)</h2>';
-  html += '<div class="card" style="padding:0;overflow:hidden">';
-  html += '<div class="admin-limits">';
-  html += limit_row('MAUs', '50,000', m.orgs_total || '—');
-  html += limit_row('Database', '500 MB', '—');
-  html += limit_row('Edge Function invocations', '500,000/mes', (m.sessions_created_month || 0) + (m.signing_otps_month || 0) + (m.auth_otps_month || 0) || '—');
-  html += limit_row('Auth emails (custom SMTP)', 'Sin límite', m.auth_otps_month || '—');
-  html += limit_row('Storage', '1 GB', '—');
-  html += '</div>';
   html += '</div>';
 
   container.innerHTML = html;
@@ -70,7 +68,7 @@ function stat_card(value, label, extra_class) {
     '</div>';
 }
 
-function limit_row(resource, limit, current) {
+function limit_row(resource, current, limit) {
   return '<div class="admin-limit-row">' +
     '<span class="admin-limit-resource">' + escape_html(resource) + '</span>' +
     '<span class="admin-limit-current">' + escape_html(String(current)) + '</span>' +
