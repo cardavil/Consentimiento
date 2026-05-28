@@ -908,7 +908,7 @@ select.form-input {
 /* ── Org Dashboard ── */
 
 .dash-container {
-  max-width: 960px;
+  max-width: 95%;
   margin: 0 auto;
   padding: var(--spacing-xl) var(--spacing-md);
 }
