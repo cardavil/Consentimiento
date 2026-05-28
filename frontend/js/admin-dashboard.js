@@ -1,6 +1,11 @@
 document.addEventListener('DOMContentLoaded', async function () {
   var session = await check_admin_session();
   if (!session) return;
+  render_app_header({
+    container_id: 'app-header',
+    session: _admin_session.session,
+    on_logout: admin_sign_out,
+  });
   render_admin_nav();
   await load_dashboard();
 });
@@ -29,7 +34,7 @@ function render_metrics(container, m) {
   html += stat_card(m.signing_otps_month, 'OTPs firma (mes)');
   html += '</div>';
 
-  html += '<h2 style="margin-top:var(--spacing-xl);margin-bottom:var(--spacing-md)">Organizaciones por plan</h2>';
+  html += '<h2 class="mt-xl mb-md">Organizaciones por plan</h2>';
   html += '<div class="admin-stats">';
   var plans = ['trial', 'basic', 'pro', 'enterprise'];
   var plan_labels = { trial: 'Trial', basic: 'Basic', pro: 'Pro', enterprise: 'Enterprise' };
@@ -39,7 +44,7 @@ function render_metrics(container, m) {
   }
   html += '</div>';
 
-  html += '<h2 style="margin-top:var(--spacing-xl);margin-bottom:var(--spacing-md)">Límites Supabase (Free)</h2>';
+  html += '<h2 class="mt-xl mb-md">Límites Supabase (Free)</h2>';
   html += '<div class="admin-limits">';
   html += limit_row('MAUs', '50,000', '—');
   html += limit_row('Database', '500 MB', '—');

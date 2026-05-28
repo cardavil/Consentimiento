@@ -6,14 +6,6 @@ document.addEventListener('DOMContentLoaded', async function () {
   var meta = session.user.app_metadata || {};
   if (!meta.org_id) { window.location.href = 'login.html'; return; }
 
-  if (meta.platform_role) {
-    var link = document.getElementById('dash-admin-link');
-    link.href = 'admin/index.html';
-    link.hidden = false;
-  }
-
-  document.getElementById('dash-email').textContent = session.user.email;
-
   try {
     var org = await supabase_fetch(
       '/organizations?id=eq.' + meta.org_id + '&select=type,first_name,last_name,company_name,plan,email,phone',
@@ -21,27 +13,38 @@ document.addEventListener('DOMContentLoaded', async function () {
     );
 
     if (org && org.length > 0) {
+      render_app_header({
+        container_id: 'app-header',
+        session: session,
+        org: org[0],
+        on_logout: org_sign_out,
+      });
       render_org_info(org[0]);
       await load_historial(session.access_token, meta.org_id);
     } else {
-      document.getElementById('dash-nombre').textContent = session.user.email;
+      render_app_header({
+        container_id: 'app-header',
+        session: session,
+        on_logout: org_sign_out,
+      });
     }
   } catch (_e) {
-    document.getElementById('dash-nombre').textContent = session.user.email;
+    render_app_header({
+      container_id: 'app-header',
+      session: session,
+      on_logout: org_sign_out,
+    });
   }
 });
 
 function render_org_info(org) {
-  var display_name = org.company_name || ((org.first_name || '') + ' ' + (org.last_name || '')).trim();
-  var initials = display_name.split(' ').map(function (w) { return w[0] || ''; }).slice(0, 2).join('').toUpperCase();
-
-  document.getElementById('dash-avatar').textContent = initials;
-  document.getElementById('dash-nombre').textContent = display_name;
-  document.getElementById('dash-plan').textContent = (org.plan || 'trial').toUpperCase();
-
-  var tipo_badge = document.getElementById('dash-tipo');
-  tipo_badge.textContent = org.type === 'juridica' ? 'Jurídica' : 'Natural';
-  tipo_badge.classList.add(org.type === 'juridica' ? 'badge-info' : 'badge-teal');
+  var plan_el = document.getElementById('dash-plan');
+  var tipo_el = document.getElementById('dash-tipo');
+  if (plan_el) plan_el.textContent = (org.plan || 'trial').toUpperCase();
+  if (tipo_el) {
+    tipo_el.textContent = org.type === 'juridica' ? 'Jurídica' : 'Natural';
+    tipo_el.classList.add(org.type === 'juridica' ? 'badge-info' : 'badge-teal');
+  }
 }
 
 async function load_historial(jwt, org_id) {

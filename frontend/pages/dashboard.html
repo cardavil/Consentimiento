@@ -10,24 +10,15 @@
 <body>
   <a href="#main" class="skip-link">Ir al contenido</a>
   <div class="marca-barra"></div>
+  <header id="app-header" class="app-header"></header>
 
   <main id="main">
     <div class="dash-container">
 
-      <!-- Header -->
-      <div id="dash-header" class="dash-header">
-        <div class="dash-header-left">
-          <div class="dash-avatar" id="dash-avatar"></div>
-          <div>
-            <h1 class="dash-nombre" id="dash-nombre">Cargando...</h1>
-            <p class="text-sm text-muted" id="dash-email"></p>
-          </div>
-        </div>
-        <div class="dash-header-right">
+      <div class="flex-between mb-lg">
+        <div class="flex-gap-sm">
           <span class="badge badge-teal" id="dash-plan"></span>
           <span class="badge" id="dash-tipo"></span>
-          <a href="#" id="dash-admin-link" class="btn btn-ghost btn-sm" hidden>Panel Admin</a>
-          <button onclick="org_sign_out()" class="btn btn-ghost btn-sm">Cerrar sesión</button>
         </div>
       </div>
 
@@ -36,8 +27,8 @@
 
         <!-- Onboarding -->
         <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--spacing-md)">
-            <h2 style="margin:0">Primeros pasos</h2>
+          <div class="flex-between mb-md">
+            <h2 class="m-0">Primeros pasos</h2>
             <span class="badge badge-warning">En desarrollo</span>
           </div>
           <div class="dash-checklist">
@@ -66,7 +57,7 @@
 
         <!-- Modos -->
         <div class="card">
-          <h2 style="margin-bottom:var(--spacing-md)">Modos</h2>
+          <h2 class="mb-md">Modos</h2>
           <div class="dash-modes">
             <div class="dash-mode-card">
               <div class="dash-mode-icon">&#128203;</div>
@@ -85,7 +76,7 @@
 
         <!-- Historial -->
         <div class="card">
-          <h2 style="margin-bottom:var(--spacing-md)">Historial reciente</h2>
+          <h2 class="mb-md">Historial reciente</h2>
           <div id="dash-historial">
             <div class="admin-empty">
               <p class="text-muted">No hay sesiones de firma todavía.</p>
@@ -102,6 +93,7 @@
   <script src="../js/config.js"></script>
   <script src="../js/supabase-client.js"></script>
   <script src="../js/utils.js"></script>
+  <script src="../js/app-header.js"></script>
   <script src="../js/dashboard.js"></script>
 </body>
 </html>

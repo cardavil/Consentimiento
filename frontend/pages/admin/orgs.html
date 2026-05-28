@@ -10,11 +10,10 @@
 <body>
   <a href="#main" class="skip-link">Ir al contenido</a>
   <div class="marca-barra"></div>
+  <header id="app-header" class="app-header"></header>
+  <nav id="admin-tabs" class="admin-tabs"></nav>
 
-  <div class="admin-layout">
-    <aside id="admin-sidebar" class="admin-sidebar"></aside>
-
-    <main id="main" class="admin-main">
+    <main id="main" class="admin-content">
       <div class="admin-header">
         <h1>Organizaciones</h1>
       </div>
@@ -35,7 +34,7 @@
         </select>
       </div>
 
-      <div class="card" style="overflow-x:auto">
+      <div class="card overflow-x-auto">
         <table class="tabla">
           <thead>
             <tr>
@@ -53,7 +52,6 @@
         </table>
       </div>
     </main>
-  </div>
 
   <!-- Modal editar org -->
   <div id="modal-edit-org" class="modal-overlay" onclick="if(event.target===this)close_edit_org()">
@@ -74,10 +72,10 @@
       </div>
       <div class="form-group">
         <label class="form-label">
-          <input type="checkbox" id="edit-org-active" style="accent-color:var(--teal)"> Activa
+          <input type="checkbox" id="edit-org-active" class="check-teal"> Activa
         </label>
       </div>
-      <div style="display:flex;gap:var(--spacing-md);justify-content:flex-end">
+      <div class="form-actions">
         <button class="btn btn-outline" onclick="close_edit_org()">Cancelar</button>
         <button id="btn-save-org" class="btn btn-primary" onclick="save_org_changes()">Guardar</button>
       </div>
@@ -90,6 +88,7 @@
   <script src="../../js/utils.js"></script>
   <script src="../../js/admin-guard.js"></script>
   <script src="../../js/admin-nav.js"></script>
+  <script src="../../js/app-header.js"></script>
   <script src="../../js/admin-orgs.js"></script>
 </body>
 </html>

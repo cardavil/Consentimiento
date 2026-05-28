@@ -20,7 +20,7 @@
         <!-- Phase 1: Email -->
         <div id="fase-email">
           <form id="form-email" novalidate>
-            <div class="form-group" style="text-align:left">
+            <div class="form-group text-left">
               <label for="campo-email" class="form-label">Correo electrónico</label>
               <input type="email" id="campo-email" class="form-input" placeholder="tu@empresa.com"
                      aria-required="true" aria-describedby="email-error" autocomplete="email">
@@ -30,14 +30,14 @@
               Enviar código de verificación
             </button>
           </form>
-          <p class="text-sm text-muted" style="margin-top:var(--spacing-lg)">
-            ¿No tienes cuenta? <a href="registro.html" style="color:var(--teal);font-weight:600">Regístrate</a>
+          <p class="text-sm text-muted mt-lg">
+            ¿No tienes cuenta? <a href="registro.html" class="link-primary">Regístrate</a>
           </p>
         </div>
 
         <!-- Phase 2: OTP -->
         <div id="fase-otp" hidden>
-          <p class="text-sm" style="margin-bottom:var(--spacing-md)">
+          <p class="text-sm mb-md">
             Código enviado a <strong id="otp-email-destino"></strong>
           </p>
           <div class="otp-grupo" role="group" aria-label="Código de verificación">
@@ -53,13 +53,13 @@
           <button type="button" id="btn-verificar-otp" class="btn btn-primary btn-block" disabled>
             Verificar
           </button>
-          <div class="text-sm text-muted text-center" style="margin-top:var(--spacing-md)">
+          <div class="text-sm text-muted text-center mt-md">
             <span id="otp-timer">60s</span>
             <button type="button" id="btn-reenviar" class="btn btn-ghost btn-sm" hidden>
               Reenviar código
             </button>
           </div>
-          <button type="button" id="btn-volver-email" class="btn btn-ghost btn-sm" style="margin-top:var(--spacing-sm)">
+          <button type="button" id="btn-volver-email" class="btn btn-ghost btn-sm mt-sm">
             ← Cambiar email
           </button>
         </div>

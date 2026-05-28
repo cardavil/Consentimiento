@@ -119,9 +119,9 @@ function render_documents(docs) {
 
   let html = '';
   for (const doc of docs) {
-    html += '<div style="margin-bottom:var(--spacing-md)">' +
+    html += '<div class="mb-md">' +
       '<iframe src="https://drive.google.com/file/d/' + escape_html(doc) + '/preview" ' +
-      'width="100%" height="400" style="border:1px solid var(--gris-claro);border-radius:var(--radius-sm)" ' +
+      'width="100%" height="400" class="iframe-preview" ' +
       'allow="autoplay" loading="lazy"></iframe></div>';
   }
   container.innerHTML = html;

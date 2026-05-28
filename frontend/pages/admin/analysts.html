@@ -10,17 +10,16 @@
 <body>
   <a href="#main" class="skip-link">Ir al contenido</a>
   <div class="marca-barra"></div>
+  <header id="app-header" class="app-header"></header>
+  <nav id="admin-tabs" class="admin-tabs"></nav>
 
-  <div class="admin-layout">
-    <aside id="admin-sidebar" class="admin-sidebar"></aside>
-
-    <main id="main" class="admin-main">
+    <main id="main" class="admin-content">
       <div class="admin-header">
         <h1>Analistas</h1>
         <button id="btn-invitar" class="btn btn-primary">Invitar analista</button>
       </div>
 
-      <div class="card" style="overflow-x:auto">
+      <div class="card overflow-x-auto">
         <table class="tabla">
           <thead>
             <tr>
@@ -37,7 +36,6 @@
         </table>
       </div>
     </main>
-  </div>
 
   <!-- Modal invitar analista -->
   <div id="modal-invite" class="modal-overlay" onclick="if(event.target===this)close_invite_modal()">
@@ -55,7 +53,7 @@
         <input type="email" id="invite-email" class="form-input" placeholder="analista@empresa.com">
       </div>
       <p class="text-sm text-muted">El analista recibirá un código OTP en su primer login. Los permisos se asignan después.</p>
-      <div style="display:flex;gap:var(--spacing-md);justify-content:flex-end;margin-top:var(--spacing-md)">
+      <div class="form-actions mt-md">
         <button class="btn btn-outline" onclick="close_invite_modal()">Cancelar</button>
         <button id="btn-send-invite" class="btn btn-primary" onclick="send_invite()">Invitar</button>
       </div>
@@ -70,8 +68,8 @@
         <button class="modal-close" onclick="close_permissions_modal()">&times;</button>
       </div>
       <input type="hidden" id="perm-user-id">
-      <div id="perm-grid" class="admin-perm-grid" style="margin-bottom:var(--spacing-lg)"></div>
-      <div style="display:flex;gap:var(--spacing-md);justify-content:flex-end">
+      <div id="perm-grid" class="admin-perm-grid mb-lg"></div>
+      <div class="form-actions">
         <button class="btn btn-outline" onclick="close_permissions_modal()">Cancelar</button>
         <button id="btn-save-perms" class="btn btn-primary" onclick="save_permissions()">Guardar</button>
       </div>
@@ -84,6 +82,7 @@
   <script src="../../js/utils.js"></script>
   <script src="../../js/admin-guard.js"></script>
   <script src="../../js/admin-nav.js"></script>
+  <script src="../../js/app-header.js"></script>
   <script src="../../js/admin-analysts.js"></script>
 </body>
 </html>

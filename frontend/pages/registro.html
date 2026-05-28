@@ -12,9 +12,9 @@
   <div class="marca-barra"></div>
 
   <main id="main">
-    <div class="auth-container" style="align-items:flex-start;padding-top:var(--spacing-xl)">
-      <div style="width:100%;max-width:560px">
-        <div class="text-center" style="margin-bottom:var(--spacing-lg)">
+    <div class="auth-container auth-container-top">
+      <div class="container-narrow">
+        <div class="text-center mb-lg">
           <div class="auth-brand">Consen<em>tia</em></div>
           <p class="auth-subtitle">Crea tu cuenta para gestionar consentimientos y firmas</p>
         </div>
@@ -33,19 +33,19 @@
           <h2>¿Cómo te registras?</h2>
           <div class="tipo-grid" id="tipo-grid">
             <div class="tipo-card" data-tipo="natural">
-              <div style="font-size:2rem">👤</div>
+              <div class="icon-2xl">👤</div>
               <div class="tipo-card-titulo">Persona natural</div>
               <div class="tipo-card-desc">Profesional independiente</div>
             </div>
             <div class="tipo-card" data-tipo="juridica">
-              <div style="font-size:2rem">🏢</div>
+              <div class="icon-2xl">🏢</div>
               <div class="tipo-card-titulo">Persona jurídica</div>
               <div class="tipo-card-desc">Empresa u organización</div>
             </div>
           </div>
           <button type="button" id="btn-paso-1" class="btn btn-primary btn-block" disabled>Continuar</button>
-          <p class="text-sm text-muted text-center" style="margin-top:var(--spacing-md)">
-            ¿Ya tienes cuenta? <a href="login.html" style="color:var(--teal);font-weight:600">Inicia sesión</a>
+          <p class="text-sm text-muted text-center mt-md">
+            ¿Ya tienes cuenta? <a href="login.html" class="link-primary">Inicia sesión</a>
           </p>
         </section>
 
@@ -79,8 +79,8 @@
                 <input type="text" id="campo-nit" class="form-input" placeholder="900123456-7" aria-required="true" aria-describedby="campo-nit-error">
                 <p id="campo-nit-error" class="form-error" hidden>NIT inválido</p>
               </div>
-              <hr style="border:none;border-top:1px solid var(--gris-claro);margin:var(--spacing-md) 0">
-              <p class="text-sm text-muted" style="margin-bottom:var(--spacing-md)">Datos del firmante autorizado</p>
+              <hr class="divider">
+              <p class="text-sm text-muted mb-md">Datos del firmante autorizado</p>
               <div class="form-group">
                 <label for="campo-nombre-firmante" class="form-label">Nombre</label>
                 <input type="text" id="campo-nombre-firmante" class="form-input" aria-required="true" aria-describedby="campo-nombre-firmante-error">
@@ -99,7 +99,7 @@
             </div>
 
             <!-- Common fields -->
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-md)">
+            <div class="form-row-2col">
               <div class="form-group">
                 <label for="campo-tipo-doc" class="form-label">Tipo documento</label>
                 <select id="campo-tipo-doc" class="form-input" aria-required="true" aria-describedby="campo-tipo-doc-error">
@@ -124,20 +124,20 @@
               <p id="campo-telefono-error" class="form-error" hidden>Teléfono inválido</p>
             </div>
 
-            <div style="display:flex;gap:var(--spacing-md)">
+            <div class="flex-gap-md">
               <button type="button" id="btn-volver-1" class="btn btn-outline">← Volver</button>
-              <button type="button" id="btn-paso-2" class="btn btn-primary" style="flex:1">Continuar</button>
+              <button type="button" id="btn-paso-2" class="btn btn-primary flex-1">Continuar</button>
             </div>
           </form>
-          <p class="text-sm text-muted text-center" style="margin-top:var(--spacing-md)">
-            ¿Ya tienes cuenta? <a href="login.html" style="color:var(--teal);font-weight:600">Inicia sesión</a>
+          <p class="text-sm text-muted text-center mt-md">
+            ¿Ya tienes cuenta? <a href="login.html" class="link-primary">Inicia sesión</a>
           </p>
         </section>
 
         <!-- Step 3: Verificación -->
         <section id="paso-verificacion" class="card card-lg" hidden>
           <h2>Verificación</h2>
-          <p class="text-sm" style="margin-bottom:var(--spacing-md)">
+          <p class="text-sm mb-md">
             Acepta los términos de servicio y verifica tu email para completar el registro.
           </p>
 
@@ -163,7 +163,7 @@
           </div>
 
           <div id="sub-ingresar-otp" hidden>
-            <p class="text-sm text-center" style="margin-bottom:var(--spacing-sm)">
+            <p class="text-sm text-center mb-sm">
               Código enviado a <strong id="otp-email-confirmado"></strong>
             </p>
             <div class="otp-grupo" role="group" aria-label="Código de verificación">
@@ -179,7 +179,7 @@
             <button type="button" id="btn-verificar-otp" class="btn btn-primary btn-block" disabled>
               Registrarme
             </button>
-            <div class="text-sm text-muted text-center" style="margin-top:var(--spacing-md)">
+            <div class="text-sm text-muted text-center" class="mt-md">
               <span id="otp-timer">60s</span>
               <button type="button" id="btn-reenviar" class="btn btn-ghost btn-sm" hidden>Reenviar código</button>
             </div>
@@ -190,15 +190,15 @@
             <div class="confirmacion-resumen">
               <div class="confirmacion-icono">✓</div>
               <h3>¡Registro exitoso!</h3>
-              <p class="text-sm text-muted" style="margin:var(--spacing-md) 0">Tu cuenta ha sido creada. Serás redirigido al dashboard.</p>
+              <p class="text-sm text-muted mt-md mb-md">Tu cuenta ha sido creada. Serás redirigido al dashboard.</p>
             </div>
           </div>
 
-          <div id="nav-paso-3" style="margin-top:var(--spacing-md)">
+          <div id="nav-paso-3" class="mt-md">
             <button type="button" id="btn-volver-2" class="btn btn-ghost btn-sm">← Volver a datos</button>
           </div>
-          <p class="text-sm text-muted text-center" style="margin-top:var(--spacing-md)">
-            ¿Ya tienes cuenta? <a href="login.html" style="color:var(--teal);font-weight:600">Inicia sesión</a>
+          <p class="text-sm text-muted text-center mt-md">
+            ¿Ya tienes cuenta? <a href="login.html" class="link-primary">Inicia sesión</a>
           </p>
         </section>
       </div>

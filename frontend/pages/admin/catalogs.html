@@ -10,17 +10,16 @@
 <body>
   <a href="#main" class="skip-link">Ir al contenido</a>
   <div class="marca-barra"></div>
+  <header id="app-header" class="app-header"></header>
+  <nav id="admin-tabs" class="admin-tabs"></nav>
 
-  <div class="admin-layout">
-    <aside id="admin-sidebar" class="admin-sidebar"></aside>
-
-    <main id="main" class="admin-main">
+    <main id="main" class="admin-content">
       <div class="admin-header">
         <h1>Catálogos</h1>
         <button id="btn-nuevo-tipo" class="btn btn-primary" hidden>Nuevo tipo</button>
       </div>
 
-      <div class="card" style="overflow-x:auto">
+      <div class="card overflow-x-auto">
         <table class="tabla">
           <thead>
             <tr>
@@ -38,7 +37,6 @@
         </table>
       </div>
     </main>
-  </div>
 
   <!-- Modal editar/crear tipo de documento -->
   <div id="modal-edit-catalog" class="modal-overlay" onclick="if(event.target===this)close_catalog_modal()">
@@ -69,18 +67,18 @@
         <label class="form-label" for="edit-regex">Regex de validación</label>
         <input type="text" id="edit-regex" class="form-input text-mono" placeholder="^\d{6,10}$">
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-md)">
+      <div class="form-row-2col">
         <div class="form-group">
           <label class="form-label" for="edit-sort-order">Orden</label>
           <input type="number" id="edit-sort-order" class="form-input" value="0">
         </div>
         <div class="form-group">
-          <label class="form-label" style="margin-top:28px">
-            <input type="checkbox" id="edit-active" checked style="accent-color:var(--teal)"> Activo
+          <label class="form-label mt-lg">
+            <input type="checkbox" id="edit-active" checked class="check-teal"> Activo
           </label>
         </div>
       </div>
-      <div style="display:flex;gap:var(--spacing-md);justify-content:flex-end">
+      <div class="form-actions">
         <button class="btn btn-outline" onclick="close_catalog_modal()">Cancelar</button>
         <button id="btn-save-catalog" class="btn btn-primary" onclick="save_doc_type()">Guardar</button>
       </div>
@@ -93,6 +91,7 @@
   <script src="../../js/utils.js"></script>
   <script src="../../js/admin-guard.js"></script>
   <script src="../../js/admin-nav.js"></script>
+  <script src="../../js/app-header.js"></script>
   <script src="../../js/admin-catalogs.js"></script>
 </body>
 </html>

@@ -1,5 +1,7 @@
 # CLAUDE.md — Consentia
 
+> **IMPORTANTE:** Al inicio de cada sesión, leer [docs/CLAUDE_ERRORS.md](docs/CLAUDE_ERRORS.md) para no repetir errores documentados.
+
 ## Qué es
 
 Plataforma multi-tenant de consentimiento informado y firma electrónica con verificación de identidad (email OTP; SMS/WhatsApp en Fase 3), evidencia criptográfica, y arquitectura zero-knowledge. Dos modos mutuamente excluyentes: consentimiento y documento (firma electrónica visual). Producto independiente.
