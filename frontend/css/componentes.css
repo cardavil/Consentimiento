@@ -486,17 +486,17 @@ select.form-input {
 
 .otp-grupo {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: 6px;
   justify-content: center;
   margin: var(--spacing-md) 0;
 }
 
 .otp-digito {
-  width: 48px;
-  height: 56px;
+  width: 38px;
+  height: 48px;
   text-align: center;
   font-family: var(--font-mono);
-  font-size: var(--text-2xl);
+  font-size: var(--text-xl);
   font-weight: 600;
   border: 2px solid var(--gris-claro);
   border-radius: 8px;
@@ -773,6 +773,149 @@ select.form-input {
   margin-top: var(--spacing-xs);
 }
 
+.admin-limits {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--gris-claro);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.admin-limit-row {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: #fff;
+  font-size: var(--text-sm);
+}
+
+.admin-limit-resource {
+  color: var(--gris-oscuro);
+}
+
+.admin-limit-value {
+  font-weight: 600;
+  color: var(--verde-profundo);
+  font-family: var(--font-mono, 'IBM Plex Mono', monospace);
+}
+
+.admin-sidebar-org {
+  padding: 0 var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+}
+
+/* ── Org Dashboard ── */
+
+.dash-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--spacing-xl) var(--spacing-md);
+}
+
+.dash-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+.dash-header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.dash-header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.dash-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--teal);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: var(--text-lg);
+  flex-shrink: 0;
+}
+
+.dash-nombre {
+  font-family: var(--font-display, 'DM Serif Display', serif);
+  font-size: var(--text-xl);
+  margin: 0;
+  color: var(--verde-profundo);
+}
+
+.dash-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.dash-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.dash-check-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: var(--text-sm);
+  color: var(--gris-oscuro);
+}
+
+.dash-check-done {
+  color: var(--teal);
+}
+
+.dash-check-icon {
+  width: 20px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.dash-check-pending {
+  color: var(--gris-claro);
+}
+
+.dash-modes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+}
+
+.dash-mode-card {
+  border: 1px solid var(--gris-claro);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  text-align: center;
+}
+
+.dash-mode-card h3 {
+  margin: var(--spacing-sm) 0 var(--spacing-xs);
+}
+
+.dash-mode-icon {
+  font-size: 2rem;
+}
+
+@media (max-width: 600px) {
+  .dash-header { flex-direction: column; align-items: flex-start; }
+  .dash-modes { grid-template-columns: 1fr; }
+}
+
 .admin-toolbar {
   display: flex;
   gap: var(--spacing-md);
@@ -867,9 +1010,9 @@ select.form-input {
   }
 
   .otp-digito {
-    width: 40px;
-    height: 48px;
-    font-size: var(--text-xl);
+    width: 32px;
+    height: 40px;
+    font-size: var(--text-lg);
   }
 
   .tipo-grid {

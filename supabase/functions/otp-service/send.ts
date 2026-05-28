@@ -43,5 +43,13 @@ export async function handle_send(body: Record<string, unknown>): Promise<Respon
   // via org_oauth table. Implementation pending with consent-service.
   console.log({ fn: 'send', email, purpose, code_length: code.length });
 
+  if (purpose === 'sign') {
+    await admin.from('audit_log').insert({
+      organization_id: null,
+      event_type: 'signing_otp_sent',
+      event_data: { email_domain: email.split('@')[1] },
+    });
+  }
+
   return ok({});
 }

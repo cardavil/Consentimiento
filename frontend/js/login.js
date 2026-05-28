@@ -36,6 +36,7 @@ async function on_submit_email(e) {
     });
     if (error) throw new Error(error.message);
 
+    call_edge_function('otp-service', { action: 'track', email: email, context: 'auth' }).catch(function() {});
     state.email = email;
     show_otp_phase();
   } catch (err) {
@@ -98,6 +99,7 @@ async function on_resend_otp() {
     });
     if (error) throw new Error(error.message);
 
+    call_edge_function('otp-service', { action: 'track', email: state.email, context: 'auth' }).catch(function() {});
     show_success('Código reenviado a ' + state.email);
     start_timer(state);
   } catch (err) {

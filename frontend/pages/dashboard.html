@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard | Consentia</title>
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/componentes.css">
+</head>
+<body>
+  <a href="#main" class="skip-link">Ir al contenido</a>
+  <div class="marca-barra"></div>
+
+  <main id="main">
+    <div class="dash-container">
+
+      <!-- Header -->
+      <div id="dash-header" class="dash-header">
+        <div class="dash-header-left">
+          <div class="dash-avatar" id="dash-avatar"></div>
+          <div>
+            <h1 class="dash-nombre" id="dash-nombre">Cargando...</h1>
+            <p class="text-sm text-muted" id="dash-email"></p>
+          </div>
+        </div>
+        <div class="dash-header-right">
+          <span class="badge badge-teal" id="dash-plan"></span>
+          <span class="badge" id="dash-tipo"></span>
+          <a href="#" id="dash-admin-link" class="btn btn-ghost btn-sm" hidden>Panel Admin</a>
+          <button onclick="org_sign_out()" class="btn btn-ghost btn-sm">Cerrar sesión</button>
+        </div>
+      </div>
+
+      <!-- Cards grid -->
+      <div class="dash-grid">
+
+        <!-- Onboarding -->
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--spacing-md)">
+            <h2 style="margin:0">Primeros pasos</h2>
+            <span class="badge badge-warning">En desarrollo</span>
+          </div>
+          <div class="dash-checklist">
+            <div class="dash-check-item dash-check-done">
+              <span class="dash-check-icon">&#10003;</span>
+              <span>Crear cuenta y verificar email</span>
+            </div>
+            <div class="dash-check-item">
+              <span class="dash-check-icon dash-check-pending">&#9675;</span>
+              <span>Conectar cuenta de correo (Gmail / Outlook)</span>
+            </div>
+            <div class="dash-check-item">
+              <span class="dash-check-icon dash-check-pending">&#9675;</span>
+              <span>Configurar datos de tu organización</span>
+            </div>
+            <div class="dash-check-item">
+              <span class="dash-check-icon dash-check-pending">&#9675;</span>
+              <span>Crear tu primera plantilla de consentimiento</span>
+            </div>
+            <div class="dash-check-item">
+              <span class="dash-check-icon dash-check-pending">&#9675;</span>
+              <span>Enviar tu primera solicitud de firma</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modos -->
+        <div class="card">
+          <h2 style="margin-bottom:var(--spacing-md)">Modos</h2>
+          <div class="dash-modes">
+            <div class="dash-mode-card">
+              <div class="dash-mode-icon">&#128203;</div>
+              <h3>Consentimiento</h3>
+              <p class="text-sm text-muted">Documento + items de consentimiento con verificación OTP</p>
+              <button class="btn btn-primary btn-sm btn-block" disabled>Próximamente</button>
+            </div>
+            <div class="dash-mode-card">
+              <div class="dash-mode-icon">&#9997;</div>
+              <h3>Firma electrónica</h3>
+              <p class="text-sm text-muted">Editor visual drag & drop sobre PDF</p>
+              <span class="badge badge-warning">Fase 2</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Historial -->
+        <div class="card">
+          <h2 style="margin-bottom:var(--spacing-md)">Historial reciente</h2>
+          <div id="dash-historial">
+            <div class="admin-empty">
+              <p class="text-muted">No hay sesiones de firma todavía.</p>
+              <p class="text-xs text-muted">Aquí aparecerán tus consentimientos y firmas enviadas.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/supabase-client.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/dashboard.js"></script>
+</body>
+</html>

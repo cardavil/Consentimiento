@@ -2,7 +2,7 @@
 
 Supabase nuevo, proyecto independiente. Multi-tenant con RLS. 14 tablas.
 
-Schema: `supabase/migrations/001_initial_schema.sql`, `002_catalog_doc_types.sql`, `003_platform_users.sql`
+Schema: `supabase/migrations/001_initial_schema.sql`, `002_catalog_doc_types.sql`, `003_platform_users.sql`, `004_admin_org_dual_role.sql`
 
 ---
 
@@ -257,7 +257,7 @@ Retorna true si platform_role = 'admin'. SECURITY DEFINER STABLE.
 Admin retorna true siempre. Analyst busca en platform_permissions (filtrado por auth.uid() y active=true). SECURITY DEFINER STABLE.
 
 ### get_org_id() → UUID
-Lee org_id del JWT (app_metadata) como fast path sin query. Si no existe, fallback a SELECT por email. Guard: si platform_role existe, retorna NULL inmediatamente. SECURITY DEFINER STABLE. La Edge Function de login debe setear app_metadata.org_id.
+Lee org_id del JWT (app_metadata) como fast path sin query. Si no existe y platform_role existe, retorna NULL (admin/analyst sin org). Si no tiene platform_role, fallback a SELECT por email (org users legacy). SECURITY DEFINER STABLE. Permite dual identity: admin con org_id obtiene su org. Migration 004.
 
 ### expire_sessions() → INTEGER
 Marca como 'expired' las sesiones vencidas. Limpia signing_sessions_temp de sesiones expired/cancelled/completed.

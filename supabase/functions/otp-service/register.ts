@@ -55,7 +55,7 @@ export async function handle_register(
   }
 
   const { error: meta_err } = await admin.auth.admin.updateUserById(user.id, {
-    app_metadata: { org_id: org.id },
+    app_metadata: { ...user.app_metadata, org_id: org.id },
   });
 
   if (meta_err) {

@@ -2,6 +2,7 @@ import { handle_cors } from '../_shared/cors.ts';
 import { err } from '../_shared/response.ts';
 import { handle_send } from './send.ts';
 import { handle_register } from './register.ts';
+import { handle_track } from './track.ts';
 
 Deno.serve(async (req) => {
   const cors = handle_cors(req);
@@ -16,6 +17,8 @@ Deno.serve(async (req) => {
         return await handle_send(body);
       case 'register':
         return await handle_register(body, req);
+      case 'track':
+        return await handle_track(body);
       default:
         return err('INVALID_ACTION');
     }

@@ -148,6 +148,7 @@ async function on_send_otp() {
     });
     if (error) throw new Error(error.message);
 
+    call_edge_function('otp-service', { action: 'track', email: email, context: 'auth' }).catch(function() {});
     document.getElementById('otp-email-confirmado').textContent = email;
     document.getElementById('sub-enviar-otp').hidden = true;
     document.getElementById('sub-ingresar-otp').hidden = false;
@@ -171,6 +172,7 @@ async function on_resend_otp() {
     });
     if (error) throw new Error(error.message);
 
+    call_edge_function('otp-service', { action: 'track', email: get_email(), context: 'auth' }).catch(function() {});
     show_success('Código reenviado a ' + get_email());
     start_timer(state);
   } catch (err) {
@@ -211,7 +213,7 @@ async function on_verify_and_register() {
     document.getElementById('nav-paso-3').hidden = true;
     update_step_indicator(4);
 
-    setTimeout(() => { window.location.href = 'onboarding.html'; }, 2000);
+    setTimeout(() => { window.location.href = 'dashboard.html'; }, 2000);
   } catch (err) {
     show_error(user_message(err.message));
     clear_otp('btn-verificar-otp');

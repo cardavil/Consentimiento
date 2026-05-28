@@ -1,6 +1,7 @@
 function render_admin_nav() {
   var sidebar = document.getElementById('admin-sidebar');
   var current = window.location.pathname.split('/').pop();
+  var meta = _admin_session.session.user.app_metadata || {};
 
   var items = [
     { href: 'index.html', label: 'Dashboard', perm: null },
@@ -27,8 +28,15 @@ function render_admin_nav() {
   }
 
   html += '</nav>';
+
+  if (meta.org_id) {
+    html += '<div class="admin-sidebar-org">';
+    html += '<a href="../dashboard.html" class="btn btn-sm btn-block" style="background:var(--teal);color:#fff;margin-bottom:var(--spacing-sm)">Mi organización</a>';
+    html += '</div>';
+  }
+
   html += '<div class="admin-sidebar-footer">';
-  html += '<button onclick="admin_sign_out()" class="btn btn-ghost btn-sm btn-block" style="color:var(--gris-claro)">Cerrar sesión</button>';
+  html += '<button onclick="admin_sign_out()" class="btn btn-outline btn-sm btn-block" style="color:var(--gris-claro);border-color:rgba(255,255,255,0.15)">Cerrar sesión</button>';
   html += '</div>';
 
   sidebar.innerHTML = html;

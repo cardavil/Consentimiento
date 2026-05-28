@@ -4,8 +4,16 @@ import { create_admin_client } from '../_shared/supabase.ts';
 import { handle_invite } from './invite.ts';
 import { handle_update_org } from './update_org.ts';
 import { handle_set_permissions, handle_toggle_user } from './permissions.ts';
+import { handle_metrics } from './metrics.ts';
+import { handle_bootstrap_org } from './bootstrap_org.ts';
 
-async function get_platform_role(req: Request): Promise<string | null> {
+interface AuthInfo {
+  user_id: string;
+  role: string;
+  permissions: string[];
+}
+
+async function get_auth_info(req: Request): Promise<AuthInfo | null> {
   const auth_header = req.headers.get('authorization');
   if (!auth_header) return null;
 
@@ -14,7 +22,19 @@ async function get_platform_role(req: Request): Promise<string | null> {
   const { data, error } = await admin.auth.getUser(jwt);
   if (error || !data.user) return null;
 
-  return (data.user.app_metadata?.platform_role as string) || null;
+  const role = (data.user.app_metadata?.platform_role as string) || '';
+  if (!role) return null;
+
+  let permissions: string[] = [];
+  if (role === 'analyst') {
+    const { data: perms } = await admin
+      .from('platform_permissions')
+      .select('permission')
+      .eq('user_id', data.user.id);
+    permissions = (perms || []).map((p: { permission: string }) => p.permission);
+  }
+
+  return { user_id: data.user.id, role, permissions };
 }
 
 Deno.serve(async (req) => {
@@ -22,13 +42,20 @@ Deno.serve(async (req) => {
   if (cors) return cors;
 
   try {
-    const role = await get_platform_role(req);
-    if (role !== 'admin') {
-      return err('FORBIDDEN', 403);
-    }
+    const auth = await get_auth_info(req);
+    if (!auth) return err('FORBIDDEN', 403);
 
     const body = await req.json();
     const action = body.action as string;
+
+    if (action === 'metrics') {
+      if (auth.role === 'admin' || auth.permissions.includes('read:metrics')) {
+        return await handle_metrics();
+      }
+      return err('FORBIDDEN', 403);
+    }
+
+    if (auth.role !== 'admin') return err('FORBIDDEN', 403);
 
     switch (action) {
       case 'invite':
@@ -39,6 +66,8 @@ Deno.serve(async (req) => {
         return await handle_set_permissions(body);
       case 'toggle_user':
         return await handle_toggle_user(body);
+      case 'bootstrap_org':
+        return await handle_bootstrap_org(body, auth.user_id);
       default:
         return err('INVALID_ACTION');
     }
