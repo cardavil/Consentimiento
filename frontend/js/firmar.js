@@ -215,7 +215,7 @@ async function on_resend_otp() {
 
 async function on_verify_and_sign() {
   const code = get_otp_code();
-  if (code.length !== 6) return;
+  if (code.length !== CONFIG.otp_length) return;
 
   const btn = document.getElementById('btn-verificar-firma');
   set_button_loading(btn, 'Firmando...');

@@ -55,7 +55,7 @@ function show_otp_phase() {
 
 async function on_verify_otp() {
   const code = get_otp_code();
-  if (code.length !== 6) return;
+  if (code.length !== CONFIG.otp_length) return;
 
   const btn = document.getElementById('btn-verificar-otp');
   set_button_loading(btn, 'Verificando...');

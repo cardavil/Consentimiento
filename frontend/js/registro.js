@@ -181,7 +181,7 @@ async function on_resend_otp() {
 
 async function on_verify_and_register() {
   const code = get_otp_code();
-  if (code.length !== 6) return;
+  if (code.length !== CONFIG.otp_length) return;
 
   const btn = document.getElementById('btn-verificar-otp');
   set_button_loading(btn, 'Verificando...');

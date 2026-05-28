@@ -50,7 +50,7 @@ function _on_otp_paste(e, btn_verify_id) {
 
 function _check_otp_complete(btn_verify_id) {
   const btn = document.getElementById(btn_verify_id);
-  if (btn) btn.disabled = get_otp_code().length !== 6;
+  if (btn) btn.disabled = get_otp_code().length !== CONFIG.otp_length;
 }
 
 function get_otp_code() {
