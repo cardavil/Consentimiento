@@ -839,7 +839,7 @@ select.form-input {
 /* --- Admin layout --- */
 
 .admin-content {
-  padding: var(--spacing-xl);
+  padding: var(--spacing-lg);
   width: 100%;
   max-width: 95%;
   margin: 0 auto;
@@ -849,14 +849,14 @@ select.form-input {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--spacing-xl);
+  margin-bottom: var(--spacing-md);
 }
 
 .admin-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--spacing-md);
-  margin-bottom: var(--spacing-xl);
+  margin-bottom: var(--spacing-md);
 }
 
 .admin-stat-card {
@@ -924,7 +924,7 @@ select.form-input {
   width: 100%;
   max-width: 95%;
   margin: 0 auto;
-  padding: var(--spacing-xl) var(--spacing-md);
+  padding: var(--spacing-lg) var(--spacing-md);
 }
 
 .dash-grid {
