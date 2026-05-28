@@ -27,7 +27,13 @@ function render_app_header(opts) {
   html += '<div class="header-dropdown-email">' + escape_html(email) + '</div>';
   html += '<div class="header-dropdown-badges">';
   if (has_platform) html += '<span class="badge ' + (in_admin ? 'badge-teal' : 'badge-neutral') + '">' + escape_html(platform_label) + '</span>';
-  if (has_org) html += '<span class="badge ' + (!in_admin ? 'badge-teal' : 'badge-neutral') + '">Organización</span>';
+  if (has_org && opts.org) {
+    var tipo_label = opts.org.type === 'juridica' ? 'Jurídica' : 'Natural';
+    html += '<span class="badge ' + (!in_admin ? 'badge-teal' : 'badge-neutral') + '">' + escape_html(tipo_label) + '</span>';
+    if (opts.org.plan) html += '<span class="badge badge-neutral">' + escape_html(opts.org.plan.toUpperCase()) + '</span>';
+  } else if (has_org) {
+    html += '<span class="badge ' + (!in_admin ? 'badge-teal' : 'badge-neutral') + '">Organización</span>';
+  }
   html += '</div></div>';
 
   if (has_org && in_admin) {

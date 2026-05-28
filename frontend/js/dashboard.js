@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         org: org[0],
         on_logout: org_sign_out,
       });
-      render_org_info(org[0]);
       await load_historial(session.access_token, meta.org_id);
     } else {
       render_app_header({
@@ -36,16 +35,6 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
   }
 });
-
-function render_org_info(org) {
-  var plan_el = document.getElementById('dash-plan');
-  var tipo_el = document.getElementById('dash-tipo');
-  if (plan_el) plan_el.textContent = (org.plan || 'trial').toUpperCase();
-  if (tipo_el) {
-    tipo_el.textContent = org.type === 'juridica' ? 'Jurídica' : 'Natural';
-    tipo_el.classList.add(org.type === 'juridica' ? 'badge-info' : 'badge-teal');
-  }
-}
 
 async function load_historial(jwt, org_id) {
   try {

@@ -27,7 +27,7 @@ async function check_admin_session() {
     try {
       var orgs = await client
         .from('organizations')
-        .select('type,first_name,last_name,company_name')
+        .select('type,first_name,last_name,company_name,plan')
         .eq('id', meta.org_id);
       if (orgs.data && orgs.data.length > 0) _admin_session.org = orgs.data[0];
     } catch (_e) {}
