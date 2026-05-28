@@ -69,7 +69,7 @@ body {
 
 .app-header .brand {
   font-family: var(--font-display);
-  font-size: var(--text-2xl);
+  font-size: var(--text-3xl);
   color: var(--white);
   letter-spacing: 0.02em;
   text-decoration: none;
@@ -268,8 +268,8 @@ h1, h2, h3 {
   line-height: 1.25;
 }
 
-h1 { font-size: var(--text-3xl); margin-bottom: var(--spacing-lg); }
-h2 { font-size: var(--text-2xl); margin-bottom: var(--spacing-md); }
+h1 { font-size: var(--text-2xl); margin-bottom: var(--spacing-md); }
+h2 { font-size: var(--text-xl); margin-bottom: var(--spacing-sm); }
 h3 { font-size: var(--text-xl); margin-bottom: var(--spacing-sm); }
 
 .text-sm { font-size: var(--text-sm); }
@@ -839,7 +839,7 @@ select.form-input {
 /* --- Admin layout --- */
 
 .admin-content {
-  padding: var(--spacing-lg);
+  padding: var(--spacing-md);
   width: 100%;
   max-width: 95%;
   margin: 0 auto;
@@ -849,7 +849,7 @@ select.form-input {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
 }
 
 .admin-stats {
@@ -924,7 +924,7 @@ select.form-input {
   width: 100%;
   max-width: 95%;
   margin: 0 auto;
-  padding: var(--spacing-lg) var(--spacing-md);
+  padding: var(--spacing-md);
 }
 
 .dash-grid {

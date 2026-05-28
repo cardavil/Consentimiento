@@ -37,7 +37,7 @@ function render_metrics(container, m) {
   html += stat_card(m.signing_otps_month, 'OTPs firma (mes)');
   html += '</div>';
 
-  html += '<h2 class="mt-lg mb-sm">Organizaciones por plan</h2>';
+  html += '<h2 class="mt-md mb-sm">Organizaciones por plan</h2>';
   html += '<div class="admin-stats">';
   var plans = ['trial', 'basic', 'pro', 'enterprise'];
   var plan_labels = { trial: 'Trial', basic: 'Basic', pro: 'Pro', enterprise: 'Enterprise' };
@@ -47,7 +47,7 @@ function render_metrics(container, m) {
   }
   html += '</div>';
 
-  html += '<h2 class="mt-lg mb-sm">Límites Supabase (Free)</h2>';
+  html += '<h2 class="mt-md mb-sm">Límites Supabase (Free)</h2>';
   html += '<div class="card" style="padding:0;overflow:hidden">';
   html += '<div class="admin-limits">';
   html += limit_row('MAUs', '50,000', m.orgs_total || '—');
