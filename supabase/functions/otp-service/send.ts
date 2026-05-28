@@ -39,63 +39,9 @@ export async function handle_send(body: Record<string, unknown>): Promise<Respon
     return err('ERROR_SERVIDOR', 500);
   }
 
-  const send_ok = await send_email(email, code);
-  if (!send_ok) return err('ERROR_SERVIDOR', 500);
+  // Email transport for signing OTP — uses client's OAuth (Gmail/Microsoft)
+  // via org_oauth table. Implementation pending with consent-service.
+  console.log({ fn: 'send', email, purpose, code_length: code.length });
 
   return ok({});
-}
-
-async function send_email(to: string, code: string): Promise<boolean> {
-  const key = Deno.env.get('RESEND_API_KEY');
-  if (!key) {
-    console.error({ fn: 'send_email', error: 'RESEND_API_KEY not set' });
-    return false;
-  }
-
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${key}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from: 'Consentia <onboarding@resend.dev>',
-      to: [to],
-      subject: 'Tu codigo de verificacion - Consentia',
-      html: build_email_html(code),
-    }),
-  });
-
-  if (!res.ok) {
-    const body = await res.text();
-    console.error({ fn: 'send_email', error: body, to });
-    return false;
-  }
-  return true;
-}
-
-function build_email_html(code: string): string {
-  const digits = code.split('').map((d) =>
-    `<span style="display:inline-block;width:40px;height:48px;line-height:48px;text-align:center;font-size:28px;font-family:'IBM Plex Mono',monospace;font-weight:600;background:#E6F7F5;color:#1E2A3A;border-radius:8px;margin:0 3px;">${d}</span>`
-  ).join('');
-
-  return `<!DOCTYPE html>
-<html lang="es">
-<head><meta charset="utf-8"></head>
-<body style="margin:0;padding:0;background:#F5F8FC;font-family:'DM Sans',system-ui,sans-serif;">
-<div style="max-width:480px;margin:40px auto;background:#ffffff;border-radius:12px;overflow:hidden;">
-  <div style="background:linear-gradient(135deg,#1E2A3A,#0F4C5C,#17B3A3);padding:24px;text-align:center;">
-    <h1 style="margin:0;color:#ffffff;font-family:'DM Serif Display',Georgia,serif;font-size:24px;font-weight:400;">Consentia</h1>
-  </div>
-  <div style="padding:32px 24px;text-align:center;">
-    <p style="color:#1F2937;font-size:16px;margin:0 0 8px;">Tu codigo de verificacion</p>
-    <div style="margin:24px 0;">${digits}</div>
-    <p style="color:#5F7D95;font-size:14px;margin:24px 0 0;">Este codigo expira en 5 minutos.</p>
-  </div>
-  <div style="padding:16px 24px;border-top:1px solid #DCE5EE;text-align:center;">
-    <p style="color:#5F7D95;font-size:12px;margin:0;">Si no solicitaste este codigo, puedes ignorar este mensaje.</p>
-  </div>
-</div>
-</body>
-</html>`;
 }

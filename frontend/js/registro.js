@@ -141,7 +141,12 @@ async function on_send_otp() {
 
   try {
     const email = get_email();
-    await call_edge_function('otp-service', { action: 'send', email });
+    const client = init_supabase();
+    const { error } = await client.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: true },
+    });
+    if (error) throw new Error(error.message);
 
     document.getElementById('otp-email-confirmado').textContent = email;
     document.getElementById('sub-enviar-otp').hidden = true;
@@ -159,7 +164,13 @@ async function on_resend_otp() {
   const btn = document.getElementById('btn-reenviar');
   btn.disabled = true;
   try {
-    await call_edge_function('otp-service', { action: 'send', email: get_email() });
+    const client = init_supabase();
+    const { error } = await client.auth.signInWithOtp({
+      email: get_email(),
+      options: { shouldCreateUser: true },
+    });
+    if (error) throw new Error(error.message);
+
     show_success('Código reenviado a ' + get_email());
     start_timer(state);
   } catch (err) {
@@ -176,22 +187,24 @@ async function on_verify_and_register() {
   set_button_loading(btn, 'Verificando...');
 
   try {
-    const result = await call_edge_function('otp-service', {
-      action: 'verify_and_register',
+    const client = init_supabase();
+    const { data, error } = await client.auth.verifyOtp({
       email: get_email(),
-      code,
+      token: code,
+      type: 'email',
+    });
+
+    if (error) throw new Error(error.message);
+    if (!data.session) throw new Error('ERROR_SERVIDOR');
+
+    await call_edge_function('otp-service', {
+      action: 'register',
       org_data: build_org_data(),
       ip: state.client_ip,
       user_agent: navigator.userAgent,
     });
 
-    if (result && result.access_token) {
-      const client = init_supabase();
-      await client.auth.setSession({
-        access_token: result.access_token,
-        refresh_token: result.refresh_token,
-      });
-    }
+    await client.auth.refreshSession();
 
     document.getElementById('sub-ingresar-otp').hidden = true;
     document.getElementById('seccion-confirmacion').hidden = false;

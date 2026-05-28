@@ -29,7 +29,13 @@ async function on_submit_email(e) {
   set_button_loading(btn, 'Enviando...');
 
   try {
-    await call_edge_function('otp-service', { action: 'send', email });
+    const client = init_supabase();
+    const { error } = await client.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: false },
+    });
+    if (error) throw new Error(error.message);
+
     state.email = email;
     show_otp_phase();
   } catch (err) {
@@ -55,19 +61,15 @@ async function on_verify_otp() {
   set_button_loading(btn, 'Verificando...');
 
   try {
-    const result = await call_edge_function('otp-service', {
-      action: 'verify',
+    const client = init_supabase();
+    const { data, error } = await client.auth.verifyOtp({
       email: state.email,
-      code,
+      token: code,
+      type: 'email',
     });
 
-    if (result && result.access_token) {
-      const client = init_supabase();
-      await client.auth.setSession({
-        access_token: result.access_token,
-        refresh_token: result.refresh_token,
-      });
-    }
+    if (error) throw new Error(error.message);
+    if (!data.session) throw new Error('ERROR_SERVIDOR');
 
     window.location.href = 'dashboard.html';
   } catch (err) {
@@ -82,7 +84,13 @@ async function on_resend_otp() {
   const btn = document.getElementById('btn-reenviar');
   btn.disabled = true;
   try {
-    await call_edge_function('otp-service', { action: 'send', email: state.email });
+    const client = init_supabase();
+    const { error } = await client.auth.signInWithOtp({
+      email: state.email,
+      options: { shouldCreateUser: false },
+    });
+    if (error) throw new Error(error.message);
+
     show_success('Código reenviado a ' + state.email);
     start_timer(state);
   } catch (err) {

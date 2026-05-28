@@ -1,6 +1,5 @@
 import { ok, err } from '../_shared/response.ts';
 import { create_admin_client } from '../_shared/supabase.ts';
-import { validate_otp, generate_session } from './otp_check.ts';
 
 interface OrgData {
   type: string;
@@ -15,17 +14,20 @@ interface OrgData {
   company_nit?: string;
 }
 
-export async function handle_register(body: Record<string, unknown>): Promise<Response> {
-  const email = (body.email as string || '').trim().toLowerCase();
-  const code = (body.code as string || '').trim();
+export async function handle_register(
+  body: Record<string, unknown>,
+  req: Request,
+): Promise<Response> {
   const org_data = body.org_data as OrgData | undefined;
+  if (!org_data || !org_data.email || !org_data.doc_number) return err('OTP_INVALID');
 
-  if (!email || !code || code.length !== 6 || !org_data) return err('OTP_INVALID');
+  const jwt = (req.headers.get('authorization') || '').replace('Bearer ', '');
+  if (!jwt) return err('SESSION_EXPIRED', 401);
 
   const admin = create_admin_client();
 
-  const otp_result = await validate_otp(admin, email, code);
-  if (!otp_result.valid) return err(otp_result.error_code!);
+  const { data: { user }, error: user_err } = await admin.auth.getUser(jwt);
+  if (user_err || !user) return err('SESSION_EXPIRED', 401);
 
   const dup = await check_duplicates(admin, org_data.email, org_data.doc_number);
   if (dup) return dup;
@@ -52,20 +54,14 @@ export async function handle_register(body: Record<string, unknown>): Promise<Re
     return err('ERROR_SERVIDOR', 500);
   }
 
-  const { error: auth_err } = await admin.auth.admin.createUser({
-    email: org_data.email,
-    email_confirm: true,
+  const { error: meta_err } = await admin.auth.admin.updateUserById(user.id, {
     app_metadata: { org_id: org.id },
-    user_metadata: { name: org_data.first_name + ' ' + (org_data.last_name || '') },
   });
 
-  if (auth_err) {
-    console.error({ fn: 'register', error: auth_err.message });
+  if (meta_err) {
+    console.error({ fn: 'register', error: meta_err.message });
     return err('ERROR_SERVIDOR', 500);
   }
-
-  const session = await generate_session(admin, org_data.email);
-  if (!session) return err('ERROR_SERVIDOR', 500);
 
   await admin.from('audit_log').insert({
     organization_id: org.id,
@@ -75,7 +71,7 @@ export async function handle_register(body: Record<string, unknown>): Promise<Re
     ua: (body.user_agent as string) || null,
   });
 
-  return ok(session);
+  return ok({});
 }
 
 async function check_duplicates(

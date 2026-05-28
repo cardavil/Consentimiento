@@ -1,7 +1,6 @@
 import { handle_cors } from '../_shared/cors.ts';
 import { err } from '../_shared/response.ts';
 import { handle_send } from './send.ts';
-import { handle_verify } from './verify.ts';
 import { handle_register } from './register.ts';
 
 Deno.serve(async (req) => {
@@ -15,10 +14,8 @@ Deno.serve(async (req) => {
     switch (action) {
       case 'send':
         return await handle_send(body);
-      case 'verify':
-        return await handle_verify(body);
-      case 'verify_and_register':
-        return await handle_register(body);
+      case 'register':
+        return await handle_register(body, req);
       default:
         return err('INVALID_ACTION');
     }
