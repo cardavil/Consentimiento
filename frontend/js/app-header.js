@@ -26,8 +26,8 @@ function render_app_header(opts) {
   html += '<div class="header-dropdown-name">' + escape_html(display_name) + '</div>';
   html += '<div class="header-dropdown-email">' + escape_html(email) + '</div>';
   html += '<div class="header-dropdown-badges">';
-  if (has_platform) html += '<span class="badge badge-teal">' + escape_html(platform_label) + '</span>';
-  if (has_org) html += '<span class="badge badge-neutral">Organización</span>';
+  if (has_platform) html += '<span class="badge ' + (in_admin ? 'badge-teal' : 'badge-neutral') + '">' + escape_html(platform_label) + '</span>';
+  if (has_org) html += '<span class="badge ' + (!in_admin ? 'badge-teal' : 'badge-neutral') + '">Organización</span>';
   html += '</div></div>';
 
   if (has_org && in_admin) {
