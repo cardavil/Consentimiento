@@ -14,7 +14,7 @@
 
 ## 2. Login
 
-Email → OTP por email → verifica → dashboard.
+Email → OTP por email (SMTP propio de Supabase Auth) → verifica → dashboard (o panel admin si tiene platform_role).
 
 ---
 
@@ -96,7 +96,7 @@ Enviar → el firmante recibe email con enlace.
 2. Ve sus datos (pre-llenados, read-only).
 3. Lee documentos embebidos (iframe desde Drive del cliente, nunca pasan por la plataforma).
 4. Marca consentimientos (checkbox "Leí y acepto", nunca prellenado). Los obligatorios impiden continuar.
-5. Recibe OTP por email (Fase 1-2) o elige SMS/WhatsApp (Fase 3) → ingresa 6 dígitos → verificación factor 2.
+5. Recibe OTP por email del cliente (Gmail/Graph, zero-knowledge) en Fase 1-2, o elige SMS/WhatsApp (Fase 3) → ingresa 8 dígitos → verificación factor 2.
 6. Ve confirmación: tabla con código, decisión, folio, hash por cada consentimiento.
 
 ---
@@ -165,7 +165,7 @@ Enviar → el firmante recibe email con enlace.
    - **Checkbox:** marcar/desmarcar.
    - **Texto libre:** campo de input.
 4. Todos los campos obligatorios deben estar completos para continuar.
-5. Recibe OTP por email (Fase 1-2) o elige SMS/WhatsApp (Fase 3) → ingresa 6 dígitos → verificación factor 2.
+5. Recibe OTP por email del cliente (Gmail/Graph, zero-knowledge) en Fase 1-2, o elige SMS/WhatsApp (Fase 3) → ingresa 8 dígitos → verificación factor 2.
 6. Ve confirmación: resumen del documento firmado con hash.
 
 ---

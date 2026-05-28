@@ -1,8 +1,17 @@
 # Base de Datos
 
-Supabase nuevo, proyecto independiente. Multi-tenant con RLS. 14 tablas.
+Supabase nuevo, proyecto independiente. Multi-tenant con RLS. **12 tablas implementadas** + 2 pendientes (`signing_templates` en Fase 2, `org_whatsapp_config` en Fase 3).
 
-Schema: `supabase/migrations/001_initial_schema.sql`, `002_catalog_doc_types.sql`, `003_platform_users.sql`, `004_admin_org_dual_role.sql`
+Migraciones aplicadas (`supabase/migrations/`):
+
+| Archivo | Qué hace |
+|---|---|
+| `001_initial_schema.sql` | 9 tablas base, RLS, funciones, triggers |
+| `002_catalog_doc_types.sql` | Tabla `catalog_doc_types` (catálogo tipos de documento) |
+| `003_platform_users.sql` | Tablas `platform_users` + `platform_permissions` y funciones `is_platform_user/admin`, `has_platform_permission`, `get_org_id` |
+| `004_admin_org_dual_role.sql` | Redefine `get_org_id()` para identidad dual admin/org (fast-path org_id en JWT antes del guard platform_role) |
+| `005_platform_users_identity.sql` | Expande `platform_users` con nombre, apellido, documento, teléfono |
+| `006_get_db_size.sql` | Función `get_db_size()` para métricas admin |
 
 ---
 
@@ -41,7 +50,7 @@ Clientes de la plataforma. La persona siempre existe. La empresa solo si es jur�
 | company_nit | TEXT | solo jurídica |
 | plan | TEXT | trial/basic/pro/enterprise (default: trial) |
 | active | BOOLEAN | default: true |
-| folio_prefix | TEXT | default: 'CT'. Usado por next_folio() |
+| folio_prefix | TEXT | default actual 'FC'; target 'CT' (rebrand, migración pendiente). Usado por next_folio() |
 | created_at | TIMESTAMPTZ | |
 | updated_at | TIMESTAMPTZ | trigger auto |
 
@@ -124,7 +133,7 @@ Registro permanente zero-knowledge. **NO contiene datos del firmante, documentos
 | pdf_hash | TEXT | SHA-256 |
 | consent_hashes | JSONB | hash por cada consentimiento |
 | otp_channel | TEXT | email / sms / whatsapp. Default 'email' |
-| template_id | UUID FK NULL | → signing_templates(id). ON DELETE SET NULL. Solo para session_type=firma |
+| template_id | UUID FK NULL | → signing_templates(id). ON DELETE SET NULL. Solo session_type=firma. **Fase 2 — tabla destino pendiente** |
 | created_at | TIMESTAMPTZ | |
 | completed_at | TIMESTAMPTZ | |
 | expires_at | TIMESTAMPTZ | |
@@ -144,7 +153,7 @@ Temporales. Se limpian automáticamente. Solo accesible via service_role (Edge F
 | created_at | TIMESTAMPTZ | |
 
 ### signing_templates
-Plantillas reutilizables del editor visual (modo firma). Limitadas por plan (límites TBD). El límite se valida en Edge Function, no en BD.
+**Pendiente — Fase 2, no creada aún (sin migración).** Plantillas reutilizables del editor visual (modo firma). Limitadas por plan (límites TBD). El límite se valida en Edge Function, no en BD.
 
 | Columna | Tipo | Notas |
 |---|---|---|
@@ -159,7 +168,7 @@ Plantillas reutilizables del editor visual (modo firma). Limitadas por plan (lí
 | updated_at | TIMESTAMPTZ | trigger auto |
 
 ### org_whatsapp_config
-Config de WhatsApp Business API del cliente. Fase 3. Secrets encriptados con pgcrypto. Cada cliente usa su propia cuenta de WhatsApp Business.
+**Pendiente — Fase 3, no creada aún (sin migración).** Config de WhatsApp Business API del cliente. Secrets encriptados con pgcrypto. Cada cliente usa su propia cuenta de WhatsApp Business.
 
 | Columna | Tipo | Notas |
 |---|---|---|
@@ -273,7 +282,10 @@ Borra OTPs expirados hace más de 1 hora.
 Trigger BEFORE INSERT en auth.users. Convierte NULLs a string vacío en confirmation_token, recovery_token, email_change_token_new. Previene crash de GoTrue al crear usuarios vía Admin API. SECURITY DEFINER.
 
 ### check_template_limit(p_org_id UUID) → BOOLEAN
-Cuenta plantillas activas de la org, compara contra el límite del plan (leído de organizations.plan). Retorna true si puede crear más. SECURITY DEFINER.
+**Pendiente — Fase 2 (depende de signing_templates).** Cuenta plantillas activas de la org, compara contra el límite del plan (leído de organizations.plan). Retorna true si puede crear más. SECURITY DEFINER.
+
+### get_db_size() → JSON
+Retorna `{db_bytes, storage_bytes}` (tamaño de la BD y del storage). Usada por `admin-service` para métricas. SECURITY DEFINER. Migración 006.
 
 ### update_updated_at()
 Trigger en organizations, org_oauth, org_sms_config, org_whatsapp_config, consent_items, signing_templates. Actualiza updated_at automáticamente.

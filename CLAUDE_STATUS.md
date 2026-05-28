@@ -1,13 +1,13 @@
 # Estado del Proyecto — Consentia
 
-**Última actualización:** 2026-05-27
-**Sesión:** Redefinición de alcance MVP (3 fases)
+**Última actualización:** 2026-05-28
+**Sesión:** Sincronización de documentación con el código real
 
 ---
 
 ## Resumen
 
-Proyecto Consentia (antes FirmaConsent) con documentación estructurada, schema de BD diseñado, y servicios cloud configurados. No hay código funcional aún — solo documentación, migraciones SQL, configuración de infraestructura, y manual de marca aprobado.
+Proyecto Consentia (antes FirmaConsent) con documentación estructurada, schema de BD aplicado (migraciones 001–006), y servicios cloud configurados. **Ya existe código funcional:** frontend (login, registro, dashboard, firmar) + panel admin dual-role completo + Edge Functions (`admin-service`, `otp-service`). Fase 1 mayormente construida; pendiente el envío real de email OTP y las integraciones de nube (Drive/Sheets/PDF). Fases 2 y 3 no iniciadas.
 
 ---
 
@@ -37,6 +37,15 @@ Proyecto Consentia (antes FirmaConsent) con documentación estructurada, schema 
 - Folio prefix: FC → CT
 - Infraestructura: Supabase restaurado y linkeado, Google Cloud Project creado (4 APIs habilitadas)
 
+### Sesión 3 — Construcción Fase 1 + panel admin (2026-05-28)
+
+- **Frontend Fase 1:** login (OTP email), registro 3 pasos (natural/jurídica), dashboard cliente, firmar (modo consentimiento).
+- **Panel admin dual-role:** 5 páginas (`admin/index|orgs|catalogs|audit|analysts.html`) con guard de sesión y nav por permisos.
+- **Edge Functions:** `admin-service` (métricas, CRUD orgs, invitar analistas, permisos, bootstrap org) y `otp-service` (generar/verificar OTP, registro). `_shared` (cors, response, supabase client).
+- **Migraciones nuevas:** 002 (catalog_doc_types), 003 (platform_users + permissions + funciones de plataforma), 004 (dual-role get_org_id), 005 (identidad platform_users), 006 (get_db_size).
+- **SMTP propio configurado** en Supabase Auth para OTP de login/registro (ya no aplica el límite 2/hora del SMTP por defecto).
+- **Documentación sincronizada** con el código real (este commit): README, STACK, CONVENTIONS, DATABASE, FLOWS, SECURITY, API.
+
 ---
 
 ## Commits
@@ -58,19 +67,24 @@ Proyecto Consentia (antes FirmaConsent) con documentación estructurada, schema 
 | Qué | Estado |
 |---|---|
 | Marca | Consentia — manual aprobado en docs/mockups/manual-marca-consentia.html |
-| Documentación | Completa (8 docs actualizados con alcance MVP 3 fases + rebrand) |
-| Schema BD (docs) | 11 tablas documentadas en DATABASE.md |
-| Migraciones SQL | 001_initial_schema.sql aplicada (9 tablas). Pendiente migración para signing_templates y org_whatsapp_config |
-| Supabase | ACTIVE_HEALTHY, 9 tablas, RLS habilitado, 0 rows |
+| Documentación | Sincronizada con el código real (README + 7 docs) |
+| Schema BD (docs) | 12 tablas implementadas + 2 pendientes (signing_templates F2, org_whatsapp_config F3) |
+| Migraciones SQL | 001–006 aplicadas (12 tablas). Pendiente: signing_templates (F2) y org_whatsapp_config (F3) |
+| Supabase | ACTIVE_HEALTHY, 12 tablas, RLS habilitado, dual-role |
 | Cloudflare | CLI instalada, autenticada. Tunnel pendiente |
-| Frontend | No existe. Cero código |
-| Edge Functions | No existen. Cero código |
-| App Android | No existe. Cero código |
-| Landing page | No existe |
+| Frontend | Fase 1 construida: login, registro, dashboard, firmar + panel admin (5 páginas). Pendiente: onboarding, consentimiento-solicitar |
+| Edge Functions | `admin-service` (completa), `otp-service` (envío de email STUB). Pendiente: consent-service, drive-service, pdf-generator |
+| App Android | No existe. Cero código (Fase 3) |
+| Landing page | index.html en la raíz |
 
 ---
 
 ## Pendiente
+
+### Issues señalados (a resolver — no son diseño)
+- [ ] **OTP largo inconsistente:** `config.js`/UI usan 8 dígitos, pero `otp-service/otp_check.ts` genera 6. Estandarizar `otp-service` a **8**.
+- [ ] **Envío de email OTP es STUB:** `otp-service/send.ts` solo hace `console.log`. Falta integrar Gmail/Graph del cliente (firmante, zero-knowledge).
+- [ ] Verificar que el OTP de Supabase Auth (auth de cliente) esté configurado en 8 dígitos para cuadrar con la UI.
 
 ### Inmediato
 - [x] Agregar `ENCRYPTION_KEY` como Supabase Secret (completado sesión 2)
@@ -81,15 +95,17 @@ Proyecto Consentia (antes FirmaConsent) con documentación estructurada, schema 
 - [ ] Commit con los docs actualizados + rebrand
 
 ### Fase 1 — Consentimiento
-1. Schema + migraciones (tablas ya diseñadas, falta aplicar cambios de sesión 2)
-2. Edge Functions: otp-service, consent-service, drive-service, pdf-generator
-3. Frontend: login, registro, onboarding, dashboard, consentimiento-solicitar, firmar
-4. Landing page
-5. Drive/OneDrive integration (OAuth, file picker, preview)
-6. Google Sheets historial
-7. PDF con pdf-lib
+1. ✅ Schema + migraciones (001–006 aplicadas)
+2. Edge Functions: ⏳ otp-service (envío email STUB), ❌ consent-service, ❌ drive-service, ❌ pdf-generator
+3. Frontend: ✅ login, registro, dashboard, firmar · ❌ onboarding, consentimiento-solicitar
+4. ⏳ Landing page (index.html existe)
+5. ❌ Drive/OneDrive integration (OAuth, file picker, preview)
+6. ❌ Google Sheets historial
+7. ❌ PDF con pdf-lib
 
-OTP factor 2: email-only en esta fase.
+OTP factor 2: email-only en esta fase (firmante zero-knowledge vía cliente).
+
+> **Adicional construido (no estaba en el plan original de Fase 1):** panel admin dual-role completo (`admin-service` + 5 páginas) con métricas, CRUD orgs, catálogos, auditoría y gestión de analistas.
 
 ### Fase 2 — Editor visual de firma electrónica
 1. Frontend: documento-editor (drag & drop), documento-solicitar

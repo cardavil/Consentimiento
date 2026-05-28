@@ -6,7 +6,8 @@
 |---|---|
 | Frontend | GitHub Pages (HTML/CSS/JS estático) |
 | Backend | Supabase (PostgreSQL + Auth + Edge Functions) |
-| Email | Gmail API o Microsoft Graph via OAuth del cliente |
+| Email OTP auth (login/registro) | Supabase Auth con SMTP propio configurado (email de la plataforma) |
+| Email OTP firmante | Gmail API o Microsoft Graph via OAuth del cliente (zero-knowledge) |
 | 2FA (Fase 1-2) | Email OTP únicamente |
 | SMS (Fase 3) | App Android gateway en el teléfono del cliente, via Cloudflare Tunnel |
 | WhatsApp (Fase 3) | WhatsApp Business API via cuenta propia de cada cliente |
@@ -22,6 +23,7 @@ GitHub Pages              Supabase (gratis)           APIs del cliente
 
 Frontend ──────────►      PostgreSQL + RLS            
                           Edge Functions:             
+                            admin-service             (métricas, orgs, analistas)
                             otp-service        ──────► Gmail API (del cliente)
                             consent-service    ──────► Drive API (del cliente)
                             signing-service    ──────► Sheets API (del cliente)
@@ -42,7 +44,7 @@ El sistema anterior usa Google Apps Script. Con 200 clientes y 500 firmantes/dí
 - 6 min máximo por ejecución
 - Gmail gratis: 100 emails/día
 
-Solución: todo en Supabase Edge Functions. Los emails los envía cada cliente desde su propia cuenta (Gmail API / Microsoft Graph con OAuth). La plataforma no envía emails propios excepto los OTP de login/registro, que salen del Workspace Nonprofits existente (1,500/día).
+Solución: todo en Supabase Edge Functions. Los emails del firmante los envía cada cliente desde su propia cuenta (Gmail API / Microsoft Graph con OAuth, zero-knowledge). La plataforma solo envía los OTP de login/registro, vía SMTP propio configurado en Supabase Auth (no el SMTP por defecto, limitado a 2/hora).
 
 ## Almacenamiento en la nube
 
@@ -76,12 +78,18 @@ consentia/
 │   ├── pages/
 │   │   ├── login.html                    (OTP email)
 │   │   ├── registro.html                 (registro cliente)
-│   │   ├── onboarding.html               (nube + canales Fase 3)
+│   │   ├── onboarding.html               (nube + canales Fase 3 — PENDIENTE)
 │   │   ├── dashboard.html                (panel cliente)
-│   │   ├── consentimiento-solicitar.html (solicitar consentimiento)
+│   │   ├── consentimiento-solicitar.html (solicitar consentimiento — PENDIENTE)
 │   │   ├── documento-solicitar.html      (solicitar firma — Fase 2)
 │   │   ├── documento-editor.html         (editor visual drag & drop — Fase 2)
-│   │   └── firmar.html                   (portal firmante, ambos modos)
+│   │   ├── firmar.html                   (portal firmante, ambos modos)
+│   │   └── admin/                         (panel plataforma — dual-role)
+│   │       ├── index.html                (indicadores / métricas)
+│   │       ├── orgs.html                 (CRUD organizaciones)
+│   │       ├── catalogs.html             (CRUD catalog_doc_types)
+│   │       ├── audit.html                (log de auditoría)
+│   │       └── analysts.html             (gestión analistas + permisos)
 │   ├── css/
 │   │   ├── tokens.css
 │   │   └── componentes.css
@@ -91,25 +99,40 @@ consentia/
 │   │   ├── utils.js                      (toasts, validación, formato)
 │   │   ├── otp-ui.js                     (inputs OTP, timer, paste)
 │   │   ├── modales.js                    (abrir/cerrar modales)
+│   │   ├── app-header.js                 (header compartido app+admin, dual-role)
+│   │   ├── admin-guard.js                (sesión + permisos admin/analyst)
+│   │   ├── admin-nav.js                  (nav tabs admin por permiso)
 │   │   ├── login.js
 │   │   ├── registro.js
-│   │   ├── onboarding.js
+│   │   ├── onboarding.js                 (PENDIENTE)
 │   │   ├── dashboard.js
-│   │   ├── consentimiento-solicitar.js
+│   │   ├── consentimiento-solicitar.js   (PENDIENTE)
 │   │   ├── documento-solicitar.js        (Fase 2)
 │   │   ├── documento-editor.js           (Fase 2)
-│   │   └── firmar.js                     (ambos modos, detecta session_type)
+│   │   ├── firmar.js                     (ambos modos, detecta session_type)
+│   │   ├── admin-dashboard.js            (métricas)
+│   │   ├── admin-orgs.js                 (CRUD orgs)
+│   │   ├── admin-catalogs.js             (CRUD catálogos)
+│   │   ├── admin-audit.js                (log auditoría)
+│   │   └── admin-analysts.js             (gestión analistas)
 │   └── assets/
 ├── supabase/
 │   ├── migrations/
-│   │   └── 001_initial_schema.sql
+│   │   ├── 001_initial_schema.sql
+│   │   ├── 002_catalog_doc_types.sql
+│   │   ├── 003_platform_users.sql
+│   │   ├── 004_admin_org_dual_role.sql
+│   │   ├── 005_platform_users_identity.sql
+│   │   └── 006_get_db_size.sql
 │   └── functions/
-│       ├── otp-service/
-│       ├── consent-service/
-│       ├── signing-service/              (Fase 2)
-│       ├── drive-service/
-│       ├── whatsapp-service/             (Fase 3)
-│       └── pdf-generator/
+│       ├── _shared/                       (cors, response, supabase client)
+│       ├── admin-service/                 (métricas, orgs, invitaciones, permisos)
+│       ├── otp-service/                   (envío email aún STUB)
+│       ├── consent-service/               (PENDIENTE)
+│       ├── signing-service/               (Fase 2)
+│       ├── drive-service/                 (PENDIENTE)
+│       ├── whatsapp-service/              (Fase 3)
+│       └── pdf-generator/                 (PENDIENTE)
 ├── android/                              (Fase 3)
 └── docs/
 ```

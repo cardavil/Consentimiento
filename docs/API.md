@@ -61,7 +61,7 @@ GET /api/v1/consent/status/{sessionId}
   "completedAt": "2026-05-18T14:30:00Z",
   "pdfHash": "sha256...",
   "consents": {
-    "C1": { "accepted": true, "folio": "FC-C1-2026-0001", "hash": "sha256..." },
+    "C1": { "accepted": true, "folio": "CT-C1-2026-0001", "hash": "sha256..." },
     "C2": { "accepted": false, "folio": null, "hash": null }
   }
 }

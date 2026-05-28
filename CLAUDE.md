@@ -31,7 +31,7 @@ Un cambio de una línea sigue el mismo protocolo que una migración de 500 líne
 
 - **NUNCA** hacer cambios sin autorización explícita del usuario
 - **NUNCA** almacenar datos personales del firmante en la BD permanente
-- **NUNCA** usar el email de Supabase Auth (límite 2/hora)
+- **NUNCA** usar el SMTP por defecto de Supabase Auth (límite 2/hora); usar el SMTP propio configurado en Supabase Auth
 - **NUNCA** usar Google Apps Script (se está migrando desde ahí)
 - **NUNCA** mezclar datos de persona con datos de empresa en la misma lógica
 - **NUNCA** asumir que natural_tutor es solo menores — aplica a cualquier persona que firma a través de representante legal

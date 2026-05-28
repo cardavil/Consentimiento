@@ -50,14 +50,19 @@ Cada archivo HTML corresponde a una vista/pantalla concreta:
 
 | Archivo | Vista del usuario | Quién la ve | Fase |
 |---|---|---|---|
-| login.html | Inicio de sesión OTP email | Clientes | 1 |
+| login.html | Inicio de sesión OTP email | Clientes / admin | 1 |
 | registro.html | Registro cliente | Clientes nuevos | 1 |
-| onboarding.html | Configurar nube + canales (SMS/WhatsApp en F3) | Clientes primera vez | 1 |
+| onboarding.html | Configurar nube + canales (SMS/WhatsApp en F3) | Clientes primera vez | 1 (PENDIENTE) |
 | dashboard.html | Panel del cliente | Clientes activos | 1 |
-| consentimiento-solicitar.html | Formulario solicitar consentimiento (3 modos) | Clientes activos | 1 |
+| consentimiento-solicitar.html | Formulario solicitar consentimiento (3 modos) | Clientes activos | 1 (PENDIENTE) |
 | documento-solicitar.html | Formulario solicitar firma electrónica | Clientes activos | 2 |
 | documento-editor.html | Editor visual drag & drop plantillas | Clientes activos | 2 |
 | firmar.html | Portal del firmante (ambos modos, detecta session_type) | Firmantes | 1 |
+| admin/index.html | Indicadores / métricas de la plataforma | Admin / analyst | 1 |
+| admin/orgs.html | CRUD organizaciones | Admin (analyst lectura) | 1 |
+| admin/catalogs.html | CRUD catalog_doc_types | Admin / analyst con permiso | 1 |
+| admin/audit.html | Log de auditoría paginado | Admin / analyst con permiso | 1 |
+| admin/analysts.html | Gestión de analistas + permisos | Solo admin | 1 |
 
 ### Reglas HTML
 
@@ -80,6 +85,9 @@ Usados por 2+ páginas.
 | utils.js | Toasts, validación, formato, helpers UI |
 | otp-ui.js | Lógica OTP parametrizada (inputs, timer, paste, reenvío) |
 | modales.js | Abrir/cerrar/vincular modales |
+| app-header.js | Header compartido app + admin, navegación dual-role (org ↔ panel admin) |
+| admin-guard.js | Sesión + permisos admin (is_admin, has_permission, require_permission) |
+| admin-nav.js | Render de tabs admin filtradas por rol y permisos |
 
 ## JS: de página
 
@@ -89,12 +97,17 @@ Usados por 2+ páginas.
 |---|---|---|
 | login.js | login.html | 1 |
 | registro.js | registro.html | 1 |
-| onboarding.js | onboarding.html | 1 |
+| onboarding.js | onboarding.html | 1 (PENDIENTE) |
 | dashboard.js | dashboard.html | 1 |
-| consentimiento-solicitar.js | consentimiento-solicitar.html | 1 |
+| consentimiento-solicitar.js | consentimiento-solicitar.html | 1 (PENDIENTE) |
 | documento-solicitar.js | documento-solicitar.html | 2 |
 | documento-editor.js | documento-editor.html | 2 |
 | firmar.js | firmar.html (ambos modos) | 1 |
+| admin-dashboard.js | admin/index.html | 1 |
+| admin-orgs.js | admin/orgs.html | 1 |
+| admin-catalogs.js | admin/catalogs.html | 1 |
+| admin-audit.js | admin/audit.html | 1 |
+| admin-analysts.js | admin/analysts.html | 1 |
 
 ### Orden de carga
 
@@ -126,12 +139,13 @@ Usados por 2+ páginas.
 
 | Función | Responsabilidad | Fase |
 |---|---|---|
-| otp-service | Enviar y verificar OTP (email; SMS y WhatsApp en Fase 3) | 1 |
-| consent-service | Crear sesiones de consentimiento, procesar consent_items | 1 |
+| admin-service | Panel plataforma: métricas, CRUD orgs, invitar analistas, permisos, bootstrap org | 1 |
+| otp-service | Generar/verificar OTP (envío de email aún STUB; SMS y WhatsApp en Fase 3) | 1 |
+| consent-service | Crear sesiones de consentimiento, procesar consent_items | 1 (PENDIENTE) |
 | signing-service | Crear sesiones de firma electrónica, procesar campos visuales | 2 |
-| drive-service | Listar archivos, subir PDF, actualizar Sheet | 1 |
+| drive-service | Listar archivos, subir PDF, actualizar Sheet | 1 (PENDIENTE) |
 | whatsapp-service | Enviar OTP via WhatsApp Business API | 3 |
-| pdf-generator | Generar PDF con pdf-lib (consentimiento y firma) | 1 |
+| pdf-generator | Generar PDF con pdf-lib (consentimiento y firma) | 1 (PENDIENTE) |
 
 ### Convenciones Edge Functions
 

@@ -44,11 +44,15 @@ Esto previene que un atacante con la publishable key (pública en el frontend) p
 
 ## Canales de verificación factor 2
 
-El firmante verifica su identidad con un OTP de 6 dígitos enviado por uno de estos canales:
+El firmante verifica su identidad con un OTP de 8 dígitos enviado por uno de estos canales:
 
 ### Email OTP (Fase 1+)
 
-Disponible desde Fase 1. El OTP se envía al email del firmante (o del representante en modo natural_tutor) via Gmail API / Microsoft Graph del cliente. Mismo principio zero-knowledge: la plataforma no envía emails propios.
+Disponible desde Fase 1. El OTP del **firmante** (factor 2 de la firma) se envía al email del firmante (o del representante en modo natural_tutor) via Gmail API / Microsoft Graph del cliente. Mismo principio zero-knowledge: la plataforma no envía emails propios para el firmante.
+
+**OTP de autenticación del cliente** (login/registro de la organización): es un canal distinto, sale por el **SMTP propio configurado en Supabase Auth** (email de la plataforma, no del cliente). No aplica zero-knowledge porque es el propio titular de la cuenta quien se autentica. Nunca se usa el SMTP por defecto de Supabase (límite 2/hora).
+
+Largo del OTP: 8 dígitos.
 
 ### SMS Gateway — 5 capas de seguridad (Fase 3)
 
