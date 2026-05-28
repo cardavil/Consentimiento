@@ -82,8 +82,9 @@ consentia/
 │   │   ├── dashboard.html                (panel cliente)
 │   │   ├── consentimientos.html          (CRUD consent_items del cliente)
 │   │   ├── consentimiento-solicitar.html (solicitar consentimiento, 3 modos)
-│   │   ├── documento-solicitar.html      (solicitar firma — Fase 2)
-│   │   ├── documento-editor.html         (editor visual drag & drop — Fase 2)
+│   │   ├── documento-solicitar.html      (solicitar firma, 3 modos)
+│   │   ├── documento-editor.html         (editor visual drag & drop, pdf.js)
+│   │   ├── plantillas.html               (CRUD plantillas de firma)
 │   │   ├── firmar.html                   (portal firmante, ambos modos)
 │   │   └── admin/                         (panel plataforma — dual-role)
 │   │       ├── index.html                (indicadores / métricas)
@@ -109,9 +110,11 @@ consentia/
 │   │   ├── dashboard.js
 │   │   ├── consentimientos.js            (CRUD consent_items)
 │   │   ├── consentimiento-solicitar.js   (crear sesión de consentimiento)
-│   │   ├── documento-solicitar.js        (Fase 2)
-│   │   ├── documento-editor.js           (Fase 2)
+│   │   ├── documento-solicitar.js        (crear sesión de firma)
+│   │   ├── documento-editor.js           (editor de campos, pdf.js)
+│   │   ├── plantillas.js                 (CRUD plantillas)
 │   │   ├── firmar.js                     (ambos modos, detecta session_type)
+│   │   ├── firmar-fields.js              (render campos + pad de firma, firma mode)
 │   │   ├── admin-dashboard.js            (métricas)
 │   │   ├── admin-orgs.js                 (CRUD orgs)
 │   │   ├── admin-catalogs.js             (CRUD catálogos)
@@ -121,16 +124,18 @@ consentia/
 ├── supabase/
 │   ├── migrations/
 │   │   ├── 001_initial_schema.sql … 006_get_db_size.sql
-│   │   ├── 007_session_type_otp_channel.sql
-│   │   └── 008_schedule_cleanup.sql
+│   │   ├── 007_session_type_otp_channel.sql · 008_schedule_cleanup.sql
+│   │   ├── 009_signing_templates.sql      (Fase 2)
+│   │   └── 010_org_whatsapp_config.sql    (Fase 3)
 │   └── functions/
-│       ├── _shared/                       (cors, response, supabase, auth, otp, email_templates)
+│       ├── _shared/                       (cors, response, supabase, auth, otp, email_templates, pdf_evidence, channels/{sms,whatsapp})
 │       ├── admin-service/                 (métricas, orgs, invitaciones, permisos)
-│       ├── otp-service/                   (OTP firmante vía correo del cliente)
+│       ├── otp-service/                   (OTP firmante; router de canal email/sms/whatsapp)
 │       ├── consent-service/               (create_session, sign, pdf.ts con pdf-lib)
 │       ├── drive-service/                 (OAuth + providers/google + providers/microsoft)
-│       ├── signing-service/               (Fase 2)
-│       └── whatsapp-service/              (Fase 3)
-├── android/                              (Fase 3)
+│       ├── signing-service/               (Fase 2: plantillas, firma, pdf_firma.ts)
+│       ├── config-service/                (Fase 3: config SMS/WhatsApp encriptada + test)
+│       └── whatsapp-service → módulo en _shared/channels (no función propia)
+├── android/                              (Fase 3: gateway SMS Kotlin — NanoHTTPD, foreground service)
 └── docs/
 ```

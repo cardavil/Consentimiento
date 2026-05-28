@@ -1,7 +1,7 @@
 import { handle_cors } from '../_shared/cors.ts';
 import { err } from '../_shared/response.ts';
 import { handle_oauth_start, handle_oauth_callback } from './oauth.ts';
-import { handle_list_files, handle_get_status, handle_disconnect } from './files.ts';
+import { handle_list_files, handle_get_status, handle_disconnect, handle_download_b64 } from './files.ts';
 
 Deno.serve(async (req) => {
   const cors = handle_cors(req);
@@ -18,6 +18,8 @@ Deno.serve(async (req) => {
         return await handle_oauth_callback(body, req);
       case 'list_files':
         return await handle_list_files(body, req);
+      case 'download_b64':
+        return await handle_download_b64(body, req);
       case 'get_status':
         return await handle_get_status(body, req);
       case 'disconnect':

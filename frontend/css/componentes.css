@@ -1174,3 +1174,53 @@ select.form-input {
     max-width: none;
   }
 }
+
+/* --- Signature editor / signer fields (Fase 2) --- */
+.editor-toolbar { display: flex; flex-wrap: wrap; gap: var(--spacing-sm); }
+
+.pdf-page-wrap {
+  position: relative;
+  margin: 0 auto var(--spacing-md);
+  box-shadow: var(--shadow);
+}
+.pdf-page-wrap canvas { display: block; }
+
+.pdf-overlay { position: absolute; inset: 0; }
+
+.field-box {
+  position: absolute;
+  box-sizing: border-box;
+  background: var(--teal-soft);
+  border: 1.5px dashed var(--teal-dark);
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--verde-profundo);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: move;
+  user-select: none;
+}
+.field-box-sel { border-style: solid; box-shadow: 0 0 0 2px var(--teal); }
+
+/* Signer-side fillable field overlay */
+.field-fill {
+  position: absolute;
+  box-sizing: border-box;
+  border: 1.5px solid var(--teal);
+  border-radius: 4px;
+  background: rgba(23, 179, 163, 0.08);
+}
+.field-fill input { width: 100%; height: 100%; border: 0; background: transparent; font-size: 12px; }
+.field-fill-pending { border-color: var(--danger); }
+
+.sig-pad {
+  border: 1.5px solid var(--gris-claro);
+  border-radius: var(--radius);
+  background: var(--white);
+  touch-action: none;
+  width: 100%;
+  max-width: 360px;
+  height: 140px;
+}

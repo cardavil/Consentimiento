@@ -46,6 +46,13 @@ Proyecto Consentia (antes FirmaConsent) con documentación estructurada, schema 
 - **SMTP propio configurado** en Supabase Auth para OTP de login/registro (ya no aplica el límite 2/hora del SMTP por defecto).
 - **Documentación sincronizada** con el código real (este commit): README, STACK, CONVENTIONS, DATABASE, FLOWS, SECURITY, API.
 
+### Sesión 4 — Fase 2 (firma) + Fase 3 (2FA) (2026-05-28)
+
+- **Fase 2 — Editor visual de firma:** migración 009 (`signing_templates`, `fields` en temp, `template_id` en results); Edge Function `signing-service` (create_template con límite por plan 0/3/20/∞, create_session, sign con `pdf_firma.ts`, get_document, get_channels); frontend `documento-editor` (pdf.js + drag), `documento-solicitar`, `plantillas`, modo firma en `firmar.html` + `firmar-fields.js` (pad de firma). `pdf_evidence.ts` extraído y compartido.
+- **Fase 3 — 2FA SMS + WhatsApp:** migración 010 (`org_whatsapp_config`); canales `_shared/channels/{sms,whatsapp}.ts`; router de canal en `otp-service`; `config-service` (guardar config encriptada + test); onboarding extendido (SMS/WhatsApp); selector de canal en `firmar.html`.
+- **App Android (`android/`):** proyecto Kotlin completo — `GatewayService` (foreground + boot), `HttpServer` (NanoHTTPD), 5 capas de seguridad, `SmsSender`, `PairingStore` (EncryptedSharedPreferences), `MainActivity` (vinculación QR).
+- **Estado:** código de las 3 fases completo; **no probado en runtime** (requiere credenciales OAuth/Meta, secrets, despliegue, gateway).
+
 ---
 
 ## Commits
@@ -69,12 +76,12 @@ Proyecto Consentia (antes FirmaConsent) con documentación estructurada, schema 
 | Marca | Consentia — manual aprobado en docs/mockups/manual-marca-consentia.html |
 | Documentación | Sincronizada con el código real (README + 7 docs) |
 | Schema BD (docs) | 12 tablas implementadas + 2 pendientes (signing_templates F2, org_whatsapp_config F3) |
-| Migraciones SQL | 001–006 aplicadas; 007–008 creadas (pendiente aplicar). Pendiente: signing_templates (F2) y org_whatsapp_config (F3) |
-| Supabase | ACTIVE_HEALTHY, 12 tablas, RLS habilitado, dual-role |
+| Migraciones SQL | 001–010 creadas (001–006 aplicadas; 007–010 pendiente aplicar). 14 tablas |
+| Supabase | ACTIVE_HEALTHY, 14 tablas, RLS habilitado, dual-role |
 | Cloudflare | CLI instalada, autenticada. Tunnel pendiente |
-| Frontend | Fase 1 completa: login, registro, dashboard, onboarding, consentimientos, consentimiento-solicitar, firmar + panel admin (5 páginas) |
-| Edge Functions | `admin-service`, `otp-service`, `consent-service`, `drive-service` (Google+Microsoft). Pendiente runtime (OAuth/secrets/deploy) |
-| App Android | No existe. Cero código (Fase 3) |
+| Frontend | 3 fases: F1 (consentimiento) + F2 (firma: editor, plantillas, solicitar, firmar) + F3 (onboarding SMS/WhatsApp, selector canal) + panel admin |
+| Edge Functions | `admin-service`, `otp-service`, `consent-service`, `drive-service`, `signing-service`, `config-service`. Pendiente runtime (OAuth/Meta/secrets/deploy) |
+| App Android | `android/` proyecto Kotlin completo (gateway SMS). Pendiente compilar/probar/Play Store |
 | Landing page | index.html en la raíz |
 
 ---

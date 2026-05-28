@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guía de auditoría · Consentia (Fases 1–3)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --verde-profundo:#0F4C5C; --teal:#17B3A3; --teal-dark:#0E8A7D; --teal-soft:#E6F7F5;
+    --gris-azulado:#1E2A3A; --azul-grisaceo:#5F7D95; --fondo:#F5F8FC; --gris-claro:#DCE5EE;
+    --gris-oscuro:#1F2937; --danger:#E74C3C; --white:#fff; --radius:10px; --radius-lg:16px;
+    --shadow:0 1px 4px rgba(30,42,58,.06); --shadow-md:0 4px 16px rgba(30,42,58,.10);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--fondo);color:var(--gris-oscuro);font-family:'DM Sans',system-ui,Arial,sans-serif;line-height:1.55}
+  header{background:var(--verde-profundo);color:#fff;padding:32px 24px}
+  .wrap{max-width:920px;margin:0 auto;padding:0 24px}
+  .brand{font-size:30px;font-weight:700;letter-spacing:.3px}
+  .brand em{font-style:normal;color:var(--teal)}
+  header p{margin:6px 0 0;color:#cfe8e6}
+  h2{font-family:'DM Serif Display',serif;color:var(--verde-profundo);font-size:24px;margin:40px 0 4px;border-bottom:2px solid var(--teal);padding-bottom:8px}
+  h3{color:var(--teal-dark);font-size:17px;margin:24px 0 8px}
+  .sub{color:var(--azul-grisaceo);font-size:14px;margin:0 0 12px}
+  .card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px;margin:14px 0}
+  ul.checklist{list-style:none;margin:0;padding:0}
+  ul.checklist li{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--fondo)}
+  ul.checklist li:last-child{border-bottom:0}
+  ul.checklist input{margin-top:3px;width:17px;height:17px;accent-color:var(--teal);flex:0 0 auto;cursor:pointer}
+  ul.checklist label{cursor:pointer}
+  code,.mono{font-family:'IBM Plex Mono',monospace;font-size:.88em;background:var(--teal-soft);color:var(--verde-profundo);padding:1px 5px;border-radius:4px}
+  pre{font-family:'IBM Plex Mono',monospace;font-size:13px;background:var(--gris-azulado);color:#e7eef5;padding:14px 16px;border-radius:var(--radius);overflow-x:auto}
+  .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;vertical-align:middle;margin-left:8px}
+  .t-f1{background:var(--teal-soft);color:var(--teal-dark)}
+  .t-f2{background:#eef3ff;color:#3a5bb8}
+  .t-f3{background:#fdeee9;color:#b5532f}
+  .crit{border-left:4px solid var(--danger);background:#fdf3f1}
+  .note{border-left:4px solid var(--teal);background:var(--teal-soft)}
+  .progress-bar{position:sticky;top:0;z-index:10;background:var(--white);box-shadow:var(--shadow);padding:10px 0}
+  .progress-track{height:10px;background:var(--gris-claro);border-radius:999px;overflow:hidden}
+  .progress-fill{height:100%;width:0;background:var(--teal);transition:width .25s}
+  .progress-row{display:flex;justify-content:space-between;align-items:center;gap:16px}
+  .btn{font-family:inherit;font-size:13px;border:1px solid var(--gris-claro);background:var(--white);color:var(--gris-azulado);padding:6px 12px;border-radius:8px;cursor:pointer}
+  .btn:hover{border-color:var(--teal)}
+  footer{color:var(--azul-grisaceo);font-size:13px;padding:30px 0 60px;text-align:center}
+  .legend{font-size:13px;color:var(--azul-grisaceo);margin:8px 0 0}
+  @media print{.progress-bar,.btn{display:none}body{background:#fff}.card{box-shadow:none;border:1px solid var(--gris-claro)}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="brand">Consen<em>tia</em></div>
+    <p>Guía de auditoría — Fases 1, 2 y 3 · Generada para verificar el código construido</p>
+  </div>
+</header>
+
+<div class="progress-bar">
+  <div class="wrap progress-row">
+    <div style="flex:1">
+      <div class="progress-track"><div class="progress-fill" id="pf"></div></div>
+    </div>
+    <span class="mono" id="pt">0 / 0</span>
+    <button class="btn" onclick="resetChecks()">Reiniciar</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <p class="legend">Marca cada paso conforme lo verificas. El progreso se guarda en este navegador.
+  Las etiquetas indican la fase: <span class="tag t-f1">F1</span> consentimiento · <span class="tag t-f2">F2</span> firma · <span class="tag t-f3">F3</span> 2FA.</p>
+
+  <h2>0 · Prerrequisitos (entorno)</h2>
+  <p class="sub">Nada del flujo corre sin esto. El código está completo pero no se probó en runtime.</p>
+
+  <div class="card">
+    <h3>Supabase</h3>
+    <ul class="checklist" data-group="prereq">
+      <li><input type="checkbox"><label>Aplicar migraciones <code>001</code>–<code>010</code> (<code>supabase db push</code>) y confirmar 14 tablas.</label></li>
+      <li><input type="checkbox"><label>Habilitar <code>pg_cron</code> (necesario para la migración 008).</label></li>
+      <li><input type="checkbox"><label>Desplegar Edge Functions: <code>admin-service</code>, <code>otp-service</code>, <code>consent-service</code>, <code>drive-service</code>, <code>signing-service</code>, <code>config-service</code>.</label></li>
+      <li><input type="checkbox"><label>Secrets: <code>ENCRYPTION_KEY</code>, <code>GOOGLE_CLIENT_ID/SECRET</code>, <code>MS_CLIENT_ID/SECRET</code>, <code>OAUTH_REDIRECT_BASE</code>.</label></li>
+      <li><input type="checkbox"><label>Configurar SMTP propio en Supabase Auth y longitud de OTP en <strong>8 dígitos</strong>.</label></li>
+    </ul>
+    <pre>supabase db push
+supabase functions deploy admin-service otp-service consent-service drive-service signing-service config-service
+supabase secrets set ENCRYPTION_KEY=... GOOGLE_CLIENT_ID=... GOOGLE_CLIENT_SECRET=... \
+  MS_CLIENT_ID=... MS_CLIENT_SECRET=... OAUTH_REDIRECT_BASE=https://&lt;tu-pages&gt;/frontend/pages</pre>
+  </div>
+
+  <div class="card">
+    <h3>OAuth de nube</h3>
+    <ul class="checklist" data-group="prereq">
+      <li><input type="checkbox"><label><strong>Google Cloud:</strong> OAuth client + redirect URI <code>OAUTH_REDIRECT_BASE/onboarding.html</code>; scopes <code>drive.readonly</code>, <code>drive.file</code>, <code>spreadsheets</code>, <code>gmail.send</code>, <code>openid email</code>.</label></li>
+      <li><input type="checkbox"><label><strong>Microsoft Entra:</strong> app registration + redirect URI; scopes <code>Files.ReadWrite</code>, <code>Mail.Send</code>, <code>offline_access</code>, <code>openid email</code>.</label></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>Fase 3 (opcional para auditar 2FA)</h3>
+    <ul class="checklist" data-group="prereq">
+      <li><input type="checkbox"><label><strong>WhatsApp:</strong> cuenta Meta Business del cliente — <code>phone_number_id</code>, <code>waba_id</code>, access token, plantilla OTP aprobada (env <code>WHATSAPP_OTP_TEMPLATE</code>).</label></li>
+      <li><input type="checkbox"><label><strong>SMS:</strong> compilar app <code>android/</code>, levantar Cloudflare Tunnel (<code>cloudflared tunnel --url http://localhost:8080</code>), vincular por QR.</label></li>
+    </ul>
+  </div>
+
+  <h2>1 · Fase 1 — Consentimiento <span class="tag t-f1">F1</span></h2>
+  <div class="card">
+    <h3>Cuenta y conexión</h3>
+    <ul class="checklist" data-group="f1">
+      <li><input type="checkbox"><label>Registro (natural y jurídica) con OTP de 8 dígitos → queda logueado.</label></li>
+      <li><input type="checkbox"><label>Login por email → OTP → dashboard.</label></li>
+      <li><input type="checkbox"><label>Onboarding: conectar <strong>Google</strong> → vuelve con estado "Conectado", muestra correo emisor.</label></li>
+      <li><input type="checkbox"><label>Onboarding: conectar <strong>Microsoft</strong> → idem.</label></li>
+      <li><input type="checkbox"><label>En BD: <code>org_oauth</code> tiene <code>access_token</code>/<code>refresh_token</code> como <code>BYTEA</code> (cifrado), carpeta y sheet creados.</label></li>
+    </ul>
+    <h3>Flujo de consentimiento</h3>
+    <ul class="checklist" data-group="f1">
+      <li><input type="checkbox"><label>Crear consentimientos en <code>consentimientos.html</code> (CRUD <code>consent_items</code>).</label></li>
+      <li><input type="checkbox"><label>Solicitar consentimiento (3 modos): seleccionar documentos de la nube + consentimientos → crea sesión + enlace; llega email al firmante.</label></li>
+      <li><input type="checkbox"><label>Abrir <code>firmar.html?token=…</code>: ve sus datos, documentos (iframe), consentimientos.</label></li>
+      <li><input type="checkbox"><label>Marcar obligatorios → enviar OTP → llega <strong>desde el correo del cliente</strong> (no Supabase) → verificar.</label></li>
+      <li><input type="checkbox"><label>Confirmación muestra tabla código/decisión/folio/hash.</label></li>
+    </ul>
+    <h3>Resultado</h3>
+    <ul class="checklist" data-group="f1">
+      <li><input type="checkbox"><label>PDF constancia en el Drive del cliente: contiene <strong>las páginas reales de cada documento</strong> + consentimientos + evidencia (IP/UA/fecha) + folios/hashes.</label></li>
+      <li><input type="checkbox"><label>Fila agregada al Sheet de historial; copia idéntica enviada al firmante.</label></li>
+      <li><input type="checkbox"><label><strong>Zero-knowledge:</strong> <code>signing_sessions_temp</code> borrado; <code>signing_sessions_results</code> sin datos personales (solo folio/pdf_hash/consent_hashes).</label></li>
+    </ul>
+  </div>
+
+  <h2>2 · Fase 2 — Firma electrónica <span class="tag t-f2">F2</span></h2>
+  <div class="card">
+    <h3>Plantillas y editor</h3>
+    <ul class="checklist" data-group="f2">
+      <li><input type="checkbox"><label>Límite por plan se respeta: trial 0 / basic 3 / pro 20 / enterprise ∞ (error <code>LIMITE_PLANTILLAS</code> al exceder).</label></li>
+      <li><input type="checkbox"><label>Editor (<code>documento-editor</code>): renderiza el PDF (pdf.js), se arrastran campos (firma/fecha/iniciales/checkbox/texto), se configuran y guardan.</label></li>
+      <li><input type="checkbox"><label>Guardar plantilla y "usar sin guardar" (inline) funcionan.</label></li>
+    </ul>
+    <h3>Solicitar y firmar</h3>
+    <ul class="checklist" data-group="f2">
+      <li><input type="checkbox"><label>Solicitar firma (3 modos): un documento + plantilla o campos inline → enlace + email.</label></li>
+      <li><input type="checkbox"><label>Firmante ve el PDF con campos posicionados; llena fecha/texto/checkbox y dibuja la firma en el pad.</label></li>
+      <li><input type="checkbox"><label>Campos obligatorios bloquean el envío de OTP hasta completarse.</label></li>
+      <li><input type="checkbox"><label>OTP → firmar → PDF firmado en Drive con los valores aplicados + evidencia + folio.</label></li>
+      <li><input type="checkbox"><label>Copia al firmante; <code>temp</code> borrado; <code>results</code> con <code>session_type='firma'</code>.</label></li>
+    </ul>
+  </div>
+
+  <h2>3 · Fase 3 — 2FA (SMS + WhatsApp) <span class="tag t-f3">F3</span></h2>
+  <div class="card">
+    <h3>Configuración (onboarding)</h3>
+    <ul class="checklist" data-group="f3">
+      <li><input type="checkbox"><label>WhatsApp: guardar config → <code>org_whatsapp_config</code> con <code>access_token</code> cifrado; "Probar" envía mensaje.</label></li>
+      <li><input type="checkbox"><label>SMS: generar API key + HMAC, guardar URL del tunnel → <code>org_sms_config</code> con secretos cifrados; "Probar" envía SMS.</label></li>
+      <li><input type="checkbox"><label>App Android: vincular por QR, activar gateway, conceder permisos SMS.</label></li>
+    </ul>
+    <h3>Verificación del firmante</h3>
+    <ul class="checklist" data-group="f3">
+      <li><input type="checkbox"><label>En <code>firmar.html</code> (modo firma) aparece el <strong>selector de canal</strong> con los canales habilitados.</label></li>
+      <li><input type="checkbox"><label>OTP llega por <strong>WhatsApp</strong> (Meta) y por <strong>SMS</strong> (gateway).</label></li>
+      <li><input type="checkbox"><label>El gateway rechaza peticiones con firma/timestamp/nonce inválidos (5 capas).</label></li>
+      <li><input type="checkbox"><label><code>signing_sessions_results.otp_channel</code> refleja el canal usado.</label></li>
+    </ul>
+  </div>
+
+  <h2>4 · Puntos críticos (auditar con lupa)</h2>
+  <div class="card crit">
+    <ul class="checklist" data-group="crit">
+      <li><input type="checkbox"><label><strong>Round-trip de <code>BYTEA</code> cifrado:</strong> que <code>encrypt_secret</code>/<code>decrypt_secret</code> vía RPC funcionen end-to-end (PostgREST entrega/acepta <code>\x</code> hex). Es lo no probado más riesgoso.</label></li>
+      <li><input type="checkbox"><label><strong>Coordenadas del PDF de firma</strong> (<code>pdf_firma.ts</code>): conversión top-left (editor) → bottom-left (pdf-lib) y <code>embedPng</code> de la firma quedan en la posición correcta.</label></li>
+      <li><input type="checkbox"><label><strong>Refresh de tokens OAuth</strong> (<code>connection.ts</code>): renueva y re-cifra cuando expira.</label></li>
+      <li><input type="checkbox"><label><strong>RLS por token:</strong> el firmante anónimo solo accede a su sesión (<code>x-access-token</code>) y nunca a datos de otras orgs.</label></li>
+      <li><input type="checkbox"><label><strong>HMAC SMS coincide</strong>: cadena <code>to|message|timestamp|nonce</code> idéntica en <code>channels/sms.ts</code> y en la app Android.</label></li>
+    </ul>
+  </div>
+
+  <h2>5 · Revisión de código</h2>
+  <div class="card note">
+    <ul class="checklist" data-group="code">
+      <li><input type="checkbox"><label><code>deno check</code> sobre <code>supabase/functions/**</code> (no se pudo correr aquí — verificar tipos/imports).</label></li>
+      <li><input type="checkbox"><label>Compilar la app Android (<code>./gradlew assembleDebug</code>).</label></li>
+      <li><input type="checkbox"><label>Revisar limitaciones conocidas (en <code>CLAUDE_STATUS.md</code>): QR de pairing como texto, preview OneDrive vía iframe Drive, historial Microsoft en CSV, landing pendiente.</label></li>
+      <li><input type="checkbox"><label>Confirmar que ningún placeholder usa datos personales reales.</label></li>
+    </ul>
+  </div>
+
+  <footer>Consentia · Guía de auditoría generada por Claude — marca los pasos a medida que verificas.</footer>
+</div>
+
+<script>
+  var KEY = 'consentia_audit_v1';
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('ul.checklist input[type=checkbox]'));
+  boxes.forEach(function(b,i){ b.dataset.idx = i; });
+
+  function load(){
+    var saved = {};
+    try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e){}
+    boxes.forEach(function(b,i){ b.checked = !!saved[i]; });
+    update();
+  }
+  function save(){
+    var state = {};
+    boxes.forEach(function(b,i){ if(b.checked) state[i] = 1; });
+    localStorage.setItem(KEY, JSON.stringify(state));
+  }
+  function update(){
+    var done = boxes.filter(function(b){ return b.checked; }).length;
+    document.getElementById('pf').style.width = (boxes.length ? (done/boxes.length*100) : 0) + '%';
+    document.getElementById('pt').textContent = done + ' / ' + boxes.length;
+  }
+  function resetChecks(){
+    localStorage.removeItem(KEY);
+    boxes.forEach(function(b){ b.checked = false; });
+    update();
+  }
+  boxes.forEach(function(b){ b.addEventListener('change', function(){ save(); update(); }); });
+  // Clicking the label toggles its checkbox
+  document.querySelectorAll('ul.checklist label').forEach(function(l){
+    l.addEventListener('click', function(){
+      var cb = l.parentElement.querySelector('input');
+      if(cb && document.activeElement !== cb){ cb.checked = !cb.checked; cb.dispatchEvent(new Event('change')); }
+    });
+  });
+  load();
+</script>
+</body>
+</html>

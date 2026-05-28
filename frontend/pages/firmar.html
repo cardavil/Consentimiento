@@ -60,51 +60,64 @@
               <!-- Consent checkboxes populated by JS -->
             </div>
           </section>
+        </div>
 
-          <!-- OTP verification -->
-          <section class="card mb-md" id="seccion-otp">
-            <h3>Verificación</h3>
-            <div id="sub-enviar-otp-firma">
-              <p class="text-sm mb-md">
-                Para confirmar tu identidad, enviaremos un código a tu email.
-              </p>
-              <button type="button" id="btn-enviar-otp-firma" class="btn btn-primary btn-block" disabled>
-                Enviar código de verificación
-              </button>
-            </div>
+        <!-- Main content: Firma mode (Phase 2) -->
+        <div id="seccion-firma" hidden>
+          <div class="text-center mb-lg">
+            <div class="auth-brand">Consen<em>tia</em></div>
+            <p class="auth-subtitle">Firma electrónica</p>
+          </div>
 
-            <div id="sub-ingresar-otp-firma" hidden>
-              <p class="text-sm text-center mb-sm">
-                Código enviado a <strong id="otp-email-firma"></strong>
-              </p>
-              <div class="otp-grupo" role="group" aria-label="Código de verificación">
-                <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 1">
-                <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 2">
-                <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 3">
-                <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 4">
-                <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 5">
-                <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 6">
-                <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 7">
-                <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 8">
-              </div>
-              <button type="button" id="btn-verificar-firma" class="btn btn-primary btn-block" disabled>
-                Firmar
-              </button>
-              <div class="text-sm text-muted text-center mt-md">
-                <span id="otp-timer">60s</span>
-                <button type="button" id="btn-reenviar" class="btn btn-ghost btn-sm" hidden>Reenviar código</button>
-              </div>
-            </div>
+          <section class="card mb-md">
+            <h3>Tus datos</h3>
+            <div id="datos-firmante-firma" class="text-sm"></div>
+            <p class="text-xs text-muted mt-sm"><span id="firma-fecha-f"></span> · IP: <span id="firma-ip-f"></span></p>
+          </section>
+
+          <section class="card mb-md">
+            <h3>Documento</h3>
+            <p class="text-sm text-muted mb-sm">Completa los campos marcados y luego verifica tu identidad.</p>
+            <div id="firma-pdf-pages"><p class="text-sm text-muted">Cargando documento…</p></div>
           </section>
         </div>
 
-        <!-- Main content: Firma mode (Phase 2 placeholder) -->
-        <div id="seccion-firma" hidden>
-          <div class="card card-lg text-center">
-            <h2>Firma electrónica</h2>
-            <p class="text-muted">Disponible en Fase 2</p>
+        <!-- OTP verification (shared by both modes) -->
+        <section class="card mb-md" id="seccion-otp" hidden>
+          <h3>Verificación</h3>
+          <div id="sub-enviar-otp-firma">
+            <p class="text-sm mb-md">
+              Para confirmar tu identidad, enviaremos un código de verificación.
+            </p>
+            <div id="otp-channel-select" class="mb-md" hidden></div>
+            <button type="button" id="btn-enviar-otp-firma" class="btn btn-primary btn-block" disabled>
+              Enviar código de verificación
+            </button>
           </div>
-        </div>
+
+          <div id="sub-ingresar-otp-firma" hidden>
+            <p class="text-sm text-center mb-sm">
+              Código enviado a <strong id="otp-email-firma"></strong>
+            </p>
+            <div class="otp-grupo" role="group" aria-label="Código de verificación">
+              <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 1">
+              <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 2">
+              <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 3">
+              <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 4">
+              <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 5">
+              <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 6">
+              <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 7">
+              <input type="text" maxlength="1" inputmode="numeric" class="otp-digito" aria-label="Dígito 8">
+            </div>
+            <button type="button" id="btn-verificar-firma" class="btn btn-primary btn-block" disabled>
+              Firmar
+            </button>
+            <div class="text-sm text-muted text-center mt-md">
+              <span id="otp-timer">60s</span>
+              <button type="button" id="btn-reenviar" class="btn btn-ghost btn-sm" hidden>Reenviar código</button>
+            </div>
+          </div>
+        </section>
 
         <!-- Confirmation -->
         <div id="seccion-confirmacion" hidden>
@@ -140,10 +153,12 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
   <script src="../js/config.js"></script>
   <script src="../js/supabase-client.js"></script>
   <script src="../js/utils.js"></script>
   <script src="../js/otp-ui.js"></script>
+  <script src="../js/firmar-fields.js"></script>
   <script src="../js/firmar.js"></script>
 </body>
 </html>

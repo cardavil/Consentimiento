@@ -6,6 +6,7 @@ const state = {
   client_ip: null,
   timer_id: null,
   seconds_remaining: 0,
+  channel: 'email',
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -76,7 +77,7 @@ function render_session() {
   if (state.session_type === 'consent') {
     render_consent_mode();
   } else if (state.session_type === 'firma') {
-    document.getElementById('seccion-firma').hidden = false;
+    render_firma_mode();
   } else {
     show_error_section('Tipo de sesión no reconocido.');
   }
@@ -107,7 +108,74 @@ function render_consent_mode() {
     render_consents(state.temp.consents);
   }
 
+  document.getElementById('seccion-otp').hidden = false;
   bind_consent_events();
+}
+
+// --- Firma mode (Phase 2) ---
+
+async function render_firma_mode() {
+  document.getElementById('seccion-firma').hidden = false;
+
+  if (state.temp && state.temp.signer) {
+    const s = state.temp.signer;
+    document.getElementById('datos-firmante-firma').innerHTML =
+      '<p><strong>' + escape_html(s.nombre || '') + ' ' + escape_html(s.apellido || '') + '</strong></p>' +
+      '<p>' + escape_html(format_doc_type(s.tipoDoc || '')) + ' ' + escape_html(s.numero || '') + '</p>' +
+      '<p>' + escape_html(s.email || '') + '</p>';
+  }
+  document.getElementById('firma-fecha-f').textContent = format_date();
+  document.getElementById('firma-ip-f').textContent = state.client_ip || '...';
+
+  const fields = (state.temp && state.temp.fields) || [];
+
+  try {
+    const data = await call_edge_function('signing-service', { action: 'get_document' }, state.token);
+    const bytes = window.firma_fields.b64_to_bytes(data.bytes_b64);
+    await window.firma_fields.render('firma-pdf-pages', bytes, fields, check_required_fields);
+  } catch (err) {
+    document.getElementById('firma-pdf-pages').innerHTML =
+      '<p class="text-danger">' + escape_html(user_message(err.message)) + '</p>';
+  }
+
+  document.getElementById('seccion-otp').hidden = false;
+  bind_otp_events();
+  check_required_fields();
+  await load_channels();
+}
+
+async function load_channels() {
+  try {
+    const ch = await call_edge_function('signing-service', { action: 'get_channels' }, state.token);
+    const available = [];
+    if (ch.email) available.push(['email', 'Correo electrónico']);
+    if (ch.sms) available.push(['sms', 'SMS']);
+    if (ch.whatsapp) available.push(['whatsapp', 'WhatsApp']);
+    if (available.length <= 1) { state.channel = available[0] ? available[0][0] : 'email'; return; }
+
+    state.channel = available[0][0];
+    const box = document.getElementById('otp-channel-select');
+    box.hidden = false;
+    box.innerHTML = '<p class="text-sm mb-sm">Recibir código por:</p>' + available.map(function (c, i) {
+      return '<label class="dash-check-item"><input type="radio" name="otp-ch" value="' + c[0] + '"' + (i === 0 ? ' checked' : '') + '> ' + c[1] + '</label>';
+    }).join('');
+    box.querySelectorAll('input[name="otp-ch"]').forEach(function (r) {
+      r.addEventListener('change', function () { state.channel = r.value; });
+    });
+  } catch (_e) {
+    state.channel = 'email';
+  }
+}
+
+function check_required_fields() {
+  const ok = window.firma_fields && window.firma_fields.all_required_filled();
+  document.getElementById('btn-enviar-otp-firma').disabled = !ok;
+}
+
+function bind_otp_events() {
+  document.getElementById('btn-enviar-otp-firma').addEventListener('click', on_send_otp);
+  document.getElementById('btn-verificar-firma').addEventListener('click', on_verify_and_sign);
+  document.getElementById('btn-reenviar').addEventListener('click', on_resend_otp);
 }
 
 function render_documents(docs) {
@@ -185,9 +253,11 @@ async function on_send_otp() {
       action: 'send',
       email: state.signer_email,
       context: 'sign',
+      channel: state.channel,
     }, state.token);
 
-    document.getElementById('otp-email-firma').textContent = state.signer_email;
+    document.getElementById('otp-email-firma').textContent =
+      state.channel === 'email' ? state.signer_email : 'tu teléfono';
     document.getElementById('sub-enviar-otp-firma').hidden = true;
     document.getElementById('sub-ingresar-otp-firma').hidden = false;
     init_otp('btn-verificar-firma');
@@ -207,6 +277,7 @@ async function on_resend_otp() {
       action: 'send',
       email: state.signer_email,
       context: 'sign',
+      channel: state.channel,
     }, state.token);
     show_success('Código reenviado');
     start_timer(state);
@@ -224,17 +295,26 @@ async function on_verify_and_sign() {
   set_button_loading(btn, 'Firmando...');
 
   try {
-    const consents_marked = get_marked_consents();
-
-    const result = await call_edge_function('consent-service', {
-      action: 'sign',
-      session_id: state.session.id,
-      otp_code: code,
-      consents: consents_marked,
-      ip: state.client_ip,
-      user_agent: navigator.userAgent,
-    }, state.token);
-
+    let result;
+    if (state.session_type === 'firma') {
+      result = await call_edge_function('signing-service', {
+        action: 'sign',
+        session_id: state.session.id,
+        otp_code: code,
+        fields: window.firma_fields.get_values(),
+        ip: state.client_ip,
+        user_agent: navigator.userAgent,
+      }, state.token);
+    } else {
+      result = await call_edge_function('consent-service', {
+        action: 'sign',
+        session_id: state.session.id,
+        otp_code: code,
+        consents: get_marked_consents(),
+        ip: state.client_ip,
+        user_agent: navigator.userAgent,
+      }, state.token);
+    }
     show_confirmation(result);
   } catch (err) {
     show_error(user_message(err.message));
@@ -258,6 +338,8 @@ function get_marked_consents() {
 
 function show_confirmation(result) {
   document.getElementById('seccion-consent').hidden = true;
+  document.getElementById('seccion-firma').hidden = true;
+  document.getElementById('seccion-otp').hidden = true;
   document.getElementById('seccion-confirmacion').hidden = false;
 
   const tbody = document.getElementById('tbody-confirmacion');

@@ -1,12 +1,7 @@
 // Builds the self-contained constancia PDF with pdf-lib:
 // real pages of each signed document + accepted consent texts + evidence pages.
-import { PDFDocument, PDFFont, PDFPage, StandardFonts, rgb } from 'https://esm.sh/pdf-lib@1.17.1';
-
-const TEAL = rgb(0.09, 0.70, 0.64);
-const DARK = rgb(0.12, 0.16, 0.23);
-const GREY = rgb(0.37, 0.49, 0.58);
-const A4: [number, number] = [595.28, 841.89];
-const MARGIN = 56;
+import { PDFDocument, StandardFonts } from 'https://esm.sh/pdf-lib@1.17.1';
+import { GREY, Writer } from '../_shared/pdf_evidence.ts';
 
 export interface ConsentResult {
   code: string;
@@ -106,68 +101,4 @@ function signer_lines(mode: string, s: Record<string, unknown>): string[] {
     `${g('tipoDoc')} ${g('numero')}`,
     `${g('email')} · ${g('telefono')}`,
   ];
-}
-
-// Minimal multi-page text writer for pdf-lib (handles wrapping + page breaks).
-class Writer {
-  private page: PDFPage;
-  private y: number;
-  constructor(private doc: PDFDocument, private font: PDFFont, private bold: PDFFont) {
-    this.page = doc.addPage(A4);
-    this.y = A4[1] - MARGIN;
-  }
-  private ensure(space: number) {
-    if (this.y - space < MARGIN) {
-      this.page = this.doc.addPage(A4);
-      this.y = A4[1] - MARGIN;
-    }
-  }
-  gap(h: number) { this.y -= h; }
-  title(text: string) {
-    this.ensure(28);
-    this.page.drawText(text, { x: MARGIN, y: this.y, size: 16, font: this.bold, color: DARK });
-    this.y -= 10;
-    this.page.drawLine({ start: { x: MARGIN, y: this.y }, end: { x: A4[0] - MARGIN, y: this.y }, thickness: 1.5, color: TEAL });
-    this.y -= 14;
-  }
-  heading(text: string) {
-    this.ensure(20);
-    this.page.drawText(text, { x: MARGIN, y: this.y, size: 12, font: this.bold, color: TEAL });
-    this.y -= 16;
-  }
-  line(text: string, f = this.font) {
-    this.ensure(14);
-    this.page.drawText(clip(text, 110), { x: MARGIN, y: this.y, size: 10, font: f, color: DARK });
-    this.y -= 14;
-  }
-  mono(text: string) {
-    this.ensure(12);
-    this.page.drawText(clip(text, 96), { x: MARGIN, y: this.y, size: 8, font: this.font, color: GREY });
-    this.y -= 12;
-  }
-  wrapped(text: string, color = DARK) {
-    const max = A4[0] - 2 * MARGIN;
-    const words = String(text).split(/\s+/);
-    let curr = '';
-    for (const word of words) {
-      const test = curr ? curr + ' ' + word : word;
-      if (this.font.widthOfTextAtSize(test, 9) > max) {
-        this.ensure(12);
-        this.page.drawText(curr, { x: MARGIN, y: this.y, size: 9, font: this.font, color });
-        this.y -= 12;
-        curr = word;
-      } else {
-        curr = test;
-      }
-    }
-    if (curr) {
-      this.ensure(12);
-      this.page.drawText(curr, { x: MARGIN, y: this.y, size: 9, font: this.font, color });
-      this.y -= 12;
-    }
-  }
-}
-
-function clip(text: string, max: number): string {
-  return text.length > max ? text.slice(0, max - 1) + '…' : text;
 }

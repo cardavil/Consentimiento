@@ -43,6 +43,45 @@
         </ul>
       </div>
 
+      <!-- WhatsApp Business (Fase 3) -->
+      <div class="card mt-md">
+        <div class="flex-between mb-sm">
+          <h3 class="m-0">WhatsApp Business (opcional)</h3>
+          <span id="wa-badge" class="badge badge-warning">No configurado</span>
+        </div>
+        <p class="text-sm text-muted mb-md">Env&iacute;a los c&oacute;digos por WhatsApp desde tu propia cuenta de Meta Business.</p>
+        <div class="form-row-2col">
+          <div class="form-group"><label class="form-label" for="wa-phone-id">Phone number ID</label><input id="wa-phone-id" class="form-input"></div>
+          <div class="form-group"><label class="form-label" for="wa-waba-id">WABA ID</label><input id="wa-waba-id" class="form-input"></div>
+        </div>
+        <div class="form-group"><label class="form-label" for="wa-token">Access token</label><input id="wa-token" type="password" class="form-input"></div>
+        <div class="form-group"><label class="form-label" for="wa-display">N&uacute;mero visible</label><input id="wa-display" class="form-input" placeholder="+57 300 000 0000"></div>
+        <div class="form-actions">
+          <button type="button" id="btn-wa-test" class="btn btn-outline">Probar</button>
+          <button type="button" id="btn-wa-save" class="btn btn-primary">Guardar WhatsApp</button>
+        </div>
+      </div>
+
+      <!-- SMS gateway (Fase 3) -->
+      <div class="card mt-md">
+        <div class="flex-between mb-sm">
+          <h3 class="m-0">SMS por app Android (opcional)</h3>
+          <span id="sms-badge" class="badge badge-warning">No configurado</span>
+        </div>
+        <p class="text-sm text-muted mb-md">Env&iacute;a SMS desde tu propio tel&eacute;fono v&iacute;a la app gateway. Instala la app, expón el servidor con Cloudflare Tunnel y vincula con estos datos.</p>
+        <div class="form-group"><label class="form-label" for="sms-url">URL del gateway (Cloudflare Tunnel)</label><input id="sms-url" class="form-input" placeholder="https://gateway.tudominio.com/send"></div>
+        <div class="form-row-2col">
+          <div class="form-group"><label class="form-label" for="sms-apikey">API key</label><input id="sms-apikey" class="form-input"></div>
+          <div class="form-group"><label class="form-label" for="sms-hmac">HMAC secret</label><input id="sms-hmac" class="form-input"></div>
+        </div>
+        <button type="button" id="btn-sms-gen" class="btn btn-ghost btn-sm mb-sm">Generar API key + HMAC</button>
+        <div id="sms-pairing" class="text-xs text-mono text-muted mb-sm" hidden></div>
+        <div class="form-actions">
+          <button type="button" id="btn-sms-test" class="btn btn-outline">Probar</button>
+          <button type="button" id="btn-sms-save" class="btn btn-primary">Guardar SMS</button>
+        </div>
+      </div>
+
     </div>
   </main>
 

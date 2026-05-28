@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Plantillas de firma | Consentia</title>
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/componentes.css">
+</head>
+<body class="pagina-app">
+  <a href="#main" class="skip-link">Ir al contenido</a>
+  <div class="marca-barra"></div>
+  <header id="app-header" class="app-header"></header>
+
+  <main id="main">
+    <div class="dash-container">
+      <div class="flex-between mb-md">
+        <h2 class="m-0">Plantillas de firma <span id="tpl-count" class="text-sm text-muted"></span></h2>
+        <button id="btn-nueva" class="btn btn-primary">Nueva plantilla</button>
+      </div>
+
+      <div class="card overflow-x-auto">
+        <table class="tabla">
+          <thead><tr><th>Nombre</th><th>Documento base</th><th>Campos</th><th>Estado</th><th></th></tr></thead>
+          <tbody id="tpl-tbody"><tr><td colspan="5" class="admin-empty">Cargando...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Document picker modal -->
+  <div id="modal-pick" class="modal-overlay" onclick="if(event.target===this)close_pick()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Elige el documento base</h3>
+        <button class="modal-close" onclick="close_pick()">&times;</button>
+      </div>
+      <div id="pick-list"><p class="text-sm text-muted">Cargando documentos…</p></div>
+    </div>
+  </div>
+
+  <footer class="pie-app">
+    <p>Consen<em>tia</em> | Consentimiento informado y firma electr&oacute;nica | by CARDAVIL</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/supabase-client.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/app-header.js"></script>
+  <script src="../js/plantillas.js"></script>
+</body>
+</html>

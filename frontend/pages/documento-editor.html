@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Editor de plantilla | Consentia</title>
+  <link rel="stylesheet" href="../css/tokens.css">
+  <link rel="stylesheet" href="../css/componentes.css">
+</head>
+<body class="pagina-app">
+  <a href="#main" class="skip-link">Ir al contenido</a>
+  <div class="marca-barra"></div>
+  <header id="app-header" class="app-header"></header>
+
+  <main id="main">
+    <div class="dash-container">
+      <div class="flex-between mb-md">
+        <h2 class="m-0">Editor de campos</h2>
+        <span id="editor-doc-name" class="text-sm text-muted"></span>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="card mb-md">
+        <p class="text-sm text-muted mb-sm">Agrega un campo y arrástralo sobre el documento:</p>
+        <div class="editor-toolbar">
+          <button class="btn btn-secondary btn-sm" data-add="firma">+ Firma</button>
+          <button class="btn btn-secondary btn-sm" data-add="fecha">+ Fecha</button>
+          <button class="btn btn-secondary btn-sm" data-add="iniciales">+ Iniciales</button>
+          <button class="btn btn-secondary btn-sm" data-add="checkbox">+ Checkbox</button>
+          <button class="btn btn-secondary btn-sm" data-add="texto">+ Texto</button>
+        </div>
+        <div id="field-config" class="mt-md" hidden>
+          <div class="form-row-2col">
+            <div class="form-group"><label class="form-label" for="cfg-label">Etiqueta del campo</label><input id="cfg-label" class="form-input"></div>
+            <div class="form-group">
+              <label class="form-label mt-lg"><input type="checkbox" id="cfg-required" class="check-teal"> Obligatorio</label>
+              <button id="cfg-delete" class="btn btn-danger btn-sm mt-sm">Eliminar campo</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PDF render + overlay -->
+      <div id="pdf-pages" class="card overflow-x-auto"><p class="text-sm text-muted">Cargando documento…</p></div>
+
+      <!-- Save -->
+      <div class="card mt-md">
+        <div class="form-group">
+          <label class="form-label" for="tpl-name">Nombre de la plantilla</label>
+          <input id="tpl-name" class="form-input" placeholder="Contrato de servicios">
+        </div>
+        <div class="form-actions">
+          <button id="btn-usar" class="btn btn-outline">Usar en esta solicitud (sin guardar)</button>
+          <button id="btn-guardar-tpl" class="btn btn-primary">Guardar plantilla</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="pie-app">
+    <p>Consen<em>tia</em> | Consentimiento informado y firma electr&oacute;nica | by CARDAVIL</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/supabase-client.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/app-header.js"></script>
+  <script src="../js/documento-editor.js"></script>
+</body>
+</html>

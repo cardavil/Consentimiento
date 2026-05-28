@@ -1,6 +1,6 @@
 # Base de Datos
 
-Supabase nuevo, proyecto independiente. Multi-tenant con RLS. **12 tablas implementadas** + 2 pendientes (`signing_templates` en Fase 2, `org_whatsapp_config` en Fase 3).
+Supabase nuevo, proyecto independiente. Multi-tenant con RLS. **14 tablas implementadas** (migraciones 001–010).
 
 Migraciones aplicadas (`supabase/migrations/`):
 
@@ -14,6 +14,8 @@ Migraciones aplicadas (`supabase/migrations/`):
 | `006_get_db_size.sql` | Función `get_db_size()` para métricas admin |
 | `007_session_type_otp_channel.sql` | Agrega `session_type` (consent/firma) y `otp_channel` (email/sms/whatsapp) a `signing_sessions_results` |
 | `008_schedule_cleanup.sql` | Programa `expire_sessions()` (cada 15 min) y `cleanup_otps()` (cada hora) vía pg_cron |
+| `009_signing_templates.sql` | Crea `signing_templates`; agrega `fields` a `signing_sessions_temp` y `template_id` a `signing_sessions_results` (Fase 2) |
+| `010_org_whatsapp_config.sql` | Crea `org_whatsapp_config` (Fase 3) |
 
 ---
 
@@ -135,7 +137,7 @@ Registro permanente zero-knowledge. **NO contiene datos del firmante, documentos
 | pdf_hash | TEXT | SHA-256 |
 | consent_hashes | JSONB | hash por cada consentimiento |
 | otp_channel | TEXT | email / sms / whatsapp. Default 'email' |
-| template_id | UUID FK NULL | → signing_templates(id). ON DELETE SET NULL. Solo session_type=firma. **Fase 2 — tabla destino pendiente** |
+| template_id | UUID FK NULL | → signing_templates(id). ON DELETE SET NULL. Solo session_type=firma (migración 009) |
 | created_at | TIMESTAMPTZ | |
 | completed_at | TIMESTAMPTZ | |
 | expires_at | TIMESTAMPTZ | |
@@ -155,7 +157,7 @@ Temporales. Se limpian automáticamente. Solo accesible via service_role (Edge F
 | created_at | TIMESTAMPTZ | |
 
 ### signing_templates
-**Pendiente — Fase 2, no creada aún (sin migración).** Plantillas reutilizables del editor visual (modo firma). Limitadas por plan (límites TBD). El límite se valida en Edge Function, no en BD.
+Plantillas reutilizables del editor visual (modo firma). Migración 009. Límites por plan: trial 0 / basic 3 / pro 20 / enterprise ∞ (validados en `signing-service`, no en BD).
 
 | Columna | Tipo | Notas |
 |---|---|---|
@@ -170,7 +172,7 @@ Temporales. Se limpian automáticamente. Solo accesible via service_role (Edge F
 | updated_at | TIMESTAMPTZ | trigger auto |
 
 ### org_whatsapp_config
-**Pendiente — Fase 3, no creada aún (sin migración).** Config de WhatsApp Business API del cliente. Secrets encriptados con pgcrypto. Cada cliente usa su propia cuenta de WhatsApp Business.
+Config de WhatsApp Business API del cliente. Migración 010. Secrets encriptados con pgcrypto. Cada cliente usa su propia cuenta de WhatsApp Business.
 
 | Columna | Tipo | Notas |
 |---|---|---|
@@ -283,8 +285,8 @@ Borra OTPs expirados hace más de 1 hora.
 ### fix_auth_user_token_defaults()
 Trigger BEFORE INSERT en auth.users. Convierte NULLs a string vacío en confirmation_token, recovery_token, email_change_token_new. Previene crash de GoTrue al crear usuarios vía Admin API. SECURITY DEFINER.
 
-### check_template_limit(p_org_id UUID) → BOOLEAN
-**Pendiente — Fase 2 (depende de signing_templates).** Cuenta plantillas activas de la org, compara contra el límite del plan (leído de organizations.plan). Retorna true si puede crear más. SECURITY DEFINER.
+### Límite de plantillas (Fase 2)
+El límite de plantillas por plan se valida en la Edge Function `signing-service` (no en SQL): trial 0 / basic 3 / pro 20 / enterprise ∞.
 
 ### get_db_size() → JSON
 Retorna `{db_bytes, storage_bytes}` (tamaño de la BD y del storage). Usada por `admin-service` para métricas. SECURITY DEFINER. Migración 006.

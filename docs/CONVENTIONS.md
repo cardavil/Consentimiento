@@ -56,8 +56,9 @@ Cada archivo HTML corresponde a una vista/pantalla concreta:
 | dashboard.html | Panel del cliente | Clientes activos | 1 |
 | consentimientos.html | CRUD de consentimientos del cliente (consent_items) | Clientes activos | 1 |
 | consentimiento-solicitar.html | Formulario solicitar consentimiento (3 modos) | Clientes activos | 1 |
-| documento-solicitar.html | Formulario solicitar firma electrónica | Clientes activos | 2 |
-| documento-editor.html | Editor visual drag & drop plantillas | Clientes activos | 2 |
+| documento-solicitar.html | Formulario solicitar firma electrónica (3 modos) | Clientes activos | 2 |
+| documento-editor.html | Editor visual drag & drop plantillas (pdf.js) | Clientes activos | 2 |
+| plantillas.html | CRUD de plantillas de firma | Clientes activos | 2 |
 | firmar.html | Portal del firmante (ambos modos, detecta session_type) | Firmantes | 1 |
 | admin/index.html | Indicadores / métricas de la plataforma | Admin / analyst | 1 |
 | admin/orgs.html | CRUD organizaciones | Admin (analyst lectura) | 1 |
@@ -104,6 +105,8 @@ Usados por 2+ páginas.
 | consentimiento-solicitar.js | consentimiento-solicitar.html | 1 |
 | documento-solicitar.js | documento-solicitar.html | 2 |
 | documento-editor.js | documento-editor.html | 2 |
+| plantillas.js | plantillas.html | 2 |
+| firmar-fields.js | firmar.html (modo firma: render campos + pad) | 2 |
 | firmar.js | firmar.html (ambos modos) | 1 |
 | admin-dashboard.js | admin/index.html | 1 |
 | admin-orgs.js | admin/orgs.html | 1 |
@@ -142,11 +145,12 @@ Usados por 2+ páginas.
 | Función | Responsabilidad | Fase |
 |---|---|---|
 | admin-service | Panel plataforma: métricas, CRUD orgs, invitar analistas, permisos, bootstrap org | 1 |
-| otp-service | Generar/verificar OTP; OTP del firmante se envía por el correo del cliente | 1 |
+| otp-service | Generar/verificar OTP; router de canal del firmante (email/sms/whatsapp) | 1 |
 | consent-service | create_session + sign; incluye `pdf.ts` (constancia con pdf-lib) | 1 |
 | drive-service | OAuth, list/upload/download, Sheet, envío de correo; `providers/google` + `providers/microsoft` | 1 |
-| signing-service | Crear sesiones de firma electrónica, procesar campos visuales | 2 |
-| whatsapp-service | Enviar OTP via WhatsApp Business API | 3 |
+| signing-service | create_template, create_session, sign, get_document, get_channels; `pdf_firma.ts` | 2 |
+| config-service | Guardar config SMS/WhatsApp encriptada + pruebas | 3 |
+| whatsapp-service | Implementado como `_shared/channels/whatsapp.ts` (no función propia); SMS en `channels/sms.ts` | 3 |
 
 ### Convenciones Edge Functions
 
