@@ -3,23 +3,10 @@ var _org_id = null;
 var _jwt = null;
 
 document.addEventListener('DOMContentLoaded', async function () {
-  const session = await get_session();
-  if (!session) { window.location.href = 'login.html'; return; }
-  const meta = session.user.app_metadata || {};
-  if (!meta.org_id) { window.location.href = 'login.html'; return; }
-
-  _org_id = meta.org_id;
-  _jwt = session.access_token;
-
-  try {
-    const org = await supabase_fetch(
-      '/organizations?id=eq.' + _org_id + '&select=type,first_name,last_name,company_name,plan,email,phone',
-      _jwt
-    );
-    render_app_header({ container_id: 'app-header', session: session, org: org && org[0], on_logout: consent_sign_out });
-  } catch (_e) {
-    render_app_header({ container_id: 'app-header', session: session, on_logout: consent_sign_out });
-  }
+  const ctx = await init_app_page();
+  if (!ctx) return;
+  _org_id = ctx.org_id;
+  _jwt = ctx.jwt;
 
   document.getElementById('btn-nuevo').addEventListener('click', open_new_consent);
   await load_consents();
@@ -131,8 +118,3 @@ async function save_consent() {
   }
 }
 
-async function consent_sign_out() {
-  const client = init_supabase();
-  await client.auth.signOut();
-  window.location.href = 'login.html';
-}

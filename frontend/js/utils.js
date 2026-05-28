@@ -59,6 +59,11 @@ const ERROR_MESSAGES = {
   CONSENTIMIENTOS_REQUERIDOS: 'Selecciona al menos un consentimiento.',
   MODE_INVALID: 'Tipo de firmante inválido.',
   PROVIDER_INVALID: 'Proveedor de nube no soportado.',
+  ARCHIVO_MUY_GRANDE: 'El documento supera el tamaño máximo permitido.',
+  DOCUMENTOS_MUY_GRANDES: 'Los documentos seleccionados superan el tamaño máximo.',
+  DEMASIADOS_DOCUMENTOS: 'Seleccionaste demasiados documentos.',
+  OTP_MAX_ENVIOS: 'Se alcanzó el máximo de envíos de código para esta solicitud.',
+  LIMITE_PLANTILLAS: 'Alcanzaste el límite de plantillas de tu plan.',
 };
 
 // --- Toast notifications ---

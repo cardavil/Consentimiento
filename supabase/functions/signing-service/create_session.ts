@@ -1,8 +1,8 @@
-import { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { ok, err } from '../_shared/response.ts';
 import { require_org } from '../_shared/auth.ts';
 import { get_org_connection } from '../drive-service/connection.ts';
 import { invite_email } from '../_shared/email_templates.ts';
+import { org_display_name } from '../_shared/org.ts';
 
 const VALID_MODES = ['natural_personal', 'natural_tutor', 'juridica'];
 
@@ -87,12 +87,4 @@ export async function handle_create_session(body: Record<string, unknown>, req: 
   });
 
   return ok({ session_id: result.id, access_token: result.access_token, signing_url, expires_at, email_sent });
-}
-
-async function org_display_name(admin: SupabaseClient, org_id: string): Promise<string> {
-  const { data } = await admin
-    .from('organizations').select('type, first_name, last_name, company_name').eq('id', org_id).maybeSingle();
-  if (!data) return 'Consentia';
-  if (data.type === 'juridica') return data.company_name || 'Consentia';
-  return [data.first_name, data.last_name].filter(Boolean).join(' ') || 'Consentia';
 }

@@ -5,6 +5,7 @@ import { get_org_connection } from '../drive-service/connection.ts';
 import { otp_email } from '../_shared/email_templates.ts';
 import { send_whatsapp_otp } from '../_shared/channels/whatsapp.ts';
 import { send_sms_otp } from '../_shared/channels/sms.ts';
+import { MAX_OTP_SENDS_PER_SESSION } from '../_shared/limits.ts';
 
 const OTP_TTL_MS = 5 * 60 * 1000;
 const RATE_WINDOW_MS = 10 * 60 * 1000;
@@ -58,6 +59,14 @@ export async function handle_send(body: Record<string, unknown>, req: Request): 
       .maybeSingle();
     if (!session) return err('SESION_INVALIDA', 404);
 
+    // Per-session OTP send cap (anti-spam, complements the per-email rate limit).
+    const { count: sends } = await admin
+      .from('audit_log')
+      .select('*', { count: 'exact', head: true })
+      .eq('event_type', 'signing_otp_sent')
+      .eq('event_data->>session', session.id);
+    if ((sends ?? 0) >= MAX_OTP_SENDS_PER_SESSION) return err('OTP_MAX_ENVIOS', 429);
+
     try {
       if (channel === 'email') {
         const conn = await get_org_connection(admin, session.organization_id);
@@ -79,7 +88,7 @@ export async function handle_send(body: Record<string, unknown>, req: Request): 
     await admin.from('audit_log').insert({
       organization_id: session.organization_id,
       event_type: 'signing_otp_sent',
-      event_data: { channel },
+      event_data: { channel, session: session.id },
     });
   }
 

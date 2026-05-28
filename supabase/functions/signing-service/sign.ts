@@ -1,15 +1,12 @@
-import { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { ok, err } from '../_shared/response.ts';
 import { create_admin_client } from '../_shared/supabase.ts';
 import { validate_otp, hash_code } from '../_shared/otp.ts';
+import { sha256_bytes } from '../_shared/hash.ts';
+import { org_display_name } from '../_shared/org.ts';
 import { get_org_connection } from '../drive-service/connection.ts';
 import { generate_firma_pdf, type SignField } from './pdf_firma.ts';
 import { copy_email } from '../_shared/email_templates.ts';
-
-async function sha256_bytes(bytes: Uint8Array): Promise<string> {
-  const buf = await crypto.subtle.digest('SHA-256', bytes);
-  return Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, '0')).join('');
-}
+import { MAX_PDF_BYTES } from '../_shared/limits.ts';
 
 // Completes a firma session: verify OTP → apply field values to the original PDF
 // → evidence → upload to Drive → history sheet → copy email → zero-knowledge cleanup.
@@ -82,6 +79,7 @@ export async function handle_sign(body: Record<string, unknown>, req: Request): 
     console.error({ fn: 'firma.sign.download', error: (e as Error).message });
     return err('NUBE_ERROR', 502);
   }
+  if (source_bytes.length > MAX_PDF_BYTES) return err('ARCHIVO_MUY_GRANDE', 413);
 
   const values_fingerprint = fields.map((f) => `${f.key}:${f.type === 'firma' ? 'sig' : f.value}`).join('|');
   const global_hash = await hash_code(`${signer_email}|${folio}|${timestamp}|${ip}|${values_fingerprint}`);
@@ -138,12 +136,4 @@ export async function handle_sign(body: Record<string, unknown>, req: Request): 
   });
 
   return ok({ summary: [{ code: 'FIRMA', decision: 'Firmado', folio, hash: global_hash }], pdf_url });
-}
-
-async function org_display_name(admin: SupabaseClient, org_id: string): Promise<string> {
-  const { data } = await admin
-    .from('organizations').select('type, first_name, last_name, company_name').eq('id', org_id).maybeSingle();
-  if (!data) return 'Consentia';
-  if (data.type === 'juridica') return data.company_name || 'Consentia';
-  return [data.first_name, data.last_name].filter(Boolean).join(' ') || 'Consentia';
 }

@@ -1,15 +1,12 @@
-import { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { ok, err } from '../_shared/response.ts';
 import { create_admin_client } from '../_shared/supabase.ts';
 import { validate_otp, hash_code } from '../_shared/otp.ts';
+import { sha256_bytes } from '../_shared/hash.ts';
+import { org_display_name } from '../_shared/org.ts';
 import { get_org_connection } from '../drive-service/connection.ts';
 import { generate_constancia, type ConsentResult } from './pdf.ts';
 import { copy_email } from '../_shared/email_templates.ts';
-
-async function sha256_bytes(bytes: Uint8Array): Promise<string> {
-  const buf = await crypto.subtle.digest('SHA-256', bytes);
-  return Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, '0')).join('');
-}
+import { MAX_PDF_BYTES, MAX_TOTAL_PDF_BYTES } from '../_shared/limits.ts';
 
 // Completes a consent session: verify OTP → folios/hashes → constancia PDF
 // (documents + evidence) → upload to Drive → history sheet → copy email → zero-knowledge cleanup.
@@ -88,11 +85,15 @@ export async function handle_sign(body: Record<string, unknown>, req: Request): 
   // Download the documents being signed (to embed their real pages).
   const source_pdfs: Array<{ name: string; bytes: Uint8Array; hash: string }> = [];
   const documents = (temp.documents as Array<unknown>) || [];
+  let total_bytes = 0;
   for (const d of documents) {
     const id = typeof d === 'string' ? d : (d as Record<string, string>).id;
     const name = typeof d === 'object' && (d as Record<string, string>).name ? (d as Record<string, string>).name : id;
     try {
       const bytes = await conn.provider.download_file(conn.access_token, id);
+      if (bytes.length > MAX_PDF_BYTES) return err('ARCHIVO_MUY_GRANDE', 413);
+      total_bytes += bytes.length;
+      if (total_bytes > MAX_TOTAL_PDF_BYTES) return err('DOCUMENTOS_MUY_GRANDES', 413);
       source_pdfs.push({ name, bytes, hash: await sha256_bytes(bytes) });
     } catch (e) {
       console.error({ fn: 'sign.download', error: (e as Error).message });
@@ -161,15 +162,4 @@ export async function handle_sign(body: Record<string, unknown>, req: Request): 
   });
 
   return ok({ summary, pdf_url });
-}
-
-async function org_display_name(admin: SupabaseClient, org_id: string): Promise<string> {
-  const { data } = await admin
-    .from('organizations')
-    .select('type, first_name, last_name, company_name')
-    .eq('id', org_id)
-    .maybeSingle();
-  if (!data) return 'Consentia';
-  if (data.type === 'juridica') return data.company_name || 'Consentia';
-  return [data.first_name, data.last_name].filter(Boolean).join(' ') || 'Consentia';
 }

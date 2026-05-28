@@ -2,6 +2,7 @@ import { ok, err } from '../_shared/response.ts';
 import { require_org } from '../_shared/auth.ts';
 import { get_org_connection } from './connection.ts';
 import { bytes_to_base64 } from './providers/mime.ts';
+import { MAX_PDF_BYTES } from '../_shared/limits.ts';
 
 // Lists the PDF documents available in the org's connected Consentia folder.
 export async function handle_list_files(_body: Record<string, unknown>, req: Request): Promise<Response> {
@@ -32,6 +33,7 @@ export async function handle_download_b64(body: Record<string, unknown>, req: Re
 
   try {
     const bytes = await conn.provider.download_file(conn.access_token, file_id);
+    if (bytes.length > MAX_PDF_BYTES) return err('ARCHIVO_MUY_GRANDE', 413);
     return ok({ bytes_b64: bytes_to_base64(bytes) });
   } catch (e) {
     console.error({ fn: 'download_b64', error: (e as Error).message });

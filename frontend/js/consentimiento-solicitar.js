@@ -4,54 +4,19 @@ var _drive_files = [];
 var _consent_items = [];
 
 document.addEventListener('DOMContentLoaded', async function () {
-  const session = await get_session();
-  if (!session) { window.location.href = 'login.html'; return; }
-  const meta = session.user.app_metadata || {};
-  if (!meta.org_id) { window.location.href = 'login.html'; return; }
-
-  _jwt = session.access_token;
-  _org_id = meta.org_id;
-
-  try {
-    const org = await supabase_fetch(
-      '/organizations?id=eq.' + _org_id + '&select=type,first_name,last_name,company_name,plan,email,phone',
-      _jwt
-    );
-    render_app_header({ container_id: 'app-header', session: session, org: org && org[0], on_logout: solicitar_sign_out });
-  } catch (_e) {
-    render_app_header({ container_id: 'app-header', session: session, on_logout: solicitar_sign_out });
-  }
+  const ctx = await init_app_page();
+  if (!ctx) return;
+  _jwt = ctx.jwt;
+  _org_id = ctx.org_id;
 
   await load_doc_types();
-  populate_doc_selects();
+  setup_signer_form();
 
-  document.getElementById('modo').addEventListener('change', on_mode_change);
   document.getElementById('form-solicitar').addEventListener('submit', on_submit);
   document.getElementById('btn-copiar').addEventListener('click', copy_url);
 
   await Promise.all([load_documents(), load_consent_items()]);
 });
-
-function fill_select(id, context) {
-  const sel = document.getElementById(id);
-  if (!sel) return;
-  const types = get_doc_types_for(context);
-  sel.innerHTML = types.map((t) => '<option value="' + escape_html(t.code) + '">' + escape_html(t.label) + '</option>').join('');
-}
-
-function populate_doc_selects() {
-  fill_select('np-tipodoc', 'natural');
-  fill_select('tr-tipodoc', 'natural_tutor_represented');
-  fill_select('rp-tipodoc', 'natural_tutor_representative');
-  fill_select('ju-tipodoc', 'juridica_signer');
-}
-
-function on_mode_change() {
-  const mode = document.getElementById('modo').value;
-  document.getElementById('campos-natural').hidden = mode !== 'natural_personal';
-  document.getElementById('campos-tutor').hidden = mode !== 'natural_tutor';
-  document.getElementById('campos-juridica').hidden = mode !== 'juridica';
-}
 
 async function load_documents() {
   const container = document.getElementById('docs-container');
@@ -101,26 +66,6 @@ async function load_consent_items() {
   }
 }
 
-function build_signer(mode) {
-  const v = (id) => (document.getElementById(id).value || '').trim();
-  if (mode === 'natural_personal') {
-    return { nombre: v('np-nombre'), apellido: v('np-apellido'), tipoDoc: v('np-tipodoc'), numero: v('np-numero'), email: v('np-email').toLowerCase(), telefono: v('np-telefono') };
-  }
-  if (mode === 'juridica') {
-    return {
-      nombre: v('ju-nombre'), apellido: v('ju-apellido'), tipoDoc: v('ju-tipodoc'), numero: v('ju-numero'),
-      email: v('ju-email').toLowerCase(), telefono: v('ju-telefono'),
-      empresa: v('ju-razon'), nit: v('ju-nit'), cargo: v('ju-cargo'),
-    };
-  }
-  // natural_tutor: el representante firma y recibe el enlace
-  return {
-    nombre: v('rp-nombre'), apellido: v('rp-apellido'), tipoDoc: v('rp-tipodoc'), numero: v('rp-numero'),
-    email: v('rp-email').toLowerCase(), telefono: v('rp-telefono'), calidad: v('rp-calidad'),
-    represented: { nombre: v('tr-nombre'), apellido: v('tr-apellido'), tipoDoc: v('tr-tipodoc'), numero: v('tr-numero'), nacimiento: v('tr-nacimiento') },
-  };
-}
-
 function get_selected_documents() {
   const checks = document.querySelectorAll('.doc-check:checked');
   return Array.from(checks).map((c) => ({ id: c.value, name: c.dataset.name }));
@@ -145,8 +90,8 @@ function get_selected_consents() {
 
 async function on_submit(e) {
   e.preventDefault();
-  const mode = document.getElementById('modo').value;
-  const signer = build_signer(mode);
+  const mode = get_signer_mode();
+  const signer = build_signer();
   const documents = get_selected_documents();
   const consents = get_selected_consents();
   const exp_val = parseInt(document.getElementById('exp-valor').value) || 3;
@@ -190,8 +135,3 @@ function copy_url() {
   navigator.clipboard.writeText(input.value).then(() => show_success('Enlace copiado'));
 }
 
-async function solicitar_sign_out() {
-  const client = init_supabase();
-  await client.auth.signOut();
-  window.location.href = 'login.html';
-}

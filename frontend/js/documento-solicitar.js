@@ -5,27 +5,16 @@ var _templates = [];
 var _inline = null; // {doc_id, doc_name, fields, page_count} from the editor
 
 document.addEventListener('DOMContentLoaded', async function () {
-  const session = await get_session();
-  if (!session) { window.location.href = 'login.html'; return; }
-  const meta = session.user.app_metadata || {};
-  if (!meta.org_id) { window.location.href = 'login.html'; return; }
-  _jwt = session.access_token; _org_id = meta.org_id;
-
-  try {
-    const org = await supabase_fetch(
-      '/organizations?id=eq.' + _org_id + '&select=type,first_name,last_name,company_name,plan,email,phone', _jwt);
-    render_app_header({ container_id: 'app-header', session: session, org: org && org[0], on_logout: ds_sign_out });
-  } catch (_e) {
-    render_app_header({ container_id: 'app-header', session: session, on_logout: ds_sign_out });
-  }
+  const ctx = await init_app_page();
+  if (!ctx) return;
+  _jwt = ctx.jwt; _org_id = ctx.org_id;
 
   await load_doc_types();
-  populate_doc_selects();
+  setup_signer_form();
 
   const stored = sessionStorage.getItem('firma_inline');
   if (stored) { try { _inline = JSON.parse(stored); } catch (_e) { _inline = null; } }
 
-  document.getElementById('modo').addEventListener('change', on_mode_change);
   document.getElementById('form-solicitar').addEventListener('submit', on_submit);
   document.getElementById('btn-config-campos').addEventListener('click', open_editor);
   document.getElementById('btn-copiar').addEventListener('click', copy_url);
@@ -33,24 +22,6 @@ document.addEventListener('DOMContentLoaded', async function () {
   await Promise.all([load_documents(), load_templates()]);
   render_inline_status();
 });
-
-function fill_select(id, context) {
-  const sel = document.getElementById(id);
-  if (!sel) return;
-  sel.innerHTML = get_doc_types_for(context).map((t) => '<option value="' + escape_html(t.code) + '">' + escape_html(t.label) + '</option>').join('');
-}
-function populate_doc_selects() {
-  fill_select('np-tipodoc', 'natural');
-  fill_select('tr-tipodoc', 'natural_tutor_represented');
-  fill_select('rp-tipodoc', 'natural_tutor_representative');
-  fill_select('ju-tipodoc', 'juridica_signer');
-}
-function on_mode_change() {
-  const mode = document.getElementById('modo').value;
-  document.getElementById('campos-natural').hidden = mode !== 'natural_personal';
-  document.getElementById('campos-tutor').hidden = mode !== 'natural_tutor';
-  document.getElementById('campos-juridica').hidden = mode !== 'juridica';
-}
 
 async function load_documents() {
   const container = document.getElementById('docs-container');
@@ -107,18 +78,6 @@ function open_editor() {
   window.location.href = 'documento-editor.html?doc_id=' + encodeURIComponent(doc.id) + '&doc_name=' + encodeURIComponent(doc.name);
 }
 
-function build_signer(mode) {
-  const v = (id) => (document.getElementById(id).value || '').trim();
-  if (mode === 'natural_personal') {
-    return { nombre: v('np-nombre'), apellido: v('np-apellido'), tipoDoc: v('np-tipodoc'), numero: v('np-numero'), email: v('np-email').toLowerCase(), telefono: v('np-telefono') };
-  }
-  if (mode === 'juridica') {
-    return { nombre: v('ju-nombre'), apellido: v('ju-apellido'), tipoDoc: v('ju-tipodoc'), numero: v('ju-numero'), email: v('ju-email').toLowerCase(), telefono: v('ju-telefono'), empresa: v('ju-razon'), nit: v('ju-nit'), cargo: v('ju-cargo') };
-  }
-  return { nombre: v('rp-nombre'), apellido: v('rp-apellido'), tipoDoc: v('rp-tipodoc'), numero: v('rp-numero'), email: v('rp-email').toLowerCase(), telefono: v('rp-telefono'), calidad: v('rp-calidad'),
-    represented: { nombre: v('tr-nombre'), apellido: v('tr-apellido'), tipoDoc: v('tr-tipodoc'), numero: v('tr-numero') } };
-}
-
 function resolve_fields(doc) {
   const tpl_id = document.getElementById('tpl-select').value;
   if (tpl_id) {
@@ -131,8 +90,8 @@ function resolve_fields(doc) {
 
 async function on_submit(e) {
   e.preventDefault();
-  const mode = document.getElementById('modo').value;
-  const signer = build_signer(mode);
+  const mode = get_signer_mode();
+  const signer = build_signer();
   const doc = selected_doc();
   const exp_val = parseInt(document.getElementById('exp-valor').value) || 3;
   const expires_in_hours = document.getElementById('exp-unidad').value === 'days' ? exp_val * 24 : exp_val;
@@ -176,8 +135,3 @@ function copy_url() {
   navigator.clipboard.writeText(input.value).then(() => show_success('Enlace copiado'));
 }
 
-async function ds_sign_out() {
-  const client = init_supabase();
-  await client.auth.signOut();
-  window.location.href = 'login.html';
-}

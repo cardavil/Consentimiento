@@ -11,18 +11,8 @@ var DEFAULT_SIZE = {
 };
 
 document.addEventListener('DOMContentLoaded', async function () {
-  const session = await get_session();
-  if (!session) { window.location.href = 'login.html'; return; }
-  if (!(session.user.app_metadata || {}).org_id) { window.location.href = 'login.html'; return; }
-
-  try {
-    const org = await supabase_fetch(
-      '/organizations?id=eq.' + session.user.app_metadata.org_id + '&select=type,first_name,last_name,company_name,plan',
-      session.access_token);
-    render_app_header({ container_id: 'app-header', session: session, org: org && org[0], on_logout: editor_sign_out });
-  } catch (_e) {
-    render_app_header({ container_id: 'app-header', session: session, on_logout: editor_sign_out });
-  }
+  const ctx = await init_app_page();
+  if (!ctx) return;
 
   const params = new URLSearchParams(window.location.search);
   _doc.id = params.get('doc_id');
@@ -194,8 +184,3 @@ function b64_to_bytes(b64) {
   return out;
 }
 
-async function editor_sign_out() {
-  const client = init_supabase();
-  await client.auth.signOut();
-  window.location.href = 'login.html';
-}

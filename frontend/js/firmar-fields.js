@@ -88,7 +88,7 @@
       box.appendChild(input);
     }
 
-    if (field.required) box.classList.add('field-fill-pending');
+    if (field.required && !_values[field.key]) box.classList.add('field-fill-pending');
     overlay.appendChild(box);
   }
 
@@ -127,7 +127,8 @@
     var canvas = overlay.querySelector('.sig-pad');
     canvas.width = 360; canvas.height = 140;
     var ctx = canvas.getContext('2d');
-    ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.strokeStyle = '#1E2A3A';
+    var ink = getComputedStyle(document.documentElement).getPropertyValue('--gris-azulado').trim() || '#1E2A3A';
+    ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.strokeStyle = ink;
     var drawing = false, has_ink = false;
 
     function pos(e) {

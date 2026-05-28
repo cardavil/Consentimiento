@@ -5,21 +5,10 @@ var _edit_template_id = null; // set when picking a doc to edit an existing temp
 var LIMITS = { trial: 0, basic: 3, pro: 20, enterprise: Infinity };
 
 document.addEventListener('DOMContentLoaded', async function () {
-  const session = await get_session();
-  if (!session) { window.location.href = 'login.html'; return; }
-  const meta = session.user.app_metadata || {};
-  if (!meta.org_id) { window.location.href = 'login.html'; return; }
-  _jwt = session.access_token; _org_id = meta.org_id;
-
-  let plan = 'trial';
-  try {
-    const org = await supabase_fetch('/organizations?id=eq.' + _org_id + '&select=type,first_name,last_name,company_name,plan', _jwt);
-    if (org && org[0]) plan = org[0].plan || 'trial';
-    render_app_header({ container_id: 'app-header', session: session, org: org && org[0], on_logout: tpl_sign_out });
-  } catch (_e) {
-    render_app_header({ container_id: 'app-header', session: session, on_logout: tpl_sign_out });
-  }
-  window._plan = plan;
+  const ctx = await init_app_page();
+  if (!ctx) return;
+  _jwt = ctx.jwt; _org_id = ctx.org_id;
+  window._plan = (ctx.org && ctx.org.plan) || 'trial';
 
   document.getElementById('btn-nueva').addEventListener('click', () => { _edit_template_id = null; open_pick(); });
   await load_templates();
@@ -103,8 +92,3 @@ function pick_doc(id, name) {
   window.location.href = url;
 }
 
-async function tpl_sign_out() {
-  const client = init_supabase();
-  await client.auth.signOut();
-  window.location.href = 'login.html';
-}

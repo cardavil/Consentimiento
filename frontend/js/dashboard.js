@@ -1,40 +1,8 @@
 document.addEventListener('DOMContentLoaded', async function () {
-  var client = init_supabase();
-  var session = await get_session();
-  if (!session) { window.location.href = 'login.html'; return; }
-
-  var meta = session.user.app_metadata || {};
-  if (!meta.org_id) { window.location.href = 'login.html'; return; }
-
-  try {
-    var org = await supabase_fetch(
-      '/organizations?id=eq.' + meta.org_id + '&select=type,first_name,last_name,company_name,plan,email,phone',
-      session.access_token
-    );
-
-    if (org && org.length > 0) {
-      render_app_header({
-        container_id: 'app-header',
-        session: session,
-        org: org[0],
-        on_logout: org_sign_out,
-      });
-      await load_historial(session.access_token, meta.org_id);
-      await load_onboarding_status();
-    } else {
-      render_app_header({
-        container_id: 'app-header',
-        session: session,
-        on_logout: org_sign_out,
-      });
-    }
-  } catch (_e) {
-    render_app_header({
-      container_id: 'app-header',
-      session: session,
-      on_logout: org_sign_out,
-    });
-  }
+  const ctx = await init_app_page();
+  if (!ctx) return;
+  await load_historial(ctx.jwt, ctx.org_id);
+  await load_onboarding_status();
 });
 
 async function load_historial(jwt, org_id) {
@@ -75,8 +43,3 @@ async function load_onboarding_status() {
   } catch (_e) {}
 }
 
-async function org_sign_out() {
-  var client = init_supabase();
-  await client.auth.signOut();
-  window.location.href = 'login.html';
-}

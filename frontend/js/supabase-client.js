@@ -99,6 +99,28 @@ async function sign_out() {
   window.location.href = 'login.html';
 }
 
+// Shared bootstrap for authenticated org pages: validates session + org, loads the
+// org row, renders the header. Returns { session, org_id, jwt, org } or null (redirected).
+async function init_app_page(opts) {
+  opts = opts || {};
+  const session = await get_session();
+  if (!session) { window.location.href = 'login.html'; return null; }
+  const meta = session.user.app_metadata || {};
+  if (!meta.org_id) { window.location.href = 'login.html'; return null; }
+
+  const select = opts.select || 'type,first_name,last_name,company_name,plan,email,phone';
+  let org = null;
+  try {
+    const rows = await supabase_fetch('/organizations?id=eq.' + meta.org_id + '&select=' + select, session.access_token);
+    if (rows && rows.length > 0) org = rows[0];
+  } catch (_e) { /* header still renders without org */ }
+
+  if (opts.header !== false) {
+    render_app_header({ container_id: 'app-header', session: session, org: org, on_logout: sign_out });
+  }
+  return { session: session, org_id: meta.org_id, jwt: session.access_token, org: org };
+}
+
 async function _try_refresh() {
   try {
     const client = init_supabase();

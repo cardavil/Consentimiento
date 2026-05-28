@@ -19,6 +19,12 @@
   --teal-soft:      #E6F7F5;
   --teal-dark:      #0E8A7D;
   --danger:         #E74C3C;
+  --danger-soft:    #FEF2F2;
+  --danger-dark:    #C0392B;
+  --warning-soft:   #FEF9E7;
+  --warning-text:   #9A7B2C;
+  --info-soft:      #EBF5FB;
+  --info-text:      #2E86C1;
 
   /* Tipografia */
   --font-display:   'DM Serif Display', Georgia, serif;

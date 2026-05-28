@@ -1,19 +1,6 @@
 document.addEventListener('DOMContentLoaded', async function () {
-  const session = await get_session();
-  if (!session) { window.location.href = 'login.html'; return; }
-
-  const meta = session.user.app_metadata || {};
-  if (!meta.org_id) { window.location.href = 'login.html'; return; }
-
-  try {
-    const org = await supabase_fetch(
-      '/organizations?id=eq.' + meta.org_id + '&select=type,first_name,last_name,company_name,plan,email,phone',
-      session.access_token
-    );
-    render_app_header({ container_id: 'app-header', session: session, org: org && org[0], on_logout: onb_sign_out });
-  } catch (_e) {
-    render_app_header({ container_id: 'app-header', session: session, on_logout: onb_sign_out });
-  }
+  const ctx = await init_app_page();
+  if (!ctx) return;
 
   await handle_oauth_return();
   await load_status();
@@ -188,8 +175,3 @@ async function disconnect() {
   }
 }
 
-async function onb_sign_out() {
-  const client = init_supabase();
-  await client.auth.signOut();
-  window.location.href = 'login.html';
-}

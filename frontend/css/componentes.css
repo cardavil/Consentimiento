@@ -211,7 +211,7 @@ body {
 }
 
 .header-dropdown-danger:hover {
-  background: #FEF2F2;
+  background: var(--danger-soft);
   color: var(--danger);
 }
 
@@ -344,8 +344,8 @@ h3 { font-size: var(--text-lg); margin-bottom: var(--spacing-sm); }
 }
 
 .btn-danger:hover:not(:disabled) {
-  background: #C0392B;
-  border-color: #C0392B;
+  background: var(--danger-dark);
+  border-color: var(--danger-dark);
 }
 
 .btn:disabled {
@@ -486,7 +486,7 @@ select.form-input {
 }
 
 .badge-danger {
-  background: #FEF2F2;
+  background: var(--danger-soft);
   color: var(--danger);
 }
 
@@ -895,7 +895,7 @@ select.form-input {
   grid-template-columns: 1fr auto auto;
   gap: var(--spacing-lg);
   padding: var(--spacing-sm) var(--spacing-md);
-  background: #fff;
+  background: var(--white);
   font-size: var(--text-sm);
 }
 
@@ -1053,8 +1053,8 @@ select.form-input {
 
 /* --- Utility classes --- */
 
-.badge-warning { background: #FEF9E7; color: #9A7B2C; }
-.badge-info { background: #EBF5FB; color: #2E86C1; }
+.badge-warning { background: var(--warning-soft); color: var(--warning-text); }
+.badge-info { background: var(--info-soft); color: var(--info-text); }
 
 .link-primary { color: var(--teal); font-weight: 600; text-decoration: none; }
 .link-primary:hover { text-decoration: underline; }

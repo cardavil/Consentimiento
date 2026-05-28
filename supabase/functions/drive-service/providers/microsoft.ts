@@ -139,17 +139,26 @@ export const microsoft: CloudProvider = {
     return { id: item.id, url: item.webUrl };
   },
 
+  // Append with optimistic concurrency (If-Match on the file ETag) + retry, so two
+  // simultaneous signings cannot lose each other's row. O(n) per append (download+upload
+  // the whole CSV) — acceptable at MVP volume; revisit with the Excel workbook API at scale.
   async append_sheet_row(access_token, sheet_id, row) {
-    const current = await fetch(`${GRAPH}/me/drive/items/${sheet_id}/content`, {
-      headers: { Authorization: `Bearer ${access_token}` },
-    });
-    const prev = current.ok ? await current.text() : '';
     const line = row.map(csv_cell).join(',') + '\r\n';
-    await api(`${GRAPH}/me/drive/items/${sheet_id}/content`, access_token, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'text/csv' },
-      body: prev + line,
-    });
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const current = await fetch(`${GRAPH}/me/drive/items/${sheet_id}/content`, {
+        headers: { Authorization: `Bearer ${access_token}` },
+      });
+      const prev = current.ok ? await current.text() : '';
+      const etag = current.headers.get('etag');
+
+      const headers: Record<string, string> = { Authorization: `Bearer ${access_token}`, 'Content-Type': 'text/csv' };
+      if (etag) headers['if-match'] = etag;
+
+      const put = await fetch(`${GRAPH}/me/drive/items/${sheet_id}/content`, { method: 'PUT', headers, body: prev + line });
+      if (put.ok) return;
+      if (put.status !== 412) throw new Error(`ms_sheet_append ${put.status}`); // 412 = changed, retry
+    }
+    throw new Error('ms_sheet_append_conflict');
   },
 
   async send_email(_access_token, _from, to, subject, html, _text, attachment?: EmailAttachment) {

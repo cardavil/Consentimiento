@@ -1,8 +1,9 @@
-import { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { ok, err } from '../_shared/response.ts';
 import { require_org } from '../_shared/auth.ts';
 import { get_org_connection } from '../drive-service/connection.ts';
 import { invite_email } from '../_shared/email_templates.ts';
+import { org_display_name } from '../_shared/org.ts';
+import { MAX_DOCS_PER_SESSION } from '../_shared/limits.ts';
 
 const VALID_MODES = ['natural_personal', 'natural_tutor', 'juridica'];
 
@@ -24,6 +25,7 @@ export async function handle_create_session(body: Record<string, unknown>, req: 
   const recipient = String((signer as Record<string, unknown>).email || '').trim().toLowerCase();
   if (!recipient || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient)) return err('EMAIL_INVALID');
   if (!documents.length) return err('DOCUMENTOS_REQUERIDOS');
+  if (documents.length > MAX_DOCS_PER_SESSION) return err('DEMASIADOS_DOCUMENTOS');
   if (!consents.length) return err('CONSENTIMIENTOS_REQUERIDOS');
 
   const expires_at = new Date(Date.now() + expires_in_hours * 3600 * 1000).toISOString();
@@ -85,15 +87,4 @@ export async function handle_create_session(body: Record<string, unknown>, req: 
   });
 
   return ok({ session_id: result.id, access_token: result.access_token, signing_url, expires_at, email_sent });
-}
-
-async function org_display_name(admin: SupabaseClient, org_id: string): Promise<string> {
-  const { data } = await admin
-    .from('organizations')
-    .select('type, first_name, last_name, company_name')
-    .eq('id', org_id)
-    .maybeSingle();
-  if (!data) return 'Consentia';
-  if (data.type === 'juridica') return data.company_name || 'Consentia';
-  return [data.first_name, data.last_name].filter(Boolean).join(' ') || 'Consentia';
 }

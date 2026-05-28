@@ -100,8 +100,8 @@ consentia/
 │   │   ├── supabase-client.js            (init, auth helpers, wrappers)
 │   │   ├── utils.js                      (toasts, validación, formato)
 │   │   ├── otp-ui.js                     (inputs OTP, timer, paste)
-│   │   ├── modales.js                    (abrir/cerrar modales)
 │   │   ├── app-header.js                 (header compartido app+admin, dual-role)
+│   │   ├── signer-form.js                (form de firmante 3 modos, compartido)
 │   │   ├── admin-guard.js                (sesión + permisos admin/analyst)
 │   │   ├── admin-nav.js                  (nav tabs admin por permiso)
 │   │   ├── login.js

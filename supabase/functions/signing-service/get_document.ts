@@ -2,6 +2,7 @@ import { ok, err } from '../_shared/response.ts';
 import { create_admin_client } from '../_shared/supabase.ts';
 import { get_org_connection } from '../drive-service/connection.ts';
 import { bytes_to_base64 } from '../drive-service/providers/mime.ts';
+import { MAX_PDF_BYTES } from '../_shared/limits.ts';
 
 // Returns the firma session's source PDF as base64 to the signer (token-scoped),
 // so firmar.html can render it with pdf.js and overlay the fields.
@@ -35,6 +36,7 @@ export async function handle_get_document(_body: Record<string, unknown>, req: R
 
   try {
     const bytes = await conn.provider.download_file(conn.access_token, doc_id);
+    if (bytes.length > MAX_PDF_BYTES) return err('ARCHIVO_MUY_GRANDE', 413);
     return ok({ bytes_b64: bytes_to_base64(bytes) });
   } catch (e) {
     console.error({ fn: 'get_document', error: (e as Error).message });

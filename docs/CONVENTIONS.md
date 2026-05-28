@@ -83,11 +83,11 @@ Usados por 2+ páginas.
 | Archivo | Responsabilidad |
 |---|---|
 | config.js | URL de Supabase, publishable key (datos públicos, nunca secrets) |
-| supabase-client.js | Init Supabase, auth helpers, wrappers de fetch |
+| supabase-client.js | Init Supabase, auth helpers, wrappers de fetch, `init_app_page()` (bootstrap de página) |
 | utils.js | Toasts, validación, formato, helpers UI |
 | otp-ui.js | Lógica OTP parametrizada (inputs, timer, paste, reenvío) |
-| modales.js | Abrir/cerrar/vincular modales |
 | app-header.js | Header compartido app + admin, navegación dual-role (org ↔ panel admin) |
+| signer-form.js | Form de firmante 3 modos compartido (setup_signer_form, build_signer, get_signer_mode) |
 | admin-guard.js | Sesión + permisos admin (is_admin, has_permission, require_permission) |
 | admin-nav.js | Render de tabs admin filtradas por rol y permisos |
 
