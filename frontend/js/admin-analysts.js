@@ -11,7 +11,7 @@ var ALL_PERMISSIONS = [
 document.addEventListener('DOMContentLoaded', async function () {
   var session = await check_admin_session();
   if (!session) return;
-  render_app_header({ container_id: 'app-header', session: _admin_session.session, on_logout: admin_sign_out });
+  render_app_header({ container_id: 'app-header', session: _admin_session.session, org: _admin_session.org, on_logout: admin_sign_out });
   render_admin_nav();
 
   if (!is_admin()) {
