@@ -1,13 +1,13 @@
 # Estado del Proyecto — Consentia
 
 **Última actualización:** 2026-05-28
-**Sesión:** Sincronización de documentación con el código real
+**Sesión:** Auditoría de código + despliegue runtime (migraciones + Edge Functions)
 
 ---
 
 ## Resumen
 
-Proyecto Consentia (antes FirmaConsent) con documentación estructurada, schema de BD aplicado (migraciones 001–006), y servicios cloud configurados. **Ya existe código funcional:** frontend (login, registro, dashboard, firmar) + panel admin dual-role completo + Edge Functions (`admin-service`, `otp-service`). Fase 1 mayormente construida; pendiente el envío real de email OTP y las integraciones de nube (Drive/Sheets/PDF). Fases 2 y 3 no iniciadas.
+Proyecto Consentia (antes FirmaConsent). **Código de las 3 fases completo** (consentimiento, firma visual, 2FA SMS/WhatsApp + app Android), auditado y con remediación aplicada. **Runtime desplegado:** migraciones 001–010 aplicadas en Supabase (pg_cron activo) y las 6 Edge Functions desplegadas. **Aún no funciona end-to-end** porque falta la configuración externa: apps OAuth (Google/Microsoft) + secrets, y SMTP propio + OTP 8 dígitos en Supabase Auth. Pendiente además la migración 011 de hardening (opcional, no bloquea pruebas).
 
 ---
 
@@ -53,6 +53,14 @@ Proyecto Consentia (antes FirmaConsent) con documentación estructurada, schema 
 - **App Android (`android/`):** proyecto Kotlin completo — `GatewayService` (foreground + boot), `HttpServer` (NanoHTTPD), 5 capas de seguridad, `SmsSender`, `PairingStore` (EncryptedSharedPreferences), `MainActivity` (vinculación QR).
 - **Estado:** código de las 3 fases completo; **no probado en runtime** (requiere credenciales OAuth/Meta, secrets, despliegue, gateway).
 
+### Sesión 5 — Auditoría + despliegue runtime (2026-05-28)
+
+- **Auditoría de código** (CSS hardcodeado, duplicación, código muerto, seguridad, escalabilidad) + **remediación en 4 lotes** (commit): eliminado `modales.js` muerto; deduplicado `org_display_name`/`sha256_bytes`/`sign_out`; `init_app_page()` y `signer-form.js` compartidos; historial Microsoft atómico (ETag/If-Match); guardas de tamaño + tope OTP por sesión; tokens CSS centralizados.
+- **Migraciones 007–010 aplicadas** en `firmaconsent` vía MCP de Supabase. **pg_cron activo** (`expire_sessions` cada 15 min, `cleanup_otps` cada hora).
+- **Edge Functions desplegadas** (`supabase functions deploy`): admin, otp, drive, consent, signing, config.
+- **Auditoría de BD** (advisors): hallazgos de hardening → planeada **migración 011** (revoke EXECUTE en encrypt/decrypt_secret/next_folio/get_db_size/fix_auth_user_token_defaults; `SET search_path` en SECURITY DEFINER; índices FK; opcional reescribir 5 policies RLS). **No aplicada aún** (opcional, no bloquea pruebas).
+- Confirmado: BD limpia, solo `db.carlosm@gmail.com` (admin + org jurídica); sin rastro de diversolab. Hosting: GitHub Pages activo en `https://cardavil.github.io/Consentimiento/`.
+
 ---
 
 ## Commits
@@ -75,14 +83,14 @@ Proyecto Consentia (antes FirmaConsent) con documentación estructurada, schema 
 |---|---|
 | Marca | Consentia — manual aprobado en docs/mockups/manual-marca-consentia.html |
 | Documentación | Sincronizada con el código real (README + 7 docs) |
-| Schema BD (docs) | 12 tablas implementadas + 2 pendientes (signing_templates F2, org_whatsapp_config F3) |
-| Migraciones SQL | 001–010 creadas (001–006 aplicadas; 007–010 pendiente aplicar). 14 tablas |
-| Supabase | ACTIVE_HEALTHY, 14 tablas, RLS habilitado, dual-role |
-| Cloudflare | CLI instalada, autenticada. Tunnel pendiente |
-| Frontend | 3 fases: F1 (consentimiento) + F2 (firma: editor, plantillas, solicitar, firmar) + F3 (onboarding SMS/WhatsApp, selector canal) + panel admin |
-| Edge Functions | `admin-service`, `otp-service`, `consent-service`, `drive-service`, `signing-service`, `config-service`. Pendiente runtime (OAuth/Meta/secrets/deploy) |
+| Schema BD | 14 tablas implementadas |
+| Migraciones SQL | **001–010 aplicadas** en firmaconsent. pg_cron activo. Pendiente: 011 (hardening, opcional) |
+| Supabase | ACTIVE_HEALTHY, 14 tablas, RLS, dual-role. Proyecto: `pgouzutwvronvsxgdizk` |
+| Edge Functions | **Desplegadas**: admin, otp, drive, consent, signing, config. Falta config externa (OAuth/secrets) para correr |
+| Frontend | 3 fases + panel admin. **GitHub Pages activo** en `https://cardavil.github.io/Consentimiento/` |
+| Cloudflare | CLI instalada, autenticada. Tunnel pendiente (Fase 3 SMS) |
 | App Android | `android/` proyecto Kotlin completo (gateway SMS). Pendiente compilar/probar/Play Store |
-| Landing page | index.html en la raíz |
+| Landing page | index.html redirige a login |
 
 ---
 
@@ -93,22 +101,20 @@ Proyecto Consentia (antes FirmaConsent) con documentación estructurada, schema 
 - [x] **Envío de email OTP:** implementado en `send.ts` vía `drive-service/connection` + providers (Gmail/Graph del cliente, zero-knowledge).
 - [ ] Verificar que el OTP de Supabase Auth (auth de cliente) esté configurado en 8 dígitos para cuadrar con la UI (ajuste manual en dashboard).
 
-### Prerrequisitos para que Fase 1 funcione en runtime
-- [ ] Configurar OAuth de Google (client ID/secret, scopes drive/gmail/sheets) y Microsoft (Entra app, Files/Mail).
-- [ ] Supabase Secrets: `GOOGLE_CLIENT_ID/SECRET`, `MS_CLIENT_ID/SECRET`, `OAUTH_REDIRECT_BASE`.
-- [ ] Aplicar migraciones 007 y 008 (`supabase db push`) y desplegar Edge Functions (`drive-service`, `consent-service`, `otp-service`).
-- [ ] Habilitar pg_cron en Supabase (para migración 008).
+### Para correr end-to-end (config externa — bloquea pruebas)
+- [ ] App OAuth **Google** (client ID/secret; redirect `https://cardavil.github.io/Consentimiento/frontend/pages/onboarding.html`; scopes drive.readonly/drive.file/spreadsheets/gmail.send) y app **Entra Microsoft** (personal accounts para Hotmail: Files.ReadWrite, Mail.Send, offline_access).
+- [ ] Supabase Secrets: `GOOGLE_CLIENT_ID/SECRET`, `MS_CLIENT_ID/SECRET`, `OAUTH_REDIRECT_BASE=https://cardavil.github.io/Consentimiento/frontend/pages`. (`ENCRYPTION_KEY` ya está.)
+- [ ] SMTP propio + OTP a **8 dígitos** en Supabase Auth (para OTP de registro/login).
 
-### Inmediato
-- [x] Agregar `ENCRYPTION_KEY` como Supabase Secret (completado sesión 2)
-- [ ] Migración: folio_prefix default 'FC' → 'CT' (rebrand Consentia)
-- [ ] Migración: signing_templates + org_whatsapp_config (tablas nuevas sesión 2)
-- [ ] Configurar Cloudflare tunnel para SMS gateway
-- [ ] Elegir y configurar dominio
-- [ ] Commit con los docs actualizados + rebrand
+### Hardening / pulido (no bloquea pruebas)
+- [ ] **Migración 011**: revoke EXECUTE en encrypt/decrypt_secret + sensibles, `SET search_path` en SECURITY DEFINER, índices FK, policies RLS `(select …)`.
+- [ ] Migración: `folio_prefix` default 'FC' → 'CT' (en 001 sigue en 'FC').
+- [ ] Cloudflare tunnel + compilar/probar app Android (Fase 3 SMS).
+- [ ] Verificar OTP de Supabase Auth en 8 dígitos (cuadra con la UI).
+- [ ] Dominio propio (opcional).
 
 ### Fase 1 — Consentimiento (código completo, pendiente runtime)
-1. ✅ Schema + migraciones (001–006 aplicadas; 007–008 creadas, pendiente aplicar)
+1. ✅ Schema + migraciones (001–010 aplicadas en Supabase)
 2. ✅ Edge Functions: otp-service (envío real), consent-service (create_session + sign + pdf.ts), drive-service (OAuth + providers Google/Microsoft)
 3. ✅ Frontend: login, registro, dashboard, firmar, onboarding, consentimientos, consentimiento-solicitar
 4. ⏳ Landing page (index.html redirige a login)
@@ -127,21 +133,21 @@ OTP factor 2: email-only en esta fase (firmante zero-knowledge vía cliente).
 - Microsoft: historial se guarda como CSV en OneDrive (no workbook xlsx).
 - Landing real pendiente (hoy redirige a login).
 
-### Fase 2 — Editor visual de firma electrónica
-1. Frontend: documento-editor (drag & drop), documento-solicitar
-2. firmar.html extendido (session_type=firma)
-3. Edge Function: signing-service
-4. Plantillas reutilizables (limitadas por plan, TBD)
-5. PDF con campos aplicados
+### Fase 2 — Editor visual de firma electrónica — ✅ código construido
+1. ✅ documento-editor (drag & drop, pdf.js), documento-solicitar
+2. ✅ firmar.html extendido (session_type=firma) + firmar-fields (pad)
+3. ✅ Edge Function: signing-service
+4. ✅ Plantillas reutilizables (límite por plan 0/3/20/∞)
+5. ✅ PDF con campos aplicados (pdf_firma.ts)
 
-### Fase 3 — App HTTP para 2FA (SMS + WhatsApp)
-1. App Android SMS gateway
-2. WhatsApp Business API (cuenta de cada cliente)
-3. Firmante elige canal
-4. Onboarding extendido (config SMS + WhatsApp)
-5. Términos de servicio
-6. Facturación
-7. Play Store
+### Fase 3 — App HTTP para 2FA (SMS + WhatsApp) — ✅ código construido (sin términos/facturación)
+1. ✅ App Android SMS gateway (Kotlin) — falta compilar/probar
+2. ✅ WhatsApp Business API (cuenta de cada cliente)
+3. ✅ Firmante elige canal
+4. ✅ Onboarding extendido (config SMS + WhatsApp)
+5. ❌ Términos de servicio (fuera de alcance acordado)
+6. ❌ Facturación (fuera de alcance acordado)
+7. ❌ Play Store
 
 ### Post-MVP
 - [ ] API REST para integraciones externas
