@@ -47,6 +47,7 @@ const ERROR_MESSAGES = {
   DOCUMENTO_DUPLICADO: 'Este documento ya está registrado.',
   CUENTA_SIN_TENANT: 'Tu cuenta no tiene una inscripción asociada. Contacta soporte.',
   SIN_NUBE_CONECTADA: 'No hay una nube conectada. Conecta tu Drive/OneDrive en Primeros pasos.',
+  NUBE_ERROR: 'No se pudo acceder a la nube. Intenta de nuevo en un momento.',
   EMAIL_ENVIO_FALLIDO: 'No se pudo enviar el correo. Verifica tu conexión de nube.',
   SESION_INVALIDA: 'Este enlace no es válido.',
   SESION_EXPIRADA: 'Este enlace ha expirado.',
@@ -75,6 +76,11 @@ function show_error(message) {
 function show_success(message) {
   _show_toast(message, 'success');
 }
+
+// --- Modal helpers ---
+
+function show_modal(id) { document.getElementById(id).classList.add('modal-visible'); }
+function hide_modal(id) { document.getElementById(id).classList.remove('modal-visible'); }
 
 function _show_toast(message, type) {
   _remove_existing_toasts();
@@ -163,7 +169,7 @@ function format_doc_type(type) {
 
 async function get_ip() {
   try {
-    const res = await fetch('https://api.ipify.tenant?format=json');
+    const res = await fetch('https://api.ipify.org?format=json');
     const data = await res.json();
     return data.ip;
   } catch (_e) {

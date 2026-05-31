@@ -4,6 +4,8 @@ import { encrypt_secret } from '../drive-service/connection.ts';
 import { send_sms_otp } from '../_shared/channels/sms.ts';
 import { send_whatsapp_otp } from '../_shared/channels/whatsapp.ts';
 
+const TEST_OTP_CODE = '123456'; // dummy code for the onboarding "test channel" button
+
 // Non-secret status of both 2FA channels (for the onboarding UI).
 export async function handle_get_config(_body: Record<string, unknown>, req: Request): Promise<Response> {
   const ctx = await require_tenant(req);
@@ -71,8 +73,8 @@ export async function handle_test(body: Record<string, unknown>, req: Request): 
   const phone = (body.phone as string || '').trim();
   if (!phone) return err('TELEFONO_REQUERIDO');
   try {
-    if (channel === 'whatsapp') await send_whatsapp_otp(ctx.admin, ctx.tenant_id, phone, '123456');
-    else if (channel === 'sms') await send_sms_otp(ctx.admin, ctx.tenant_id, phone, '123456');
+    if (channel === 'whatsapp') await send_whatsapp_otp(ctx.admin, ctx.tenant_id, phone, TEST_OTP_CODE);
+    else if (channel === 'sms') await send_sms_otp(ctx.admin, ctx.tenant_id, phone, TEST_OTP_CODE);
     else return err('CANAL_INVALIDO');
     return ok({});
   } catch (e) {

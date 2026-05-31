@@ -26,7 +26,7 @@
 
     for (var i = 1; i <= pdf.numPages; i++) {
       var page = await pdf.getPage(i);
-      var viewport = page.getViewport({ scale: 1.3 });
+      var viewport = page.getViewport({ scale: CONFIG.pdf_scale });
       var wrap = document.createElement('div');
       wrap.className = 'pdf-page-wrap';
       wrap.style.width = viewport.width + 'px';
@@ -125,7 +125,8 @@
     document.body.appendChild(overlay);
 
     var canvas = overlay.querySelector('.sig-pad');
-    canvas.width = 360; canvas.height = 140;
+    var SIG_PAD_W = 360, SIG_PAD_H = 140;
+    canvas.width = SIG_PAD_W; canvas.height = SIG_PAD_H;
     var ctx = canvas.getContext('2d');
     var ink = getComputedStyle(document.documentElement).getPropertyValue('--gris-azulado').trim() || '#1E2A3A';
     ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.strokeStyle = ink;

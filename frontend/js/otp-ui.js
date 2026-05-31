@@ -69,7 +69,7 @@ function clear_otp(btn_verify_id) {
 }
 
 function start_timer(state_obj) {
-  state_obj.seconds_remaining = 60;
+  state_obj.seconds_remaining = CONFIG.otp_timer_seconds;
   const btn_resend = document.getElementById('btn-reenviar');
   const span_timer = document.getElementById('otp-timer');
 

@@ -31,7 +31,7 @@ function render_metrics(container, m) {
 
   html += '<h2 class="mb-sm">Inscritos por plan</h2>';
   html += '<div class="admin-stats">';
-  var plans = ['trial', 'basic', 'pro', 'enterprise'];
+  var plans = Object.keys(CONFIG.plan_limits);
   var plan_labels = { trial: 'Trial', basic: 'Basic', pro: 'Pro', enterprise: 'Enterprise' };
   for (var i = 0; i < plans.length; i++) {
     var p = plans[i];

@@ -2,6 +2,7 @@
 // values drawn ("flattened") onto the pages, plus an evidence page.
 import { PDFDocument, StandardFonts } from 'https://esm.sh/pdf-lib@1.17.1';
 import { DARK, GREY, Writer } from '../_shared/pdf_evidence.ts';
+import { signer_lines } from '../_shared/signer_format.ts';
 
 export interface SignField {
   key: string;
@@ -91,22 +92,4 @@ export async function generate_firma_pdf(input: FirmaInput): Promise<Uint8Array>
   w.mono(input.global_hash);
 
   return await doc.save();
-}
-
-function signer_lines(signer_type: string, s: Record<string, unknown>): string[] {
-  const g = (k: string) => String(s[k] ?? '');
-  if (signer_type === 'natural_represented') {
-    const r = (s.represented as Record<string, unknown>) || {};
-    return [
-      `Firmado por ${g('first_name')} ${g('last_name')}, en calidad de ${g('capacity')} de ${r.first_name ?? ''} ${r.last_name ?? ''}.`,
-      `Representante: ${g('doc_type')} ${g('doc_number')} · ${g('email')}`,
-    ];
-  }
-  if (signer_type === 'juridica') {
-    return [
-      `${g('company_name')} · NIT ${g('company_nit')}`,
-      `Firmante: ${g('first_name')} ${g('last_name')} (${g('position')}) · ${g('doc_type')} ${g('doc_number')}`,
-    ];
-  }
-  return [`${g('first_name')} ${g('last_name')}`, `${g('doc_type')} ${g('doc_number')} · ${g('email')}`];
 }

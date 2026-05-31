@@ -144,7 +144,8 @@ export const microsoft: CloudProvider = {
   // the whole CSV) — acceptable at MVP volume; revisit with the Excel workbook API at scale.
   async append_sheet_row(access_token, sheet_id, row) {
     const line = row.map(csv_cell).join(',') + '\r\n';
-    for (let attempt = 0; attempt < 5; attempt++) {
+    const MAX_SHEET_RETRIES = 5;
+    for (let attempt = 0; attempt < MAX_SHEET_RETRIES; attempt++) {
       const current = await fetch(`${GRAPH}/me/drive/items/${sheet_id}/content`, {
         headers: { Authorization: `Bearer ${access_token}` },
       });

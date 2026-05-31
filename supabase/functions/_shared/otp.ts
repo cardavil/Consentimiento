@@ -1,4 +1,5 @@
 import { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { MAX_OTP_ATTEMPTS } from './limits.ts';
 
 const encoder = new TextEncoder();
 
@@ -41,7 +42,7 @@ export async function validate_otp(
     .single();
 
   if (!token) return { valid: false, error_code: 'OTP_EXPIRED' };
-  if (token.attempts >= 5) return { valid: false, error_code: 'OTP_MAX_ATTEMPTS' };
+  if (token.attempts >= MAX_OTP_ATTEMPTS) return { valid: false, error_code: 'OTP_MAX_ATTEMPTS' };
 
   const submitted_hash = await hash_code(code);
 

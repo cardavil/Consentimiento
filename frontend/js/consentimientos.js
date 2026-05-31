@@ -56,7 +56,7 @@ function open_new_consent() {
   document.getElementById('edit-sort-order').value = String(_consent_rows.length);
   document.getElementById('edit-required').checked = false;
   document.getElementById('edit-active').checked = true;
-  document.getElementById('modal-edit-consent').classList.add('modal-visible');
+  show_modal('modal-edit-consent');
 }
 
 function open_edit_consent(id) {
@@ -70,11 +70,11 @@ function open_edit_consent(id) {
   document.getElementById('edit-sort-order').value = row.sort_order || 0;
   document.getElementById('edit-required').checked = !!row.required;
   document.getElementById('edit-active').checked = !!row.active;
-  document.getElementById('modal-edit-consent').classList.add('modal-visible');
+  show_modal('modal-edit-consent');
 }
 
 function close_consent_modal() {
-  document.getElementById('modal-edit-consent').classList.remove('modal-visible');
+  hide_modal('modal-edit-consent');
 }
 
 async function save_consent() {

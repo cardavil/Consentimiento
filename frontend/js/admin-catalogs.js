@@ -69,7 +69,7 @@ function open_new_doc_type() {
   var checks = document.querySelectorAll('.ctx-check');
   for (var i = 0; i < checks.length; i++) checks[i].checked = false;
 
-  document.getElementById('modal-edit-catalog').classList.add('modal-visible');
+  show_modal('modal-edit-catalog');
 }
 
 function open_edit_doc_type(code) {
@@ -93,11 +93,11 @@ function open_edit_doc_type(code) {
     checks[i].checked = contexts.indexOf(checks[i].value) !== -1;
   }
 
-  document.getElementById('modal-edit-catalog').classList.add('modal-visible');
+  show_modal('modal-edit-catalog');
 }
 
 function close_catalog_modal() {
-  document.getElementById('modal-edit-catalog').classList.remove('modal-visible');
+  hide_modal('modal-edit-catalog');
 }
 
 async function save_doc_type() {

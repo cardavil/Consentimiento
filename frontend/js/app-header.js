@@ -47,6 +47,7 @@ function render_app_header(opts) {
   }
 
   html += '<div class="header-dropdown-divider"></div>';
+  // Placeholders deshabilitados — config de cuenta y perfil pendientes (post-MVP).
   html += '<button class="header-dropdown-item" disabled>Configuración</button>';
   html += '<button class="header-dropdown-item" disabled>Perfil</button>';
   html += '<div class="header-dropdown-divider"></div>';

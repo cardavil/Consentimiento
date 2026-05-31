@@ -52,7 +52,7 @@ async function render_pdf() {
 
   for (let i = 1; i <= pdf.numPages; i++) {
     const page = await pdf.getPage(i);
-    const viewport = page.getViewport({ scale: 1.3 });
+    const viewport = page.getViewport({ scale: CONFIG.pdf_scale });
     const wrap = document.createElement('div');
     wrap.className = 'pdf-page-wrap';
     wrap.style.width = viewport.width + 'px';

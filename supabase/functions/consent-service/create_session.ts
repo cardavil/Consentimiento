@@ -1,14 +1,12 @@
-import { ok, err } from '../_shared/response.ts';
+import { err } from '../_shared/response.ts';
 import { require_tenant } from '../_shared/auth.ts';
-import { get_tenant_connection } from '../drive-service/connection.ts';
-import { invite_email } from '../_shared/email_templates.ts';
-import { tenant_display_name } from '../_shared/tenant.ts';
-import { MAX_DOCS_PER_SESSION } from '../_shared/limits.ts';
+import { MAX_DOCS_PER_SESSION, DEFAULT_SESSION_EXPIRES_HOURS } from '../_shared/limits.ts';
+import { create_session_record } from '../_shared/session.ts';
 
 const VALID_SIGNER_TYPES = ['natural', 'natural_represented', 'juridica'];
 
-// Creates a consent session: permanent row in results + transient row in temp,
-// then emails the signing link to the recipient from the tenant's own account.
+// Creates a consent session (results + temp) and emails the signing link. Common
+// persistence/invite/audit lives in _shared/session.ts.
 export async function handle_create_session(body: Record<string, unknown>, req: Request): Promise<Response> {
   const ctx = await require_tenant(req);
   if (!ctx) return err('NO_AUTORIZADO', 401);
@@ -18,7 +16,7 @@ export async function handle_create_session(body: Record<string, unknown>, req: 
   const documents = (body.documents as unknown[]) || [];
   const consents = (body.consents as unknown[]) || [];
   const context = (body.context as string) || '';
-  const expires_in_hours = Number(body.expires_in_hours) || 72;
+  const expires_in_hours = Number(body.expires_in_hours) || DEFAULT_SESSION_EXPIRES_HOURS;
 
   if (!VALID_SIGNER_TYPES.includes(signer_type)) return err('SIGNER_TYPE_INVALID');
   if (!signer || typeof signer !== 'object') return err('SIGNER_REQUERIDO');
@@ -28,63 +26,16 @@ export async function handle_create_session(body: Record<string, unknown>, req: 
   if (documents.length > MAX_DOCS_PER_SESSION) return err('DEMASIADOS_DOCUMENTOS');
   if (!consents.length) return err('CONSENTIMIENTOS_REQUERIDOS');
 
-  const expires_at = new Date(Date.now() + expires_in_hours * 3600 * 1000).toISOString();
-
-  const { data: result, error: result_err } = await ctx.admin
-    .from('signing_sessions_results')
-    .insert({
-      tenant_id: ctx.tenant_id,
-      signer_type,
-      session_type: 'consent',
-      otp_channel: 'email',
-      status: 'pending',
-      token_expires_at: expires_at,
-      expires_at,
-    })
-    .select('id, access_token')
-    .single();
-
-  if (result_err || !result) {
-    console.error({ fn: 'create_session', error: result_err?.message });
-    return err('ERROR_SERVIDOR', 500);
-  }
-
-  const { error: temp_err } = await ctx.admin.from('signing_sessions_temp').insert({
-    session_id: result.id,
-    documents,
-    consents,
-    signer,
-    context,
-  });
-
-  if (temp_err) {
-    await ctx.admin.from('signing_sessions_results').delete().eq('id', result.id);
-    console.error({ fn: 'create_session', error: temp_err.message });
-    return err('ERROR_SERVIDOR', 500);
-  }
-
-  const base = Deno.env.get('OAUTH_REDIRECT_BASE') || '';
-  const signing_url = `${base}/firmar.html?token=${result.access_token}`;
-
-  // Best-effort invite email from the tenant's own account (zero-knowledge).
-  let email_sent = false;
-  try {
-    const conn = await get_tenant_connection(ctx.admin, ctx.tenant_id);
-    if (conn && conn.sender_email) {
-      const tenant_name = await tenant_display_name(ctx.admin, ctx.tenant_id);
-      const tpl = invite_email(signing_url, tenant_name, context);
-      await conn.provider.send_email(conn.access_token, conn.sender_email, recipient, tpl.subject, tpl.html, tpl.text);
-      email_sent = true;
-    }
-  } catch (e) {
-    console.error({ fn: 'create_session.invite', error: (e as Error).message });
-  }
-
-  await ctx.admin.from('audit_log').insert({
+  return create_session_record({
+    admin: ctx.admin,
     tenant_id: ctx.tenant_id,
-    event_type: 'session_created',
-    event_data: { signer_type, documents: documents.length, consents: consents.length, email_sent },
+    signer_type,
+    session_type: 'consent',
+    recipient,
+    context,
+    expires_in_hours,
+    temp: { documents, consents, signer, context },
+    audit_event: 'session_created',
+    audit_data: { signer_type, documents: documents.length, consents: consents.length },
   });
-
-  return ok({ session_id: result.id, access_token: result.access_token, signing_url, expires_at, email_sent });
 }

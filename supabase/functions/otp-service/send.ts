@@ -5,11 +5,7 @@ import { get_tenant_connection } from '../drive-service/connection.ts';
 import { otp_email } from '../_shared/email_templates.ts';
 import { send_whatsapp_otp } from '../_shared/channels/whatsapp.ts';
 import { send_sms_otp } from '../_shared/channels/sms.ts';
-import { MAX_OTP_SENDS_PER_SESSION } from '../_shared/limits.ts';
-
-const OTP_TTL_MS = 5 * 60 * 1000;
-const RATE_WINDOW_MS = 10 * 60 * 1000;
-const MAX_ACTIVE_OTPS = 3;
+import { MAX_OTP_SENDS_PER_SESSION, OTP_TTL_MS, OTP_RATE_WINDOW_MS, MAX_ACTIVE_OTPS } from '../_shared/limits.ts';
 
 export async function handle_send(body: Record<string, unknown>, req: Request): Promise<Response> {
   const email = (body.email as string || '').trim().toLowerCase();
@@ -25,7 +21,7 @@ export async function handle_send(body: Record<string, unknown>, req: Request): 
     .select('*', { count: 'exact', head: true })
     .eq('email', email)
     .is('verified_at', null)
-    .gt('created_at', new Date(Date.now() - RATE_WINDOW_MS).toISOString());
+    .gt('created_at', new Date(Date.now() - OTP_RATE_WINDOW_MS).toISOString());
 
   if ((count ?? 0) >= MAX_ACTIVE_OTPS) return err('RATE_LIMITED', 429);
 
@@ -99,5 +95,5 @@ async function signer_phone(admin: ReturnType<typeof create_admin_client>, sessi
   const { data: temp } = await admin
     .from('signing_sessions_temp').select('signer').eq('session_id', session_id).maybeSingle();
   const signer = (temp?.signer || {}) as Record<string, unknown>;
-  return String(signer.telefono || '').trim();
+  return String(signer.phone || '').trim();
 }

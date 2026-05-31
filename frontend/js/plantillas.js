@@ -2,7 +2,7 @@ var _jwt = null;
 var _tenant_id = null;
 var _rows = [];
 var _edit_template_id = null; // set when picking a doc to edit an existing template
-var LIMITS = { trial: 0, basic: 3, pro: 20, enterprise: Infinity };
+var LIMITS = CONFIG.plan_limits;
 
 document.addEventListener('DOMContentLoaded', async function () {
   const ctx = await init_app_page();
@@ -67,7 +67,7 @@ async function delete_tpl(id) {
 }
 
 async function open_pick() {
-  document.getElementById('modal-pick').classList.add('modal-visible');
+  show_modal('modal-pick');
   const list = document.getElementById('pick-list');
   list.innerHTML = '<p class="text-sm text-muted">Cargando documentos…</p>';
   try {
@@ -84,7 +84,7 @@ async function open_pick() {
   }
 }
 
-function close_pick() { document.getElementById('modal-pick').classList.remove('modal-visible'); }
+function close_pick() { hide_modal('modal-pick'); }
 
 function pick_doc(id, name) {
   let url = 'documento-editor.html?doc_id=' + encodeURIComponent(id) + '&doc_name=' + encodeURIComponent(name);

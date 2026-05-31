@@ -98,11 +98,11 @@ function open_edit_tenant(tenant_id) {
   var display_name = tenant.type === 'juridica' ? tenant.company_name : (tenant.first_name + ' ' + (tenant.last_name || ''));
   document.getElementById('edit-tenant-name').textContent = 'Editar: ' + display_name;
 
-  document.getElementById('modal-edit-tenant').classList.add('modal-visible');
+  show_modal('modal-edit-tenant');
 }
 
 function close_edit_tenant() {
-  document.getElementById('modal-edit-tenant').classList.remove('modal-visible');
+  hide_modal('modal-edit-tenant');
 }
 
 async function save_tenant_changes() {

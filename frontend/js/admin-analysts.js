@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 
 async function load_doc_types() {
   try {
-    var client = get_supabase();
+    var client = init_supabase();
     var { data } = await client.from('catalog_doc_types').select('code,label').eq('active', true).order('sort_order');
     var select = document.getElementById('invite-doc-type');
     select.innerHTML = '<option value="">Seleccionar...</option>';
@@ -110,11 +110,11 @@ function open_invite_modal() {
   document.getElementById('invite-doc-number').value = '';
   document.getElementById('invite-email').value = '';
   document.getElementById('invite-phone').value = '';
-  document.getElementById('modal-invite').classList.add('modal-visible');
+  show_modal('modal-invite');
 }
 
 function close_invite_modal() {
-  document.getElementById('modal-invite').classList.remove('modal-visible');
+  hide_modal('modal-invite');
 }
 
 async function send_invite() {
@@ -174,11 +174,11 @@ function open_permissions(user_id) {
   }
   grid.innerHTML = html;
 
-  document.getElementById('modal-permissions').classList.add('modal-visible');
+  show_modal('modal-permissions');
 }
 
 function close_permissions_modal() {
-  document.getElementById('modal-permissions').classList.remove('modal-visible');
+  hide_modal('modal-permissions');
 }
 
 async function save_permissions() {

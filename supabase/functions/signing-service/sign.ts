@@ -9,6 +9,8 @@ import { copy_email } from '../_shared/email_templates.ts';
 import { MAX_PDF_BYTES } from '../_shared/limits.ts';
 import { history_row } from '../_shared/history.ts';
 
+const SIGNATURE_FOLIO_CODE = 'FIRMA';
+
 // Completes a firma session: verify OTP → apply field values to the original PDF
 // → evidence → upload to Drive → history sheet → copy email → zero-knowledge cleanup.
 export async function handle_sign(body: Record<string, unknown>, req: Request): Promise<Response> {
@@ -62,7 +64,7 @@ export async function handle_sign(body: Record<string, unknown>, req: Request): 
   const year = new Date().getUTCFullYear();
 
   const { data: folio, error: folio_err } = await admin.rpc('next_folio', {
-    p_tenant_id: session.tenant_id, p_code: 'FIRMA', p_year: year,
+    p_tenant_id: session.tenant_id, p_code: SIGNATURE_FOLIO_CODE, p_year: year,
   });
   if (folio_err || !folio) {
     console.error({ fn: 'firma.sign.folio', error: folio_err?.message });
