@@ -1,21 +1,14 @@
 # Base de Datos
 
-Supabase nuevo, proyecto independiente. Multi-tenant con RLS. **14 tablas implementadas** (migraciones 001–010).
+Supabase nuevo, proyecto independiente. Multi-tenant con RLS. **14 tablas implementadas.**
 
-Migraciones aplicadas (`supabase/migrations/`):
+Archivos SQL consolidados (`supabase/migrations/`):
 
 | Archivo | Qué hace |
 |---|---|
-| `001_initial_schema.sql` | 9 tablas base, RLS, funciones, triggers |
-| `002_catalog_doc_types.sql` | Tabla `catalog_doc_types` (catálogo tipos de documento) |
-| `003_platform_users.sql` | Tablas `platform_users` + `platform_permissions` y funciones `is_platform_user/admin`, `has_platform_permission`, `get_tenant_id` |
-| `004_admin_org_dual_role.sql` | Redefine `get_tenant_id()` para identidad dual admin/tenant (fast-path tenant_id en JWT antes del guard platform_role) |
-| `005_platform_users_identity.sql` | Expande `platform_users` con nombre, apellido, documento, teléfono |
-| `006_get_db_size.sql` | Función `get_db_size()` para métricas admin |
-| `007_session_type_otp_channel.sql` | Agrega `session_type` (consent/signature) y `otp_channel` (email/sms/whatsapp) a `signing_sessions_results` |
-| `008_schedule_cleanup.sql` | Programa `expire_sessions()` (cada 15 min) y `cleanup_otps()` (cada hora) vía pg_cron |
-| `009_signing_templates.sql` | Crea `signing_templates`; agrega `fields` a `signing_sessions_temp` y `template_id` a `signing_sessions_results` (Fase 2) |
-| `010_tenant_whatsapp_config.sql` | Crea `tenant_whatsapp_config` (Fase 3) |
+| `001_functions.sql` | Extensiones (`uuid-ossp`, `pgcrypto`) + funciones (cripto, `next_folio`, `get_tenant_id`, `is_platform_user/admin`, `has_platform_permission`, `expire_sessions`, `cleanup_otps`, `get_db_size`, triggers) + cron (`pg_cron`) |
+| `002_schema.sql` | Todas las tablas, índices, triggers y RLS (estructura completa) |
+| `003_catalogs.sql` | `catalog_doc_types` + RLS + seed (tipos de documento) |
 
 ---
 
@@ -137,7 +130,7 @@ Registro permanente zero-knowledge. **NO contiene datos del firmante, documentos
 | pdf_hash | TEXT | SHA-256 |
 | consent_hashes | JSONB | hash por cada consentimiento |
 | otp_channel | TEXT | email / sms / whatsapp. Default 'email' |
-| template_id | UUID FK NULL | → signing_templates(id). ON DELETE SET NULL. Solo session_type=signature (migración 009) |
+| template_id | UUID FK NULL | → signing_templates(id). ON DELETE SET NULL. Solo session_type=signature |
 | created_at | TIMESTAMPTZ | |
 | completed_at | TIMESTAMPTZ | |
 | expires_at | TIMESTAMPTZ | |
@@ -157,7 +150,7 @@ Temporales. Se limpian automáticamente. Solo accesible via service_role (Edge F
 | created_at | TIMESTAMPTZ | |
 
 ### signing_templates
-Plantillas reutilizables del editor visual (modo firma). Migración 009. Límites por plan: trial 0 / basic 3 / pro 20 / enterprise ∞ (validados en `signing-service`, no en BD).
+Plantillas reutilizables del editor visual (modo firma, Fase 2). Límites por plan: trial 0 / basic 3 / pro 20 / enterprise ∞ (validados en `signing-service`, no en BD).
 
 | Columna | Tipo | Notas |
 |---|---|---|
@@ -172,7 +165,7 @@ Plantillas reutilizables del editor visual (modo firma). Migración 009. Límite
 | updated_at | TIMESTAMPTZ | trigger auto |
 
 ### tenant_whatsapp_config
-Config de WhatsApp Business API del cliente. Migración 010. Secrets encriptados con pgcrypto. Cada cliente usa su propia cuenta de WhatsApp Business.
+Config de WhatsApp Business API del cliente (Fase 3). Secrets encriptados con pgcrypto. Cada cliente usa su propia cuenta de WhatsApp Business.
 
 | Columna | Tipo | Notas |
 |---|---|---|
@@ -289,7 +282,7 @@ Trigger BEFORE INSERT en auth.users. Convierte NULLs a string vacío en confirma
 El límite de plantillas por plan se valida en la Edge Function `signing-service` (no en SQL): trial 0 / basic 3 / pro 20 / enterprise ∞.
 
 ### get_db_size() → JSON
-Retorna `{db_bytes, storage_bytes}` (tamaño de la BD y del storage). Usada por `admin-service` para métricas. SECURITY DEFINER. Migración 006.
+Retorna `{db_bytes, storage_bytes}` (tamaño de la BD y del storage). Usada por `admin-service` para métricas. SECURITY DEFINER. Definida en `001_functions.sql`.
 
 ### update_updated_at()
 Trigger en tenants, tenant_oauth, tenant_sms_config, tenant_whatsapp_config, consent_items, signing_templates, platform_users. Actualiza updated_at automáticamente.

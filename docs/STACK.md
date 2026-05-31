@@ -126,10 +126,9 @@ consentia/
 │   └── assets/
 ├── supabase/
 │   ├── migrations/
-│   │   ├── 001_initial_schema.sql … 006_get_db_size.sql
-│   │   ├── 007_session_type_otp_channel.sql · 008_schedule_cleanup.sql
-│   │   ├── 009_signing_templates.sql      (Fase 2)
-│   │   └── 010_tenant_whatsapp_config.sql    (Fase 3)
+│   │   ├── 001_functions.sql              (funciones + extensiones + cron)
+│   │   ├── 002_schema.sql                 (tablas + índices + triggers + RLS)
+│   │   └── 003_catalogs.sql               (catálogo tipos de documento + seed)
 │   └── functions/
 │       ├── _shared/                       (cors, response, supabase, auth, otp, hash, limits, tenant, email_templates, pdf_evidence, channels/{sms,whatsapp})
 │       ├── admin-service/                 (métricas, inscritos, invitaciones, permisos)

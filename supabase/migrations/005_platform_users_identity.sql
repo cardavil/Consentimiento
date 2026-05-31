@@ -1,4 +1,0 @@
--- Columnas de identidad (first_name, last_name, doc_type, doc_number, phone)
--- consolidadas directamente en 003_platform_users.sql para erradicar el campo
--- `name`, que nunca debió existir. Sin operación.
--- Archivo conservado por continuidad de la secuencia de versiones ya aplicada.

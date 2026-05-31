@@ -77,8 +77,8 @@
   <div class="card">
     <h3>Supabase</h3>
     <ul class="checklist" data-group="prereq">
-      <li><input type="checkbox"><label>Aplicar migraciones <code>001</code>–<code>010</code> (<code>supabase db push</code>) y confirmar 14 tablas.</label></li>
-      <li><input type="checkbox"><label>Habilitar <code>pg_cron</code> (necesario para la migración 008).</label></li>
+      <li><input type="checkbox"><label>Aplicar SQL <code>001_functions</code> · <code>002_schema</code> · <code>003_catalogs</code> (<code>supabase db push</code>) y confirmar 14 tablas.</label></li>
+      <li><input type="checkbox"><label>Habilitar <code>pg_cron</code> (necesario para el cron de <code>001_functions</code>).</label></li>
       <li><input type="checkbox"><label>Desplegar Edge Functions: <code>admin-service</code>, <code>otp-service</code>, <code>consent-service</code>, <code>drive-service</code>, <code>signing-service</code>, <code>config-service</code>.</label></li>
       <li><input type="checkbox"><label>Secrets: <code>ENCRYPTION_KEY</code>, <code>GOOGLE_CLIENT_ID/SECRET</code>, <code>MS_CLIENT_ID/SECRET</code>, <code>OAUTH_REDIRECT_BASE</code>.</label></li>
       <li><input type="checkbox"><label>Configurar SMTP propio en Supabase Auth y longitud de OTP en <strong>8 dígitos</strong>.</label></li>
