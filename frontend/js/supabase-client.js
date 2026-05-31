@@ -110,10 +110,15 @@ async function init_app_page(opts) {
 
   const select = opts.select || 'type,first_name,last_name,company_name,plan,email,phone';
   let tenant = null;
+  let tenant_missing = false;
   try {
     const rows = await supabase_fetch('/tenants?id=eq.' + meta.tenant_id + '&select=' + select, session.access_token);
     if (rows && rows.length > 0) tenant = rows[0];
-  } catch (_e) { /* header still renders without tenant */ }
+    else tenant_missing = true; // el JWT trae tenant_id pero el inscrito ya no existe (token colgante)
+  } catch (_e) { /* error transitorio de red: render sin tenant, no rebotar */ }
+
+  // El tenant_id del JWT apunta a un inscrito inexistente (borrado / token viejo) → forzar re-auth.
+  if (tenant_missing) { await sign_out(); return null; }
 
   if (opts.header !== false) {
     render_app_header({ container_id: 'app-header', session: session, tenant: tenant, on_logout: sign_out });
