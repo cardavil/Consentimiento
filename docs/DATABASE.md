@@ -215,7 +215,7 @@ Inmutable. INSERT solo via service_role. Sin UPDATE ni DELETE.
 | created_at | TIMESTAMPTZ | |
 
 ### platform_users
-Usuarios internos de la plataforma (admin/analyst). Completamente separados de inscritos. Un admin no es una tenant.
+Usuarios internos de la plataforma (admin/analyst). Completamente separados de inscritos. Un admin no es una tenant. Espeja los campos de identidad de una persona jurídica (empresa + representante); los no aplicables quedan vacíos/TBD.
 
 | Columna | Tipo | Notas |
 |---|---|---|
@@ -227,6 +227,9 @@ Usuarios internos de la plataforma (admin/analyst). Completamente separados de i
 | doc_type | TEXT | sin CHECK en BD; en UI: CC/CE/PA/PEP/PPT/TI/NIT |
 | doc_number | TEXT | |
 | phone | TEXT | |
+| position | TEXT | cargo del representante |
+| company_name | TEXT | razón social |
+| company_nit | TEXT | NIT de la empresa |
 | role | TEXT NOT NULL | CHECK: admin / analyst |
 | active | BOOLEAN | default true |
 | created_at | TIMESTAMPTZ | |
