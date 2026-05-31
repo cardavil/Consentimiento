@@ -39,8 +39,13 @@ function render_app_header(opts) {
   }
   html += '</div></div>';
 
-  if (has_tenant && in_admin) {
-    html += '<a href="' + tenant_link + '" class="header-dropdown-item">Mi cuenta</a>';
+  if (in_admin) {
+    // El admin siempre ve "Mi cuenta"; inactiva si aún no tiene inscrito asociado.
+    if (has_tenant) {
+      html += '<a href="' + tenant_link + '" class="header-dropdown-item">Mi cuenta</a>';
+    } else {
+      html += '<button class="header-dropdown-item" disabled title="Sin inscrito asociado">Mi cuenta</button>';
+    }
   }
   if (has_platform && !in_admin) {
     html += '<a href="' + admin_link + '" class="header-dropdown-item">Panel Admin</a>';
