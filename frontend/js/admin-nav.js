@@ -6,7 +6,7 @@ function render_admin_nav() {
 
   var items = [
     { href: 'index.html', label: 'Indicadores', perm: null },
-    { href: 'orgs.html', label: 'Organizaciones', perm: 'read:orgs' },
+    { href: 'tenants.html', label: 'Inscritos', perm: 'read:tenants' },
     { href: 'audit.html', label: 'Auditoría', perm: 'read:audit_log' },
     { href: 'catalogs.html', label: 'Catálogos', perm: 'read:catalogs' },
     { href: 'analysts.html', label: 'Analistas', perm: null, admin_only: true },

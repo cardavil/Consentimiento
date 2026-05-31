@@ -20,16 +20,16 @@ async function check_admin_session() {
     session: data.session,
     role: meta.platform_role,
     email: data.session.user.email,
-    org: null,
+    tenant: null,
   };
 
-  if (meta.org_id) {
+  if (meta.tenant_id) {
     try {
-      var orgs = await client
-        .from('organizations')
+      var tenants = await client
+        .from('tenants')
         .select('type,first_name,last_name,company_name,plan')
-        .eq('id', meta.org_id);
-      if (orgs.data && orgs.data.length > 0) _admin_session.org = orgs.data[0];
+        .eq('id', meta.tenant_id);
+      if (tenants.data && tenants.data.length > 0) _admin_session.tenant = tenants.data[0];
     } catch (_e) {}
   }
 
@@ -40,7 +40,7 @@ async function check_admin_session() {
     _admin_permissions = (perms || []).map(function (p) { return p.permission; });
   } else {
     _admin_permissions = [
-      'read:orgs', 'read:audit_log', 'read:sessions',
+      'read:tenants', 'read:audit_log', 'read:sessions',
       'read:catalogs', 'write:catalogs', 'read:metrics',
     ];
   }

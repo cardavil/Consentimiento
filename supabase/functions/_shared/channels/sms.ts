@@ -1,4 +1,4 @@
-// SMS OTP delivery via the org's Android gateway (Cloudflare Tunnel), HMAC-signed.
+// SMS OTP delivery via the tenant's Android gateway (Cloudflare Tunnel), HMAC-signed.
 // Mirrors the 5 security layers verified on the device: API key, timestamp, nonce, HMAC, rate limit.
 import { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { decrypt_secret } from '../../drive-service/connection.ts';
@@ -13,14 +13,14 @@ async function hmac_sha256_hex(secret: string, message: string): Promise<string>
 
 export async function send_sms_otp(
   admin: SupabaseClient,
-  organization_id: string,
+  tenant_id: string,
   to: string,
   code: string,
 ): Promise<void> {
   const { data: cfg } = await admin
-    .from('org_sms_config')
+    .from('tenant_sms_config')
     .select('gateway_url, api_key, hmac_secret, enabled')
-    .eq('organization_id', organization_id)
+    .eq('tenant_id', tenant_id)
     .maybeSingle();
   if (!cfg || !cfg.enabled || !cfg.gateway_url) throw new Error('SMS_NO_CONFIGURADO');
 

@@ -1,4 +1,4 @@
--- Platform internal users (admin/analyst) — completely separate from organizations
+-- Platform internal users (admin/analyst) — completely separate from tenants
 -- Admin has full access, analyst has granular permissions assigned by admin
 
 -- ============================================================
@@ -24,7 +24,7 @@ CREATE TABLE platform_permissions (
     id              UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id         UUID NOT NULL REFERENCES platform_users(id) ON DELETE CASCADE,
     permission      TEXT NOT NULL CHECK (permission IN (
-        'read:orgs',
+        'read:tenants',
         'read:audit_log',
         'read:sessions',
         'read:catalogs',
@@ -77,24 +77,24 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
 
 -- ============================================================
---  MODIFY get_org_id() — guard against platform users
+--  MODIFY get_tenant_id() — guard against platform users
 -- ============================================================
 
-CREATE OR REPLACE FUNCTION get_org_id()
+CREATE OR REPLACE FUNCTION get_tenant_id()
 RETURNS UUID AS $$
 DECLARE
-    v_org_id UUID;
+    v_tenant_id UUID;
 BEGIN
     IF (auth.jwt()->'app_metadata'->>'platform_role') IS NOT NULL THEN
         RETURN NULL;
     END IF;
 
-    v_org_id := (auth.jwt()->'app_metadata'->>'org_id')::UUID;
-    IF v_org_id IS NOT NULL THEN
-        RETURN v_org_id;
+    v_tenant_id := (auth.jwt()->'app_metadata'->>'tenant_id')::UUID;
+    IF v_tenant_id IS NOT NULL THEN
+        RETURN v_tenant_id;
     END IF;
     RETURN (
-        SELECT id FROM organizations
+        SELECT id FROM tenants
         WHERE email = auth.jwt()->>'email'
         LIMIT 1
     );
@@ -133,28 +133,28 @@ CREATE POLICY "pp_delete" ON platform_permissions
     FOR DELETE USING (is_platform_admin());
 
 -- ============================================================
---  RLS — modify existing policies for admin cross-org access
+--  RLS — modify existing policies for admin cross-tenant access
 -- ============================================================
 
--- organizations: admin can view all, update all
-DROP POLICY "org_select_own" ON organizations;
-CREATE POLICY "org_select_own_or_admin" ON organizations
-    FOR SELECT USING (id = get_org_id() OR has_platform_permission('read:orgs'));
+-- tenants: admin can view all, update all
+DROP POLICY "tenant_select_own" ON tenants;
+CREATE POLICY "tenant_select_own_or_admin" ON tenants
+    FOR SELECT USING (id = get_tenant_id() OR has_platform_permission('read:tenants'));
 
-DROP POLICY "org_update_own" ON organizations;
-CREATE POLICY "org_update_own_or_admin" ON organizations
-    FOR UPDATE USING (id = get_org_id() OR is_platform_admin());
+DROP POLICY "tenant_update_own" ON tenants;
+CREATE POLICY "tenant_update_own_or_admin" ON tenants
+    FOR UPDATE USING (id = get_tenant_id() OR is_platform_admin());
 
 -- audit_log: admin/analyst can view all
 DROP POLICY IF EXISTS "audit_select_own" ON audit_log;
 CREATE POLICY "audit_select_own_or_admin" ON audit_log
-    FOR SELECT USING (organization_id = get_org_id() OR has_platform_permission('read:audit_log'));
+    FOR SELECT USING (tenant_id = get_tenant_id() OR has_platform_permission('read:audit_log'));
 
 -- signing_sessions_results: admin/analyst can view all (metadata only, no signer data)
 DROP POLICY "results_select_own" ON signing_sessions_results;
 CREATE POLICY "results_select_own_or_admin" ON signing_sessions_results
     FOR SELECT USING (
-        organization_id = get_org_id()
+        tenant_id = get_tenant_id()
         OR access_token = current_setting('request.headers', true)::json->>'x-access-token'
         OR has_platform_permission('read:sessions')
     );

@@ -8,14 +8,14 @@ Migraciones aplicadas (`supabase/migrations/`):
 |---|---|
 | `001_initial_schema.sql` | 9 tablas base, RLS, funciones, triggers |
 | `002_catalog_doc_types.sql` | Tabla `catalog_doc_types` (catálogo tipos de documento) |
-| `003_platform_users.sql` | Tablas `platform_users` + `platform_permissions` y funciones `is_platform_user/admin`, `has_platform_permission`, `get_org_id` |
-| `004_admin_org_dual_role.sql` | Redefine `get_org_id()` para identidad dual admin/org (fast-path org_id en JWT antes del guard platform_role) |
+| `003_platform_users.sql` | Tablas `platform_users` + `platform_permissions` y funciones `is_platform_user/admin`, `has_platform_permission`, `get_tenant_id` |
+| `004_admin_org_dual_role.sql` | Redefine `get_tenant_id()` para identidad dual admin/tenant (fast-path tenant_id en JWT antes del guard platform_role) |
 | `005_platform_users_identity.sql` | Expande `platform_users` con nombre, apellido, documento, teléfono |
 | `006_get_db_size.sql` | Función `get_db_size()` para métricas admin |
 | `007_session_type_otp_channel.sql` | Agrega `session_type` (consent/firma) y `otp_channel` (email/sms/whatsapp) a `signing_sessions_results` |
 | `008_schedule_cleanup.sql` | Programa `expire_sessions()` (cada 15 min) y `cleanup_otps()` (cada hora) vía pg_cron |
 | `009_signing_templates.sql` | Crea `signing_templates`; agrega `fields` a `signing_sessions_temp` y `template_id` a `signing_sessions_results` (Fase 2) |
-| `010_org_whatsapp_config.sql` | Crea `org_whatsapp_config` (Fase 3) |
+| `010_tenant_whatsapp_config.sql` | Crea `tenant_whatsapp_config` (Fase 3) |
 
 ---
 
@@ -36,7 +36,7 @@ Para operaciones admin: `updateUserById()`, NO `updateUser()` (ese es para el us
 
 ## Tablas
 
-### organizations
+### tenants
 Clientes de la plataforma. La persona siempre existe. La empresa solo si es jurídica. Si type = juridica, doc_type se pone en NIT automáticamente en el frontend. INSERT solo via service_role.
 
 | Columna | Tipo | Notas |
@@ -58,13 +58,13 @@ Clientes de la plataforma. La persona siempre existe. La empresa solo si es jur�
 | created_at | TIMESTAMPTZ | |
 | updated_at | TIMESTAMPTZ | trigger auto |
 
-### org_oauth
+### tenant_oauth
 Conexión a la nube del cliente (Google Workspace o Microsoft 365). Tokens encriptados con pgcrypto (pgp_sym_encrypt).
 
 | Columna | Tipo | Notas |
 |---|---|---|
 | id | UUID PK | |
-| organization_id | UUID FK UNIQUE | → organizations |
+| tenant_id | UUID FK UNIQUE | → tenants |
 | provider | TEXT | google_workspace / microsoft_365 |
 | access_token | BYTEA | encriptado con pgcrypto |
 | refresh_token | BYTEA | encriptado con pgcrypto |
@@ -77,13 +77,13 @@ Conexión a la nube del cliente (Google Workspace o Microsoft 365). Tokens encri
 | created_at | TIMESTAMPTZ | |
 | updated_at | TIMESTAMPTZ | trigger auto |
 
-### org_sms_config
+### tenant_sms_config
 Gateway SMS Android del cliente. Secrets encriptados con pgcrypto.
 
 | Columna | Tipo | Notas |
 |---|---|---|
 | id | UUID PK | |
-| organization_id | UUID FK UNIQUE | → organizations |
+| tenant_id | UUID FK UNIQUE | → tenants |
 | gateway_url | TEXT | |
 | api_key | BYTEA | encriptado con pgcrypto |
 | hmac_secret | BYTEA | encriptado con pgcrypto |
@@ -97,8 +97,8 @@ Consentimientos configurados por cada cliente.
 | Columna | Tipo | Notas |
 |---|---|---|
 | id | UUID PK | |
-| organization_id | UUID FK | → organizations |
-| code | TEXT | C1, C2... UNIQUE con org_id |
+| tenant_id | UUID FK | → tenants |
+| code | TEXT | C1, C2... UNIQUE con tenant_id |
 | title | TEXT | NOT NULL |
 | description | TEXT | NOT NULL |
 | required | BOOLEAN | default: false |
@@ -127,7 +127,7 @@ Registro permanente zero-knowledge. **NO contiene datos del firmante, documentos
 | Columna | Tipo | Notas |
 |---|---|---|
 | id | UUID PK | |
-| organization_id | UUID FK | → organizations |
+| tenant_id | UUID FK | → tenants |
 | session_type | TEXT | consent / firma. NOT NULL. CHECK constraint |
 | mode | TEXT | natural_personal / natural_tutor (con representante) / juridica |
 | access_token | TEXT | UNIQUE, gen_random_bytes(32) hex |
@@ -162,7 +162,7 @@ Plantillas reutilizables del editor visual (modo firma). Migración 009. Límite
 | Columna | Tipo | Notas |
 |---|---|---|
 | id | UUID PK | uuid_generate_v4() |
-| organization_id | UUID FK | → organizations |
+| tenant_id | UUID FK | → tenants |
 | name | TEXT | NOT NULL |
 | source_file_name | TEXT | Nombre original del PDF (display, no Drive ID) |
 | page_count | INTEGER | |
@@ -171,13 +171,13 @@ Plantillas reutilizables del editor visual (modo firma). Migración 009. Límite
 | created_at | TIMESTAMPTZ | |
 | updated_at | TIMESTAMPTZ | trigger auto |
 
-### org_whatsapp_config
+### tenant_whatsapp_config
 Config de WhatsApp Business API del cliente. Migración 010. Secrets encriptados con pgcrypto. Cada cliente usa su propia cuenta de WhatsApp Business.
 
 | Columna | Tipo | Notas |
 |---|---|---|
 | id | UUID PK | uuid_generate_v4() |
-| organization_id | UUID FK UNIQUE | → organizations, ON DELETE CASCADE |
+| tenant_id | UUID FK UNIQUE | → tenants, ON DELETE CASCADE |
 | phone_number_id | TEXT | WhatsApp Business phone number ID |
 | waba_id | TEXT | WhatsApp Business Account ID |
 | access_token | BYTEA | encriptado con pgcrypto |
@@ -203,7 +203,7 @@ Secuencial atómico. PK compuesta. Solo accesible por service_role.
 
 | Columna | Tipo | Notas |
 |---|---|---|
-| organization_id | UUID PK | → organizations |
+| tenant_id | UUID PK | → tenants |
 | code | TEXT PK | |
 | year | INTEGER PK | |
 | seq | INTEGER | default: 0 |
@@ -214,7 +214,7 @@ Inmutable. INSERT solo via service_role. Sin UPDATE ni DELETE.
 | Columna | Tipo | Notas |
 |---|---|---|
 | id | BIGSERIAL PK | |
-| organization_id | UUID FK | → organizations |
+| tenant_id | UUID FK | → tenants |
 | event_type | TEXT | NOT NULL |
 | event_data | JSONB | sin datos personales |
 | ip | INET | |
@@ -222,7 +222,7 @@ Inmutable. INSERT solo via service_role. Sin UPDATE ni DELETE.
 | created_at | TIMESTAMPTZ | |
 
 ### platform_users
-Usuarios internos de la plataforma (admin/analyst). Completamente separados de organizaciones. Un admin no es una org.
+Usuarios internos de la plataforma (admin/analyst). Completamente separados de inscritos. Un admin no es una tenant.
 
 | Columna | Tipo | Notas |
 |---|---|---|
@@ -246,7 +246,7 @@ Permisos granulares para analysts. Admin tiene todos implícitamente.
 |---|---|---|
 | id | UUID PK | uuid_generate_v4() |
 | user_id | UUID FK NOT NULL | → platform_users ON DELETE CASCADE |
-| permission | TEXT NOT NULL | CHECK: read:orgs, read:audit_log, read:sessions, read:catalogs, write:catalogs, read:metrics |
+| permission | TEXT NOT NULL | CHECK: read:tenants, read:audit_log, read:sessions, read:catalogs, write:catalogs, read:metrics |
 | granted_by | UUID FK | → platform_users |
 | created_at | TIMESTAMPTZ | |
 | UNIQUE(user_id, permission) | | |
@@ -261,8 +261,8 @@ Encripta con pgp_sym_encrypt. SECURITY DEFINER. La llave la pasa la Edge Functio
 ### decrypt_secret(p_ciphertext BYTEA, p_key TEXT) → TEXT
 Desencripta con pgp_sym_decrypt. SECURITY DEFINER. La llave la pasa la Edge Function desde Supabase Secret.
 
-### next_folio(p_org_id, p_code, p_year) → TEXT
-INSERT ON CONFLICT UPDATE atómico. Lee folio_prefix de organizations. Retorna folio formateado: `{prefix}-{code}-{year}-{seq_padded}`. Ejemplo: `CT-C1-2026-0007`. SECURITY DEFINER.
+### next_folio(p_tenant_id, p_code, p_year) → TEXT
+INSERT ON CONFLICT UPDATE atómico. Lee folio_prefix de tenants. Retorna folio formateado: `{prefix}-{code}-{year}-{seq_padded}`. Ejemplo: `CT-C1-2026-0007`. SECURITY DEFINER.
 
 ### is_platform_user() → BOOLEAN
 Retorna true si el JWT tiene app_metadata.platform_role. SECURITY DEFINER STABLE.
@@ -273,8 +273,8 @@ Retorna true si platform_role = 'admin'. SECURITY DEFINER STABLE.
 ### has_platform_permission(p_permission TEXT) → BOOLEAN
 Admin retorna true siempre. Analyst busca en platform_permissions (filtrado por auth.uid() y active=true). SECURITY DEFINER STABLE.
 
-### get_org_id() → UUID
-Lee org_id del JWT (app_metadata) como fast path sin query. Si no existe y platform_role existe, retorna NULL (admin/analyst sin org). Si no tiene platform_role, fallback a SELECT por email (org users legacy). SECURITY DEFINER STABLE. Permite dual identity: admin con org_id obtiene su org. Migration 004.
+### get_tenant_id() → UUID
+Lee tenant_id del JWT (app_metadata) como fast path sin query. Si no existe y platform_role existe, retorna NULL (admin/analyst sin tenant). Si no tiene platform_role, fallback a SELECT por email (tenant users legacy). SECURITY DEFINER STABLE. Permite dual identity: admin con tenant_id obtiene su tenant. Migration 004.
 
 ### expire_sessions() → INTEGER
 Marca como 'expired' las sesiones vencidas. Limpia signing_sessions_temp de sesiones expired/cancelled/completed.
@@ -292,7 +292,7 @@ El límite de plantillas por plan se valida en la Edge Function `signing-service
 Retorna `{db_bytes, storage_bytes}` (tamaño de la BD y del storage). Usada por `admin-service` para métricas. SECURITY DEFINER. Migración 006.
 
 ### update_updated_at()
-Trigger en organizations, org_oauth, org_sms_config, org_whatsapp_config, consent_items, signing_templates, platform_users. Actualiza updated_at automáticamente.
+Trigger en tenants, tenant_oauth, tenant_sms_config, tenant_whatsapp_config, consent_items, signing_templates, platform_users. Actualiza updated_at automáticamente.
 
 ---
 
@@ -302,18 +302,18 @@ Patrón: operaciones sensibles (INSERT en tablas críticas, OTP) pasan exclusiva
 
 | Tabla | Regla |
 |---|---|
-| organizations | Solo ve/edita la suya. Admin ve/edita todas. INSERT solo service_role. |
-| org_oauth | Solo su config (select/insert/update). |
-| org_sms_config | Solo su config (select/insert/update). |
+| tenants | Solo ve/edita la suya. Admin ve/edita todas. INSERT solo service_role. |
+| tenant_oauth | Solo su config (select/insert/update). |
+| tenant_sms_config | Solo su config (select/insert/update). |
 | consent_items | Solo los suyos (CRUD completo). |
-| signing_sessions_temp | Org accede por session_id. Firmante accede por x-access-token header. Org puede borrar los suyos. INSERT solo service_role. |
-| signing_sessions_results | Org ve las suyas y actualiza status. Firmante accede por access_token. Admin/analyst con read:sessions ve todas (solo metadatos). INSERT solo service_role. |
+| signing_sessions_temp | El inscrito accede por session_id. Firmante accede por x-access-token header. El inscrito puede borrar los suyos. INSERT solo service_role. |
+| signing_sessions_results | El inscrito ve las suyas y actualiza status. Firmante accede por access_token. Admin/analyst con read:sessions ve todas (solo metadatos). INSERT solo service_role. |
 | otp_tokens | Bloqueado (sin policies). Solo service_role. |
 | folio_sequence | Bloqueado para todos. Solo service_role. |
-| signing_templates | Solo ve/edita las suyas (CRUD). organization_id = get_org_id(). |
-| org_whatsapp_config | Solo su config (select/insert/update). Mismo patrón que org_sms_config. |
+| signing_templates | Solo ve/edita las suyas (CRUD). tenant_id = get_tenant_id(). |
+| tenant_whatsapp_config | Solo su config (select/insert/update). Mismo patrón que tenant_sms_config. |
 | catalog_doc_types | SELECT público (anon + authenticated) donde active=true. Admin con write:catalogs puede CRUD. |
-| audit_log | Org ve los suyos. Admin/analyst con read:audit_log ve todos. INSERT solo service_role. Sin UPDATE ni DELETE. |
+| audit_log | El inscrito ve los suyos. Admin/analyst con read:audit_log ve todos. INSERT solo service_role. Sin UPDATE ni DELETE. |
 | platform_users | Admin ve todos, analyst ve solo el suyo. CRUD solo admin. |
 | platform_permissions | Admin CRUD. Analyst ve los suyos. |
 
@@ -321,11 +321,11 @@ Patrón: operaciones sensibles (INSERT en tablas críticas, OTP) pasan exclusiva
 
 ## Índices
 
-- consent_items(organization_id)
+- consent_items(tenant_id)
 - signing_sessions_temp(session_id)
-- signing_sessions_results(organization_id, access_token, status, folio, session_type)
-- signing_templates(organization_id)
+- signing_sessions_results(tenant_id, access_token, status, folio, session_type)
+- signing_templates(tenant_id)
 - otp_tokens(email), otp_tokens(email, purpose)
-- audit_log(organization_id, event_type, created_at)
+- audit_log(tenant_id, event_type, created_at)
 - platform_users(auth_user_id)
 - platform_permissions(user_id)

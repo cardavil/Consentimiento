@@ -113,7 +113,7 @@ supabase secrets set ENCRYPTION_KEY=... GOOGLE_CLIENT_ID=... GOOGLE_CLIENT_SECRE
       <li><input type="checkbox"><label>Login por email → OTP → dashboard.</label></li>
       <li><input type="checkbox"><label>Onboarding: conectar <strong>Google</strong> → vuelve con estado "Conectado", muestra correo emisor.</label></li>
       <li><input type="checkbox"><label>Onboarding: conectar <strong>Microsoft</strong> → idem.</label></li>
-      <li><input type="checkbox"><label>En BD: <code>org_oauth</code> tiene <code>access_token</code>/<code>refresh_token</code> como <code>BYTEA</code> (cifrado), carpeta y sheet creados.</label></li>
+      <li><input type="checkbox"><label>En BD: <code>tenant_oauth</code> tiene <code>access_token</code>/<code>refresh_token</code> como <code>BYTEA</code> (cifrado), carpeta y sheet creados.</label></li>
     </ul>
     <h3>Flujo de consentimiento</h3>
     <ul class="checklist" data-group="f1">
@@ -153,8 +153,8 @@ supabase secrets set ENCRYPTION_KEY=... GOOGLE_CLIENT_ID=... GOOGLE_CLIENT_SECRE
   <div class="card">
     <h3>Configuración (onboarding)</h3>
     <ul class="checklist" data-group="f3">
-      <li><input type="checkbox"><label>WhatsApp: guardar config → <code>org_whatsapp_config</code> con <code>access_token</code> cifrado; "Probar" envía mensaje.</label></li>
-      <li><input type="checkbox"><label>SMS: generar API key + HMAC, guardar URL del tunnel → <code>org_sms_config</code> con secretos cifrados; "Probar" envía SMS.</label></li>
+      <li><input type="checkbox"><label>WhatsApp: guardar config → <code>tenant_whatsapp_config</code> con <code>access_token</code> cifrado; "Probar" envía mensaje.</label></li>
+      <li><input type="checkbox"><label>SMS: generar API key + HMAC, guardar URL del tunnel → <code>tenant_sms_config</code> con secretos cifrados; "Probar" envía SMS.</label></li>
       <li><input type="checkbox"><label>App Android: vincular por QR, activar gateway, conceder permisos SMS.</label></li>
     </ul>
     <h3>Verificación del firmante</h3>
@@ -172,7 +172,7 @@ supabase secrets set ENCRYPTION_KEY=... GOOGLE_CLIENT_ID=... GOOGLE_CLIENT_SECRE
       <li><input type="checkbox"><label><strong>Round-trip de <code>BYTEA</code> cifrado:</strong> que <code>encrypt_secret</code>/<code>decrypt_secret</code> vía RPC funcionen end-to-end (PostgREST entrega/acepta <code>\x</code> hex). Es lo no probado más riesgoso.</label></li>
       <li><input type="checkbox"><label><strong>Coordenadas del PDF de firma</strong> (<code>pdf_firma.ts</code>): conversión top-left (editor) → bottom-left (pdf-lib) y <code>embedPng</code> de la firma quedan en la posición correcta.</label></li>
       <li><input type="checkbox"><label><strong>Refresh de tokens OAuth</strong> (<code>connection.ts</code>): renueva y re-cifra cuando expira.</label></li>
-      <li><input type="checkbox"><label><strong>RLS por token:</strong> el firmante anónimo solo accede a su sesión (<code>x-access-token</code>) y nunca a datos de otras orgs.</label></li>
+      <li><input type="checkbox"><label><strong>RLS por token:</strong> el firmante anónimo solo accede a su sesión (<code>x-access-token</code>) y nunca a datos de otros inscritos.</label></li>
       <li><input type="checkbox"><label><strong>HMAC SMS coincide</strong>: cadena <code>to|message|timestamp|nonce</code> idéntica en <code>channels/sms.ts</code> y en la app Android.</label></li>
     </ul>
   </div>

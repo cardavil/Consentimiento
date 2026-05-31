@@ -1,25 +1,25 @@
--- Allow admin users to also have an org_id (dual identity)
--- Move platform_role guard AFTER org_id fast-path
+-- Allow admin users to also have a tenant_id (dual identity)
+-- Move platform_role guard AFTER tenant_id fast-path
 
-CREATE OR REPLACE FUNCTION get_org_id()
+CREATE OR REPLACE FUNCTION get_tenant_id()
 RETURNS UUID AS $$
 DECLARE
-    v_org_id UUID;
+    v_tenant_id UUID;
 BEGIN
-    -- Fast path: org_id from JWT (works for org users AND admin-with-org)
-    v_org_id := (auth.jwt()->'app_metadata'->>'org_id')::UUID;
-    IF v_org_id IS NOT NULL THEN
-        RETURN v_org_id;
+    -- Fast path: tenant_id from JWT (works for tenant users AND admin-with-tenant)
+    v_tenant_id := (auth.jwt()->'app_metadata'->>'tenant_id')::UUID;
+    IF v_tenant_id IS NOT NULL THEN
+        RETURN v_tenant_id;
     END IF;
 
-    -- Platform users without org_id get NULL (no email fallback for them)
+    -- Platform users without tenant_id get NULL (no email fallback for them)
     IF (auth.jwt()->'app_metadata'->>'platform_role') IS NOT NULL THEN
         RETURN NULL;
     END IF;
 
-    -- Email fallback only for org users who don't have org_id set yet
+    -- Email fallback only for tenant users who don't have tenant_id set yet
     RETURN (
-        SELECT id FROM organizations
+        SELECT id FROM tenants
         WHERE email = auth.jwt()->>'email'
         LIMIT 1
     );

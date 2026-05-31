@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Organizaciones | Consentia Admin</title>
+  <title>Inscritos | Consentia Admin</title>
   <link rel="stylesheet" href="../../css/tokens.css">
   <link rel="stylesheet" href="../../css/componentes.css">
 </head>
@@ -15,7 +15,12 @@
 
     <main id="main" class="admin-content">
       <div class="admin-toolbar">
-        <input type="text" id="filtro-busqueda" class="form-input" placeholder="Buscar por nombre o email...">
+        <input type="text" id="filtro-busqueda" class="form-input" placeholder="Buscar por nombre, NIT, documento o email...">
+        <select id="filtro-tipo" class="form-input">
+          <option value="">Todos los tipos</option>
+          <option value="juridica">Jurídica</option>
+          <option value="natural">Natural</option>
+        </select>
         <select id="filtro-plan" class="form-input">
           <option value="">Todos los planes</option>
           <option value="trial">Trial</option>
@@ -25,8 +30,8 @@
         </select>
         <select id="filtro-estado" class="form-input">
           <option value="">Todos</option>
-          <option value="active">Activas</option>
-          <option value="inactive">Inactivas</option>
+          <option value="active">Activos</option>
+          <option value="inactive">Inactivos</option>
         </select>
       </div>
 
@@ -34,32 +39,43 @@
         <table class="tabla">
           <thead>
             <tr>
-              <th>Nombre</th>
-              <th>Email</th>
-              <th>Tipo</th>
-              <th>Plan</th>
-              <th>Estado</th>
+              <th>id</th>
+              <th>type</th>
+              <th>company_name</th>
+              <th>company_nit</th>
+              <th>first_name</th>
+              <th>last_name</th>
+              <th>doc_type</th>
+              <th>doc_number</th>
+              <th>position</th>
+              <th>email</th>
+              <th>phone</th>
+              <th>plan</th>
+              <th>active</th>
+              <th>folio_prefix</th>
+              <th>created_at</th>
+              <th>updated_at</th>
               <th></th>
             </tr>
           </thead>
-          <tbody id="orgs-tbody">
-            <tr><td colspan="6" class="admin-empty">Cargando...</td></tr>
+          <tbody id="tenants-tbody">
+            <tr><td colspan="17" class="admin-empty">Cargando...</td></tr>
           </tbody>
         </table>
       </div>
     </main>
 
-  <!-- Modal editar org -->
-  <div id="modal-edit-org" class="modal-overlay" onclick="if(event.target===this)close_edit_org()">
+  <!-- Modal editar inscrito -->
+  <div id="modal-edit-tenant" class="modal-overlay" onclick="if(event.target===this)close_edit_tenant()">
     <div class="modal-content">
       <div class="modal-header">
-        <h3 id="edit-org-name">Editar organización</h3>
-        <button class="modal-close" onclick="close_edit_org()">&times;</button>
+        <h3 id="edit-tenant-name">Editar inscrito</h3>
+        <button class="modal-close" onclick="close_edit_tenant()">&times;</button>
       </div>
-      <input type="hidden" id="edit-org-id">
+      <input type="hidden" id="edit-tenant-id">
       <div class="form-group">
-        <label class="form-label" for="edit-org-plan">Plan</label>
-        <select id="edit-org-plan" class="form-input">
+        <label class="form-label" for="edit-tenant-plan">Plan</label>
+        <select id="edit-tenant-plan" class="form-input">
           <option value="trial">Trial</option>
           <option value="basic">Basic</option>
           <option value="pro">Pro</option>
@@ -68,12 +84,12 @@
       </div>
       <div class="form-group">
         <label class="form-label">
-          <input type="checkbox" id="edit-org-active" class="check-teal"> Activa
+          <input type="checkbox" id="edit-tenant-active" class="check-teal"> Activo
         </label>
       </div>
       <div class="form-actions">
-        <button class="btn btn-outline" onclick="close_edit_org()">Cancelar</button>
-        <button id="btn-save-org" class="btn btn-primary" onclick="save_org_changes()">Guardar</button>
+        <button class="btn btn-outline" onclick="close_edit_tenant()">Cancelar</button>
+        <button id="btn-save-tenant" class="btn btn-primary" onclick="save_tenant_changes()">Guardar</button>
       </div>
     </div>
   </div>
@@ -89,6 +105,6 @@
   <script src="../../js/admin-guard.js"></script>
   <script src="../../js/admin-nav.js"></script>
   <script src="../../js/app-header.js"></script>
-  <script src="../../js/admin-orgs.js"></script>
+  <script src="../../js/admin-tenants.js"></script>
 </body>
 </html>

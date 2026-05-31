@@ -75,10 +75,10 @@ async function on_verify_otp() {
     const meta = data.session.user.app_metadata || {};
     if (meta.platform_role) {
       window.location.href = 'admin/index.html';
-    } else if (meta.org_id) {
+    } else if (meta.tenant_id) {
       window.location.href = 'dashboard.html';
     } else {
-      throw new Error('CUENTA_SIN_ORG');
+      throw new Error('CUENTA_SIN_TENANT');
     }
   } catch (err) {
     show_error(user_message(err.message));

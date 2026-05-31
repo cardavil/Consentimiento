@@ -1,5 +1,5 @@
 var _jwt = null;
-var _org_id = null;
+var _tenant_id = null;
 var _drive_files = [];
 var _templates = [];
 var _inline = null; // {doc_id, doc_name, fields, page_count} from the editor
@@ -7,7 +7,7 @@ var _inline = null; // {doc_id, doc_name, fields, page_count} from the editor
 document.addEventListener('DOMContentLoaded', async function () {
   const ctx = await init_app_page();
   if (!ctx) return;
-  _jwt = ctx.jwt; _org_id = ctx.org_id;
+  _jwt = ctx.jwt; _tenant_id = ctx.tenant_id;
 
   await load_doc_types();
   setup_signer_form();
@@ -48,7 +48,7 @@ async function load_documents() {
 async function load_templates() {
   try {
     _templates = await supabase_fetch(
-      '/signing_templates?organization_id=eq.' + _org_id + '&active=eq.true&select=id,name,fields&order=name', _jwt) || [];
+      '/signing_templates?tenant_id=eq.' + _tenant_id + '&active=eq.true&select=id,name,fields&order=name', _jwt) || [];
     const sel = document.getElementById('tpl-select');
     for (const t of _templates) {
       const opt = document.createElement('option');

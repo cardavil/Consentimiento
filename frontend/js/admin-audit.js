@@ -4,7 +4,7 @@ var _audit_limit = 50;
 document.addEventListener('DOMContentLoaded', async function () {
   var session = await check_admin_session();
   if (!session) return;
-  render_app_header({ container_id: 'app-header', session: _admin_session.session, org: _admin_session.org, on_logout: admin_sign_out });
+  render_app_header({ container_id: 'app-header', session: _admin_session.session, tenant: _admin_session.tenant, on_logout: admin_sign_out });
   render_admin_nav();
   if (!require_permission('read:audit_log')) return;
 
@@ -27,7 +27,7 @@ async function load_audit() {
   var event_type = document.getElementById('filtro-evento').value;
   var fecha = document.getElementById('filtro-fecha').value;
 
-  var query = '/audit_log?select=id,organization_id,event_type,event_data,ip,created_at&order=created_at.desc';
+  var query = '/audit_log?select=id,tenant_id,event_type,event_data,ip,created_at&order=created_at.desc';
   query += '&limit=' + _audit_limit + '&offset=' + _audit_offset;
 
   if (event_type) query += '&event_type=eq.' + encodeURIComponent(event_type);
@@ -63,7 +63,7 @@ function render_audit_table(rows) {
     html += '<tr>';
     html += '<td>' + escape_html(format_date(r.created_at)) + '</td>';
     html += '<td><span class="badge badge-neutral">' + escape_html(r.event_type) + '</span></td>';
-    html += '<td class="text-mono text-xs">' + escape_html(r.organization_id || '—') + '</td>';
+    html += '<td class="text-mono text-xs">' + escape_html(r.tenant_id || '—') + '</td>';
     html += '<td class="text-xs">' + escape_html(data_str || '—') + '</td>';
     html += '<td class="text-mono text-xs">' + escape_html(r.ip || '—') + '</td>';
     html += '</tr>';

@@ -1,11 +1,11 @@
 var _consent_rows = [];
-var _org_id = null;
+var _tenant_id = null;
 var _jwt = null;
 
 document.addEventListener('DOMContentLoaded', async function () {
   const ctx = await init_app_page();
   if (!ctx) return;
-  _org_id = ctx.org_id;
+  _tenant_id = ctx.tenant_id;
   _jwt = ctx.jwt;
 
   document.getElementById('btn-nuevo').addEventListener('click', open_new_consent);
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 async function load_consents() {
   try {
     _consent_rows = await supabase_fetch(
-      '/consent_items?organization_id=eq.' + _org_id + '&select=id,code,title,description,required,sort_order,active&order=sort_order',
+      '/consent_items?tenant_id=eq.' + _tenant_id + '&select=id,code,title,description,required,sort_order,active&order=sort_order',
       _jwt
     ) || [];
     render_consent_table();
@@ -104,7 +104,7 @@ async function save_consent() {
     } else {
       await supabase_fetch('/consent_items', _jwt, {
         method: 'POST',
-        body: { organization_id: _org_id, code: code, title: title, description: description, sort_order: sort_order, required: required, active: active },
+        body: { tenant_id: _tenant_id, code: code, title: title, description: description, sort_order: sort_order, required: required, active: active },
         prefer: 'return=minimal',
       });
     }

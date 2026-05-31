@@ -7,18 +7,18 @@ export async function handle_metrics(): Promise<Response> {
   const month_start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
   const [
-    orgs_total,
-    orgs_by_plan,
+    tenants_total,
+    tenants_by_plan,
     sessions_month,
     sessions_completed,
     signing_otps,
     auth_otps,
-    active_orgs,
+    active_tenants,
     db_size,
   ] = await Promise.all([
-    admin.from('organizations').select('*', { count: 'exact', head: true }),
+    admin.from('tenants').select('*', { count: 'exact', head: true }),
 
-    admin.from('organizations').select('plan'),
+    admin.from('tenants').select('plan'),
 
     admin.from('signing_sessions_results').select('*', { count: 'exact', head: true })
       .gte('created_at', month_start),
@@ -34,35 +34,35 @@ export async function handle_metrics(): Promise<Response> {
       .eq('event_type', 'auth_otp_sent')
       .gte('created_at', month_start),
 
-    admin.from('signing_sessions_results').select('organization_id')
+    admin.from('signing_sessions_results').select('tenant_id')
       .gte('created_at', month_start),
 
     admin.rpc('get_db_size'),
   ]);
 
   const plan_counts: Record<string, number> = { trial: 0, basic: 0, pro: 0, enterprise: 0 };
-  if (orgs_by_plan.data) {
-    for (const row of orgs_by_plan.data) {
+  if (tenants_by_plan.data) {
+    for (const row of tenants_by_plan.data) {
       const p = (row as { plan: string }).plan || 'trial';
       plan_counts[p] = (plan_counts[p] || 0) + 1;
     }
   }
 
   const unique_active = new Set(
-    (active_orgs.data || []).map((r: { organization_id: string }) => r.organization_id),
+    (active_tenants.data || []).map((r: { tenant_id: string }) => r.tenant_id),
   ).size;
 
   const sizes = db_size.data ?? { db_bytes: 0, storage_bytes: 0 };
   const to_mb = (b: number) => Math.round((b / 1024 / 1024) * 10) / 10;
 
   return ok({
-    orgs_total: orgs_total.count ?? 0,
-    orgs_by_plan: plan_counts,
+    tenants_total: tenants_total.count ?? 0,
+    tenants_by_plan: plan_counts,
     sessions_created_month: sessions_month.count ?? 0,
     sessions_completed_month: sessions_completed.count ?? 0,
     signing_otps_month: signing_otps.count ?? 0,
     auth_otps_month: auth_otps.count ?? 0,
-    active_orgs_month: unique_active,
+    active_tenants_month: unique_active,
     db_size_mb: to_mb(sizes.db_bytes ?? 0),
     storage_size_mb: to_mb(sizes.storage_bytes ?? 0),
   });

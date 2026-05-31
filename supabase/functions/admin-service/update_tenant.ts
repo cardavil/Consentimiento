@@ -3,12 +3,12 @@ import { create_admin_client } from '../_shared/supabase.ts';
 
 const VALID_PLANS = ['trial', 'basic', 'pro', 'enterprise'];
 
-export async function handle_update_org(body: Record<string, unknown>): Promise<Response> {
-  const org_id = body.org_id as string;
+export async function handle_update_tenant(body: Record<string, unknown>): Promise<Response> {
+  const tenant_id = body.tenant_id as string;
   const plan = body.plan as string;
   const active = body.active as boolean;
 
-  if (!org_id) return err('DATOS_INCOMPLETOS');
+  if (!tenant_id) return err('DATOS_INCOMPLETOS');
 
   const updates: Record<string, unknown> = {};
 
@@ -26,14 +26,14 @@ export async function handle_update_org(body: Record<string, unknown>): Promise<
   const admin = create_admin_client();
 
   const { error } = await admin
-    .from('organizations')
+    .from('tenants')
     .update(updates)
-    .eq('id', org_id);
+    .eq('id', tenant_id);
 
   if (error) {
-    console.error({ fn: 'update_org', error: error.message });
+    console.error({ fn: 'update_tenant', error: error.message });
     return err('ERROR_SERVIDOR', 500);
   }
 
-  return ok({ org_id });
+  return ok({ tenant_id });
 }

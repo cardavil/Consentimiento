@@ -2,7 +2,7 @@
 
 CREATE TABLE signing_templates (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+    tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     name TEXT NOT NULL,
     source_file_name TEXT,
     page_count INTEGER,
@@ -12,7 +12,7 @@ CREATE TABLE signing_templates (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_signing_templates_org ON signing_templates (organization_id);
+CREATE INDEX idx_signing_templates_tenant ON signing_templates (tenant_id);
 
 CREATE TRIGGER trg_signing_templates_updated
     BEFORE UPDATE ON signing_templates
@@ -21,13 +21,13 @@ CREATE TRIGGER trg_signing_templates_updated
 ALTER TABLE signing_templates ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "templates_select_own" ON signing_templates
-    FOR SELECT USING (organization_id = get_org_id());
+    FOR SELECT USING (tenant_id = get_tenant_id());
 CREATE POLICY "templates_insert_own" ON signing_templates
-    FOR INSERT WITH CHECK (organization_id = get_org_id());
+    FOR INSERT WITH CHECK (tenant_id = get_tenant_id());
 CREATE POLICY "templates_update_own" ON signing_templates
-    FOR UPDATE USING (organization_id = get_org_id());
+    FOR UPDATE USING (tenant_id = get_tenant_id());
 CREATE POLICY "templates_delete_own" ON signing_templates
-    FOR DELETE USING (organization_id = get_org_id());
+    FOR DELETE USING (tenant_id = get_tenant_id());
 
 -- Per-session field definitions/values in transit (deleted on completion).
 ALTER TABLE signing_sessions_temp ADD COLUMN fields JSONB;

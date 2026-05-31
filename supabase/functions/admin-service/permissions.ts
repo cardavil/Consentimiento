@@ -2,7 +2,7 @@ import { ok, err } from '../_shared/response.ts';
 import { create_admin_client } from '../_shared/supabase.ts';
 
 const VALID_PERMISSIONS = [
-  'read:orgs', 'read:audit_log', 'read:sessions',
+  'read:tenants', 'read:audit_log', 'read:sessions',
   'read:catalogs', 'write:catalogs', 'read:metrics',
 ];
 

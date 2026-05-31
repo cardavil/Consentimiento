@@ -1,17 +1,17 @@
-// WhatsApp Business API OTP delivery (Meta Graph), using the org's own account.
+// WhatsApp Business API OTP delivery (Meta Graph), using the tenant's own account.
 import { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { decrypt_secret } from '../../drive-service/connection.ts';
 
 export async function send_whatsapp_otp(
   admin: SupabaseClient,
-  organization_id: string,
+  tenant_id: string,
   to: string,
   code: string,
 ): Promise<void> {
   const { data: cfg } = await admin
-    .from('org_whatsapp_config')
+    .from('tenant_whatsapp_config')
     .select('phone_number_id, access_token, enabled')
-    .eq('organization_id', organization_id)
+    .eq('tenant_id', tenant_id)
     .maybeSingle();
   if (!cfg || !cfg.enabled || !cfg.phone_number_id) throw new Error('WHATSAPP_NO_CONFIGURADO');
 

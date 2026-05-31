@@ -1,5 +1,5 @@
 var _jwt = null;
-var _org_id = null;
+var _tenant_id = null;
 var _rows = [];
 var _edit_template_id = null; // set when picking a doc to edit an existing template
 var LIMITS = { trial: 0, basic: 3, pro: 20, enterprise: Infinity };
@@ -7,8 +7,8 @@ var LIMITS = { trial: 0, basic: 3, pro: 20, enterprise: Infinity };
 document.addEventListener('DOMContentLoaded', async function () {
   const ctx = await init_app_page();
   if (!ctx) return;
-  _jwt = ctx.jwt; _org_id = ctx.org_id;
-  window._plan = (ctx.org && ctx.org.plan) || 'trial';
+  _jwt = ctx.jwt; _tenant_id = ctx.tenant_id;
+  window._plan = (ctx.tenant && ctx.tenant.plan) || 'trial';
 
   document.getElementById('btn-nueva').addEventListener('click', () => { _edit_template_id = null; open_pick(); });
   await load_templates();
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 async function load_templates() {
   try {
     _rows = await supabase_fetch(
-      '/signing_templates?organization_id=eq.' + _org_id + '&select=id,name,source_file_name,fields,active,created_at&order=created_at.desc', _jwt) || [];
+      '/signing_templates?tenant_id=eq.' + _tenant_id + '&select=id,name,source_file_name,fields,active,created_at&order=created_at.desc', _jwt) || [];
     const active = _rows.filter((r) => r.active).length;
     const limit = LIMITS[window._plan];
     document.getElementById('tpl-count').textContent = '(' + active + ' / ' + (limit === Infinity ? '∞' : limit) + ')';

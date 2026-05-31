@@ -45,7 +45,7 @@ const ERROR_MESSAGES = {
   NETWORK_ERROR: 'Error de conexión. Verifica tu internet.',
   EMAIL_DUPLICADO: 'Este email ya está registrado.',
   DOCUMENTO_DUPLICADO: 'Este documento ya está registrado.',
-  CUENTA_SIN_ORG: 'Tu cuenta no tiene una organización asociada. Contacta soporte.',
+  CUENTA_SIN_TENANT: 'Tu cuenta no tiene una inscripción asociada. Contacta soporte.',
   SIN_NUBE_CONECTADA: 'No hay una nube conectada. Conecta tu Drive/OneDrive en Primeros pasos.',
   EMAIL_ENVIO_FALLIDO: 'No se pudo enviar el correo. Verifica tu conexión de nube.',
   SESION_INVALIDA: 'Este enlace no es válido.',
@@ -163,7 +163,7 @@ function format_doc_type(type) {
 
 async function get_ip() {
   try {
-    const res = await fetch('https://api.ipify.org?format=json');
+    const res = await fetch('https://api.ipify.tenant?format=json');
     const data = await res.json();
     return data.ip;
   } catch (_e) {

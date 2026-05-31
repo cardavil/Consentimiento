@@ -23,7 +23,7 @@ GitHub Pages              Supabase (gratis)           APIs del cliente
 
 Frontend ──────────►      PostgreSQL + RLS            
                           Edge Functions:             
-                            admin-service             (métricas, orgs, analistas)
+                            admin-service             (métricas, inscritos, analistas)
                             otp-service        ──────► Gmail API (del cliente)
                             consent-service    ──────► Drive API (del cliente)
                             signing-service    ──────► Sheets API (del cliente)
@@ -91,7 +91,7 @@ consentia/
 │   │   ├── firmar.html                   (portal firmante, ambos modos)
 │   │   └── admin/                         (panel plataforma — dual-role)
 │   │       ├── index.html                (indicadores / métricas)
-│   │       ├── orgs.html                 (CRUD organizaciones)
+│   │       ├── tenants.html                 (CRUD inscritos)
 │   │       ├── catalogs.html             (CRUD catalog_doc_types)
 │   │       ├── audit.html                (log de auditoría)
 │   │       └── analysts.html             (gestión analistas + permisos)
@@ -119,7 +119,7 @@ consentia/
 │   │   ├── firmar.js                     (ambos modos, detecta session_type)
 │   │   ├── firmar-fields.js              (render campos + pad de firma, firma mode)
 │   │   ├── admin-dashboard.js            (métricas)
-│   │   ├── admin-orgs.js                 (CRUD orgs)
+│   │   ├── admin-tenants.js                 (CRUD inscritos)
 │   │   ├── admin-catalogs.js             (CRUD catálogos)
 │   │   ├── admin-audit.js                (log auditoría)
 │   │   └── admin-analysts.js             (gestión analistas)
@@ -129,10 +129,10 @@ consentia/
 │   │   ├── 001_initial_schema.sql … 006_get_db_size.sql
 │   │   ├── 007_session_type_otp_channel.sql · 008_schedule_cleanup.sql
 │   │   ├── 009_signing_templates.sql      (Fase 2)
-│   │   └── 010_org_whatsapp_config.sql    (Fase 3)
+│   │   └── 010_tenant_whatsapp_config.sql    (Fase 3)
 │   └── functions/
-│       ├── _shared/                       (cors, response, supabase, auth, otp, hash, limits, org, email_templates, pdf_evidence, channels/{sms,whatsapp})
-│       ├── admin-service/                 (métricas, orgs, invitaciones, permisos)
+│       ├── _shared/                       (cors, response, supabase, auth, otp, hash, limits, tenant, email_templates, pdf_evidence, channels/{sms,whatsapp})
+│       ├── admin-service/                 (métricas, inscritos, invitaciones, permisos)
 │       ├── otp-service/                   (OTP firmante; router de canal email/sms/whatsapp)
 │       ├── consent-service/               (create_session, sign, pdf.ts con pdf-lib)
 │       ├── drive-service/                 (OAuth + providers/google + providers/microsoft)

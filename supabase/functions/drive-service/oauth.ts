@@ -1,5 +1,5 @@
 import { ok, err } from '../_shared/response.ts';
-import { require_org } from '../_shared/auth.ts';
+import { require_tenant } from '../_shared/auth.ts';
 import { get_provider } from './providers/index.ts';
 import { encrypt_secret } from './connection.ts';
 
@@ -10,7 +10,7 @@ function redirect_uri(): string {
 // Step 1: return the provider's consent URL. The frontend opens it; the provider
 // redirects back to onboarding.html with ?code & ?state.
 export async function handle_oauth_start(body: Record<string, unknown>, req: Request): Promise<Response> {
-  const ctx = await require_org(req);
+  const ctx = await require_tenant(req);
   if (!ctx) return err('NO_AUTORIZADO', 401);
 
   const provider_name = body.provider as string;
@@ -27,7 +27,7 @@ export async function handle_oauth_start(body: Record<string, unknown>, req: Req
 
 // Step 2: exchange the code, set up folder + history sheet, store encrypted tokens.
 export async function handle_oauth_callback(body: Record<string, unknown>, req: Request): Promise<Response> {
-  const ctx = await require_org(req);
+  const ctx = await require_tenant(req);
   if (!ctx) return err('NO_AUTORIZADO', 401);
 
   const provider_name = body.provider as string;
@@ -49,7 +49,7 @@ export async function handle_oauth_callback(body: Record<string, unknown>, req: 
     const sheet_id = await provider.ensure_sheet(tokens.access_token, folder_id, `Historial-${year}`);
 
     const row: Record<string, unknown> = {
-      organization_id: ctx.org_id,
+      tenant_id: ctx.tenant_id,
       provider: provider_name,
       access_token: await encrypt_secret(ctx.admin, tokens.access_token),
       token_expires_at: new Date(Date.now() + (tokens.expires_in || 3600) * 1000).toISOString(),
@@ -64,16 +64,16 @@ export async function handle_oauth_callback(body: Record<string, unknown>, req: 
     }
 
     const { error: upsert_err } = await ctx.admin
-      .from('org_oauth')
-      .upsert(row, { onConflict: 'organization_id' });
+      .from('tenant_oauth')
+      .upsert(row, { onConflict: 'tenant_id' });
     if (upsert_err) {
       console.error({ fn: 'oauth_callback', error: upsert_err.message });
       return err('ERROR_SERVIDOR', 500);
     }
 
     await ctx.admin.from('audit_log').insert({
-      organization_id: ctx.org_id,
-      event_type: 'org_oauth_connected',
+      tenant_id: ctx.tenant_id,
+      event_type: 'tenant_oauth_connected',
       event_data: { provider: provider_name },
     });
 

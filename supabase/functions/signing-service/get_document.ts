@@ -1,6 +1,6 @@
 import { ok, err } from '../_shared/response.ts';
 import { create_admin_client } from '../_shared/supabase.ts';
-import { get_org_connection } from '../drive-service/connection.ts';
+import { get_tenant_connection } from '../drive-service/connection.ts';
 import { bytes_to_base64 } from '../drive-service/providers/mime.ts';
 import { MAX_PDF_BYTES } from '../_shared/limits.ts';
 
@@ -13,7 +13,7 @@ export async function handle_get_document(_body: Record<string, unknown>, req: R
   const admin = create_admin_client();
   const { data: session } = await admin
     .from('signing_sessions_results')
-    .select('id, organization_id, status, token_expires_at')
+    .select('id, tenant_id, status, token_expires_at')
     .eq('access_token', access_token)
     .maybeSingle();
   if (!session) return err('SESION_INVALIDA', 404);
@@ -31,7 +31,7 @@ export async function handle_get_document(_body: Record<string, unknown>, req: R
   const doc = documents[0];
   const doc_id = typeof doc === 'string' ? doc : (doc as Record<string, string>).id;
 
-  const conn = await get_org_connection(admin, session.organization_id);
+  const conn = await get_tenant_connection(admin, session.tenant_id);
   if (!conn) return err('SIN_NUBE_CONECTADA');
 
   try {

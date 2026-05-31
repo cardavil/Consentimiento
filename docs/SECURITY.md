@@ -17,8 +17,8 @@ Solo se guardan: hashes SHA-256, folios, metadatos operativos.
 Tokens OAuth y secrets del SMS gateway se encriptan en la BD con pgp_sym_encrypt/pgp_sym_decrypt (pgcrypto). pgcrypto es estándar PostgreSQL, ya cargado en el schema, sin dependencia de features específicos de Supabase.
 
 **Columnas encriptadas (BYTEA):**
-- org_oauth: access_token, refresh_token
-- org_sms_config: api_key, hmac_secret
+- tenant_oauth: access_token, refresh_token
+- tenant_sms_config: api_key, hmac_secret
 
 **Manejo de la llave:**
 - La llave simétrica vive como Supabase Secret (`ENCRYPTION_KEY`)
@@ -32,7 +32,7 @@ Tokens OAuth y secrets del SMS gateway se encriptan en la BD con pgp_sym_encrypt
 
 Operaciones sensibles pasan exclusivamente por Edge Functions con service_role (que bypasea RLS). El frontend con publishable key NO puede:
 
-- Insertar organizaciones (registro)
+- Insertar inscritos (registro)
 - Insertar/leer/actualizar OTPs
 - Crear sesiones de firma
 - Generar folios
@@ -50,7 +50,7 @@ El firmante verifica su identidad con un OTP de 8 dígitos enviado por uno de es
 
 Disponible desde Fase 1. El OTP del **firmante** (factor 2 de la firma) se envía al email del firmante (o del representante en modo natural_tutor) via Gmail API / Microsoft Graph del cliente. Mismo principio zero-knowledge: la plataforma no envía emails propios para el firmante.
 
-**OTP de autenticación del cliente** (login/registro de la organización): es un canal distinto, sale por el **SMTP propio configurado en Supabase Auth** (email de la plataforma, no del cliente). No aplica zero-knowledge porque es el propio titular de la cuenta quien se autentica. Nunca se usa el SMTP por defecto de Supabase (límite 2/hora).
+**OTP de autenticación del cliente** (login/registro de la inscrito): es un canal distinto, sale por el **SMTP propio configurado en Supabase Auth** (email de la plataforma, no del cliente). No aplica zero-knowledge porque es el propio titular de la cuenta quien se autentica. Nunca se usa el SMTP por defecto de Supabase (límite 2/hora).
 
 Largo del OTP: 8 dígitos.
 
@@ -110,7 +110,7 @@ Cada cliente usa su propia cuenta de WhatsApp Business (nunca una cuenta central
 | Alguien se hace pasar por el firmante | Verificación dual: email + SMS |
 | Alteran el PDF después de firmar | Hash SHA-256 + ambas partes tienen copia |
 | Cambian un consentimiento | Hash individual + folio + tabla inmutable |
-| Un cliente ve datos de otro | RLS con organization_id |
+| Un cliente ve datos de otro | RLS con tenant_id |
 | Interceptan el OTP | HMAC + anti-replay + HTTPS |
 | Hackean la plataforma | No hay documentos ni datos personales que robar |
 | El firmante dice "yo no firmé" | Evidencia forense: IP, user agent, timestamps, hashes |

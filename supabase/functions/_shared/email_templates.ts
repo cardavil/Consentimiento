@@ -34,27 +34,27 @@ export function otp_email(code: string, context_line: string): { subject: string
   return { subject: 'Tu código de verificación · Consentia', html, text };
 }
 
-export function invite_email(signing_url: string, org_name: string, context: string): { subject: string; html: string; text: string } {
+export function invite_email(signing_url: string, tenant_name: string, context: string): { subject: string; html: string; text: string } {
   const ctx = context ? `<p style="margin:0 0 16px;color:#5F7D95;">${esc(context)}</p>` : '';
   const html = shell(
-    '<p style="margin:0 0 16px;"><strong>' + esc(org_name) + '</strong> te ha enviado un documento para revisar y otorgar tu consentimiento.</p>' +
+    '<p style="margin:0 0 16px;"><strong>' + esc(tenant_name) + '</strong> te ha enviado un documento para revisar y otorgar tu consentimiento.</p>' +
     ctx +
     '<table role="presentation" width="100%"><tr><td align="center" style="padding:8px 0 16px;">' +
     '<a href="' + esc(signing_url) + '" style="display:inline-block;background-color:#17B3A3;color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:8px;font-weight:600;">Abrir documento</a>' +
     '</td></tr></table>' +
     '<p style="margin:8px 0 0;color:#5F7D95;font-size:13px;">Si el botón no funciona, copia este enlace:<br>' + esc(signing_url) + '</p>',
   );
-  const text = `${org_name} te ha enviado un documento para otorgar tu consentimiento.\n\nAbre el enlace: ${signing_url}\n\n— Consentia`;
+  const text = `${tenant_name} te ha enviado un documento para otorgar tu consentimiento.\n\nAbre el enlace: ${signing_url}\n\n— Consentia`;
   return { subject: 'Documento para tu consentimiento · Consentia', html, text };
 }
 
-export function copy_email(org_name: string, folios: string[]): { subject: string; html: string; text: string } {
+export function copy_email(tenant_name: string, folios: string[]): { subject: string; html: string; text: string } {
   const html = shell(
-    '<p style="margin:0 0 16px;">Adjuntamos la constancia del consentimiento que otorgaste con <strong>' + esc(org_name) + '</strong>.</p>' +
+    '<p style="margin:0 0 16px;">Adjuntamos la constancia del consentimiento que otorgaste con <strong>' + esc(tenant_name) + '</strong>.</p>' +
     '<p style="margin:0 0 8px;">Folios:</p>' +
     '<p style="margin:0;font-family:monospace;color:#0F4C5C;">' + esc(folios.join(', ')) + '</p>' +
     '<p style="margin:24px 0 0;color:#5F7D95;font-size:13px;">Conserva este documento como evidencia.</p>',
   );
-  const text = `Adjuntamos la constancia del consentimiento que otorgaste con ${org_name}.\n\nFolios: ${folios.join(', ')}\n\n— Consentia`;
+  const text = `Adjuntamos la constancia del consentimiento que otorgaste con ${tenant_name}.\n\nFolios: ${folios.join(', ')}\n\n— Consentia`;
   return { subject: 'Constancia de consentimiento · Consentia', html, text };
 }

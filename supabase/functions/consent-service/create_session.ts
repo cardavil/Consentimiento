@@ -1,16 +1,16 @@
 import { ok, err } from '../_shared/response.ts';
-import { require_org } from '../_shared/auth.ts';
-import { get_org_connection } from '../drive-service/connection.ts';
+import { require_tenant } from '../_shared/auth.ts';
+import { get_tenant_connection } from '../drive-service/connection.ts';
 import { invite_email } from '../_shared/email_templates.ts';
-import { org_display_name } from '../_shared/org.ts';
+import { tenant_display_name } from '../_shared/tenant.ts';
 import { MAX_DOCS_PER_SESSION } from '../_shared/limits.ts';
 
 const VALID_MODES = ['natural_personal', 'natural_tutor', 'juridica'];
 
 // Creates a consent session: permanent row in results + transient row in temp,
-// then emails the signing link to the recipient from the org's own account.
+// then emails the signing link to the recipient from the tenant's own account.
 export async function handle_create_session(body: Record<string, unknown>, req: Request): Promise<Response> {
-  const ctx = await require_org(req);
+  const ctx = await require_tenant(req);
   if (!ctx) return err('NO_AUTORIZADO', 401);
 
   const mode = body.mode as string;
@@ -33,7 +33,7 @@ export async function handle_create_session(body: Record<string, unknown>, req: 
   const { data: result, error: result_err } = await ctx.admin
     .from('signing_sessions_results')
     .insert({
-      organization_id: ctx.org_id,
+      tenant_id: ctx.tenant_id,
       mode,
       session_type: 'consent',
       otp_channel: 'email',
@@ -66,13 +66,13 @@ export async function handle_create_session(body: Record<string, unknown>, req: 
   const base = Deno.env.get('OAUTH_REDIRECT_BASE') || '';
   const signing_url = `${base}/firmar.html?token=${result.access_token}`;
 
-  // Best-effort invite email from the org's own account (zero-knowledge).
+  // Best-effort invite email from the tenant's own account (zero-knowledge).
   let email_sent = false;
   try {
-    const conn = await get_org_connection(ctx.admin, ctx.org_id);
+    const conn = await get_tenant_connection(ctx.admin, ctx.tenant_id);
     if (conn && conn.sender_email) {
-      const org_name = await org_display_name(ctx.admin, ctx.org_id);
-      const tpl = invite_email(signing_url, org_name, context);
+      const tenant_name = await tenant_display_name(ctx.admin, ctx.tenant_id);
+      const tpl = invite_email(signing_url, tenant_name, context);
       await conn.provider.send_email(conn.access_token, conn.sender_email, recipient, tpl.subject, tpl.html, tpl.text);
       email_sent = true;
     }
@@ -81,7 +81,7 @@ export async function handle_create_session(body: Record<string, unknown>, req: 
   }
 
   await ctx.admin.from('audit_log').insert({
-    organization_id: ctx.org_id,
+    tenant_id: ctx.tenant_id,
     event_type: 'session_created',
     event_data: { mode, documents: documents.length, consents: consents.length, email_sent },
   });

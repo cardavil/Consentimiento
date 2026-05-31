@@ -1,5 +1,5 @@
 var _jwt = null;
-var _org_id = null;
+var _tenant_id = null;
 var _drive_files = [];
 var _consent_items = [];
 
@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   const ctx = await init_app_page();
   if (!ctx) return;
   _jwt = ctx.jwt;
-  _org_id = ctx.org_id;
+  _tenant_id = ctx.tenant_id;
 
   await load_doc_types();
   setup_signer_form();
@@ -45,7 +45,7 @@ async function load_consent_items() {
   const container = document.getElementById('consents-container');
   try {
     _consent_items = await supabase_fetch(
-      '/consent_items?organization_id=eq.' + _org_id + '&active=eq.true&select=id,code,title,description,required&order=sort_order',
+      '/consent_items?tenant_id=eq.' + _tenant_id + '&active=eq.true&select=id,code,title,description,required&order=sort_order',
       _jwt
     ) || [];
     if (_consent_items.length === 0) {

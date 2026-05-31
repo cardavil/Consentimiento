@@ -1,15 +1,15 @@
 import { ok, err } from '../_shared/response.ts';
-import { require_org } from '../_shared/auth.ts';
-import { get_org_connection } from './connection.ts';
+import { require_tenant } from '../_shared/auth.ts';
+import { get_tenant_connection } from './connection.ts';
 import { bytes_to_base64 } from './providers/mime.ts';
 import { MAX_PDF_BYTES } from '../_shared/limits.ts';
 
-// Lists the PDF documents available in the org's connected Consentia folder.
+// Lists the PDF documents available in the tenant's connected Consentia folder.
 export async function handle_list_files(_body: Record<string, unknown>, req: Request): Promise<Response> {
-  const ctx = await require_org(req);
+  const ctx = await require_tenant(req);
   if (!ctx) return err('NO_AUTORIZADO', 401);
 
-  const conn = await get_org_connection(ctx.admin, ctx.org_id);
+  const conn = await get_tenant_connection(ctx.admin, ctx.tenant_id);
   if (!conn) return err('SIN_NUBE_CONECTADA');
 
   try {
@@ -23,12 +23,12 @@ export async function handle_list_files(_body: Record<string, unknown>, req: Req
 
 // Downloads a PDF as base64 (for the template editor to render it with pdf.js).
 export async function handle_download_b64(body: Record<string, unknown>, req: Request): Promise<Response> {
-  const ctx = await require_org(req);
+  const ctx = await require_tenant(req);
   if (!ctx) return err('NO_AUTORIZADO', 401);
   const file_id = body.file_id as string;
   if (!file_id) return err('FILE_ID_REQUERIDO');
 
-  const conn = await get_org_connection(ctx.admin, ctx.org_id);
+  const conn = await get_tenant_connection(ctx.admin, ctx.tenant_id);
   if (!conn) return err('SIN_NUBE_CONECTADA');
 
   try {
@@ -41,15 +41,15 @@ export async function handle_download_b64(body: Record<string, unknown>, req: Re
   }
 }
 
-// Reports whether the org has a cloud connection and its basic settings.
+// Reports whether the tenant has a cloud connection and its basic settings.
 export async function handle_get_status(_body: Record<string, unknown>, req: Request): Promise<Response> {
-  const ctx = await require_org(req);
+  const ctx = await require_tenant(req);
   if (!ctx) return err('NO_AUTORIZADO', 401);
 
   const { data: row } = await ctx.admin
-    .from('org_oauth')
+    .from('tenant_oauth')
     .select('provider, sender_email, drive_folder_id, history_sheet_id')
-    .eq('organization_id', ctx.org_id)
+    .eq('tenant_id', ctx.tenant_id)
     .maybeSingle();
 
   return ok({
@@ -60,15 +60,15 @@ export async function handle_get_status(_body: Record<string, unknown>, req: Req
   });
 }
 
-// Removes the org's cloud connection (e.g., to reconnect a different account).
+// Removes the tenant's cloud connection (e.g., to reconnect a different account).
 export async function handle_disconnect(_body: Record<string, unknown>, req: Request): Promise<Response> {
-  const ctx = await require_org(req);
+  const ctx = await require_tenant(req);
   if (!ctx) return err('NO_AUTORIZADO', 401);
 
-  await ctx.admin.from('org_oauth').delete().eq('organization_id', ctx.org_id);
+  await ctx.admin.from('tenant_oauth').delete().eq('tenant_id', ctx.tenant_id);
   await ctx.admin.from('audit_log').insert({
-    organization_id: ctx.org_id,
-    event_type: 'org_oauth_disconnected',
+    tenant_id: ctx.tenant_id,
+    event_type: 'tenant_oauth_disconnected',
     event_data: {},
   });
   return ok({});

@@ -5,19 +5,19 @@ function render_app_header(opts) {
   var session = opts.session;
   var meta = session.user.app_metadata || {};
   var email = session.user.email;
-  var display_name = _header_display_name(opts.org, email);
+  var display_name = _header_display_name(opts.tenant, email);
   var initials = _header_initials(display_name);
 
-  var has_org = !!meta.org_id;
+  var has_tenant = !!meta.tenant_id;
   var has_platform = !!meta.platform_role;
   var platform_label = meta.platform_role === 'admin' ? 'Admin' : 'Analista';
 
   var in_admin = window.location.pathname.indexOf('/admin/') !== -1;
-  var org_link = in_admin ? '../dashboard.html' : 'dashboard.html';
+  var tenant_link = in_admin ? '../dashboard.html' : 'dashboard.html';
   var admin_link = in_admin ? 'index.html' : 'admin/index.html';
 
   var page_title = document.title.split('|')[0].trim();
-  var html = '<a class="brand" href="' + (has_org ? org_link : '#') + '">Consen<em>tia</em></a>';
+  var html = '<a class="brand" href="' + (has_tenant ? tenant_link : '#') + '">Consen<em>tia</em></a>';
   html += '<span class="header-separator">|</span>';
   html += '<span class="header-page-title">' + escape_html(page_title) + '</span>';
   html += '<div class="header-actions">';
@@ -30,17 +30,17 @@ function render_app_header(opts) {
   html += '<div class="header-dropdown-email">' + escape_html(email) + '</div>';
   html += '<div class="header-dropdown-badges">';
   if (has_platform) html += '<span class="badge ' + (in_admin ? 'badge-teal' : 'badge-neutral') + '">' + escape_html(platform_label) + '</span>';
-  if (has_org && opts.org) {
-    var tipo_label = opts.org.type === 'juridica' ? 'Jurídica' : 'Natural';
+  if (has_tenant && opts.tenant) {
+    var tipo_label = opts.tenant.type === 'juridica' ? 'Jurídica' : 'Natural';
     html += '<span class="badge ' + (!in_admin ? 'badge-teal' : 'badge-neutral') + '">' + escape_html(tipo_label) + '</span>';
-    if (opts.org.plan) html += '<span class="badge badge-neutral">' + escape_html(opts.org.plan.toUpperCase()) + '</span>';
-  } else if (has_org) {
-    html += '<span class="badge ' + (!in_admin ? 'badge-teal' : 'badge-neutral') + '">Organización</span>';
+    if (opts.tenant.plan) html += '<span class="badge badge-neutral">' + escape_html(opts.tenant.plan.toUpperCase()) + '</span>';
+  } else if (has_tenant) {
+    html += '<span class="badge ' + (!in_admin ? 'badge-teal' : 'badge-neutral') + '">Inscrito</span>';
   }
   html += '</div></div>';
 
-  if (has_org && in_admin) {
-    html += '<a href="' + org_link + '" class="header-dropdown-item">Mi organización</a>';
+  if (has_tenant && in_admin) {
+    html += '<a href="' + tenant_link + '" class="header-dropdown-item">Mi cuenta</a>';
   }
   if (has_platform && !in_admin) {
     html += '<a href="' + admin_link + '" class="header-dropdown-item">Panel Admin</a>';
@@ -89,9 +89,9 @@ function _header_bind(on_logout) {
   });
 }
 
-function _header_display_name(org, email) {
-  if (!org) return email;
-  return org.company_name || ((org.first_name || '') + ' ' + (org.last_name || '')).trim() || email;
+function _header_display_name(tenant, email) {
+  if (!tenant) return email;
+  return tenant.company_name || ((tenant.first_name || '') + ' ' + (tenant.last_name || '')).trim() || email;
 }
 
 function _header_initials(display_name) {

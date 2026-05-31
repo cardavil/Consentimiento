@@ -209,7 +209,7 @@ async function on_verify_and_register() {
       },
       body: JSON.stringify({
         action: 'register',
-        org_data: build_org_data(),
+        tenant_data: build_tenant_data(),
         ip: state.client_ip,
         user_agent: navigator.userAgent,
       }),
@@ -233,7 +233,7 @@ async function on_verify_and_register() {
   }
 }
 
-function build_org_data() {
+function build_tenant_data() {
   if (state.is_juridica) {
     return {
       type: 'juridica',

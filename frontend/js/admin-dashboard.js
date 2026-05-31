@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   render_app_header({
     container_id: 'app-header',
     session: _admin_session.session,
-    org: _admin_session.org,
+    tenant: _admin_session.tenant,
     on_logout: admin_sign_out,
   });
   render_admin_nav();
@@ -29,26 +29,26 @@ function render_metrics(container, m) {
   var html = '';
   var edge_approx = (m.sessions_created_month || 0) + (m.signing_otps_month || 0) + (m.auth_otps_month || 0);
 
-  html += '<h2 class="mb-sm">Organizaciones por plan</h2>';
+  html += '<h2 class="mb-sm">Inscritos por plan</h2>';
   html += '<div class="admin-stats">';
   var plans = ['trial', 'basic', 'pro', 'enterprise'];
   var plan_labels = { trial: 'Trial', basic: 'Basic', pro: 'Pro', enterprise: 'Enterprise' };
   for (var i = 0; i < plans.length; i++) {
     var p = plans[i];
-    html += stat_card(m.orgs_by_plan[p] || 0, plan_labels[p], 'plan-' + p);
+    html += stat_card(m.tenants_by_plan[p] || 0, plan_labels[p], 'plan-' + p);
   }
   html += '</div>';
 
   html += '<h2 class="mt-md mb-sm">Recursos — Etapa 1</h2>';
   html += '<div class="card" style="padding:0;overflow:hidden">';
   html += '<div class="admin-limits">';
-  html += limit_row('Organizaciones', m.orgs_total, 'Sin límite');
-  html += limit_row('Orgs activas (mes)', m.active_orgs_month, '—');
+  html += limit_row('Inscritos', m.tenants_total, 'Sin límite');
+  html += limit_row('Inscritos activos (mes)', m.active_tenants_month, '—');
   html += limit_row('Sesiones creadas (mes)', m.sessions_created_month, '—');
   html += limit_row('Sesiones completadas (mes)', m.sessions_completed_month, '—');
   html += limit_row('OTPs autenticación (mes)', m.auth_otps_month, '—');
   html += limit_row('OTPs firma (mes)', m.signing_otps_month, '—');
-  html += limit_row('Usuarios activos (mes)', m.orgs_total || '—', '50,000');
+  html += limit_row('Usuarios activos (mes)', m.tenants_total || '—', '50,000');
   html += limit_row('Base de datos', (m.db_size_mb || 0) + ' MB', '500 MB');
   html += limit_row('Edge Functions (mes)', '~' + edge_approx, '500,000');
   html += limit_row('Emails auth (SMTP propio)', m.auth_otps_month || '—', 'Sin límite');

@@ -11,7 +11,7 @@ export async function handle_track(body: Record<string, unknown>): Promise<Respo
   const admin = create_admin_client();
 
   await admin.from('audit_log').insert({
-    organization_id: null,
+    tenant_id: null,
     event_type,
     event_data: { email_domain: email.split('@')[1] },
     ip: (body.ip as string) || null,

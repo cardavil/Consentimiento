@@ -1,14 +1,14 @@
 document.addEventListener('DOMContentLoaded', async function () {
   const ctx = await init_app_page();
   if (!ctx) return;
-  await load_historial(ctx.jwt, ctx.org_id);
+  await load_historial(ctx.jwt, ctx.tenant_id);
   await load_onboarding_status();
 });
 
-async function load_historial(jwt, org_id) {
+async function load_historial(jwt, tenant_id) {
   try {
     var sessions = await supabase_fetch(
-      '/signing_sessions_results?organization_id=eq.' + org_id + '&select=id,status,mode,created_at&order=created_at.desc&limit=5',
+      '/signing_sessions_results?tenant_id=eq.' + tenant_id + '&select=id,status,mode,created_at&order=created_at.desc&limit=5',
       jwt
     );
 

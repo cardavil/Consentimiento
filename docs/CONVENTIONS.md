@@ -61,7 +61,7 @@ Cada archivo HTML corresponde a una vista/pantalla concreta:
 | plantillas.html | CRUD de plantillas de firma | Clientes activos | 2 |
 | firmar.html | Portal del firmante (ambos modos, detecta session_type) | Firmantes | 1 |
 | admin/index.html | Indicadores / métricas de la plataforma | Admin / analyst | 1 |
-| admin/orgs.html | CRUD organizaciones | Admin (analyst lectura) | 1 |
+| admin/tenants.html | CRUD inscritos | Admin (analyst lectura) | 1 |
 | admin/catalogs.html | CRUD catalog_doc_types | Admin / analyst con permiso | 1 |
 | admin/audit.html | Log de auditoría paginado | Admin / analyst con permiso | 1 |
 | admin/analysts.html | Gestión de analistas + permisos | Solo admin | 1 |
@@ -86,7 +86,7 @@ Usados por 2+ páginas.
 | supabase-client.js | Init Supabase, auth helpers, wrappers de fetch, `init_app_page()` (bootstrap de página) |
 | utils.js | Toasts, validación, formato, helpers UI |
 | otp-ui.js | Lógica OTP parametrizada (inputs, timer, paste, reenvío) |
-| app-header.js | Header compartido app + admin, navegación dual-role (org ↔ panel admin) |
+| app-header.js | Header compartido app + admin, navegación dual-role (tenant ↔ panel admin) |
 | signer-form.js | Form de firmante 3 modos compartido (setup_signer_form, build_signer, get_signer_mode) |
 | admin-guard.js | Sesión + permisos admin (is_admin, has_permission, require_permission) |
 | admin-nav.js | Render de tabs admin filtradas por rol y permisos |
@@ -109,7 +109,7 @@ Usados por 2+ páginas.
 | firmar-fields.js | firmar.html (modo firma: render campos + pad) | 2 |
 | firmar.js | firmar.html (ambos modos) | 1 |
 | admin-dashboard.js | admin/index.html | 1 |
-| admin-orgs.js | admin/orgs.html | 1 |
+| admin-tenants.js | admin/tenants.html | 1 |
 | admin-catalogs.js | admin/catalogs.html | 1 |
 | admin-audit.js | admin/audit.html | 1 |
 | admin-analysts.js | admin/analysts.html | 1 |
@@ -144,7 +144,7 @@ Usados por 2+ páginas.
 
 | Función | Responsabilidad | Fase |
 |---|---|---|
-| admin-service | Panel plataforma: métricas, CRUD orgs, invitar analistas, permisos, bootstrap org | 1 |
+| admin-service | Panel plataforma: métricas, CRUD inscritos, invitar analistas, permisos, bootstrap tenant | 1 |
 | otp-service | Generar/verificar OTP; router de canal del firmante (email/sms/whatsapp) | 1 |
 | consent-service | create_session + sign; incluye `pdf.ts` (constancia con pdf-lib) | 1 |
 | drive-service | OAuth, list/upload/download, Sheet, envío de correo; `providers/google` + `providers/microsoft` | 1 |
@@ -170,6 +170,6 @@ Usados por 2+ páginas.
 |---|---|
 | gas-client.js | GAS eliminado. Todo es Supabase Edge Functions. |
 | labels.js | No hay labels compartidos. |
-| consentimientos.js | Dinámicos por org (consent_items en BD), no hardcoded C1-C7. |
+| consentimientos.js | Dinámicos por tenant (consent_items en BD), no hardcoded C1-C7. |
 | mi-expediente.html | No existe en Consentia. |
 | accesos.html | No existe en Consentia. |

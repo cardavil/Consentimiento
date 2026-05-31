@@ -8,10 +8,10 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- ============================================================
---  1. ORGANIZATIONS
+--  1. TENANTS
 -- ============================================================
 
-CREATE TABLE organizations (
+CREATE TABLE tenants (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     type TEXT NOT NULL CHECK (type IN ('natural', 'juridica')),
 
@@ -35,12 +35,12 @@ CREATE TABLE organizations (
 );
 
 -- ============================================================
---  2. ORG_OAUTH
+--  2. TENANT_OAUTH
 -- ============================================================
 
-CREATE TABLE org_oauth (
+CREATE TABLE tenant_oauth (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    organization_id UUID NOT NULL UNIQUE REFERENCES organizations(id) ON DELETE CASCADE,
+    tenant_id UUID NOT NULL UNIQUE REFERENCES tenants(id) ON DELETE CASCADE,
     provider TEXT NOT NULL CHECK (provider IN ('google_workspace','microsoft_365')),
     access_token BYTEA,
     refresh_token BYTEA,
@@ -56,12 +56,12 @@ CREATE TABLE org_oauth (
 );
 
 -- ============================================================
---  3. ORG_SMS_CONFIG
+--  3. TENANT_SMS_CONFIG
 -- ============================================================
 
-CREATE TABLE org_sms_config (
+CREATE TABLE tenant_sms_config (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    organization_id UUID NOT NULL UNIQUE REFERENCES organizations(id) ON DELETE CASCADE,
+    tenant_id UUID NOT NULL UNIQUE REFERENCES tenants(id) ON DELETE CASCADE,
     gateway_url TEXT,
     api_key BYTEA,
     hmac_secret BYTEA,
@@ -77,7 +77,7 @@ CREATE TABLE org_sms_config (
 
 CREATE TABLE consent_items (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    organization_id UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+    tenant_id UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     code TEXT NOT NULL,
     title TEXT NOT NULL,
     description TEXT NOT NULL,
@@ -88,7 +88,7 @@ CREATE TABLE consent_items (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 
-    UNIQUE(organization_id, code)
+    UNIQUE(tenant_id, code)
 );
 
 -- ============================================================
@@ -98,7 +98,7 @@ CREATE TABLE consent_items (
 
 CREATE TABLE signing_sessions_results (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    organization_id UUID NOT NULL REFERENCES organizations(id),
+    tenant_id UUID NOT NULL REFERENCES tenants(id),
     mode TEXT NOT NULL CHECK (mode IN ('natural_personal','natural_tutor','juridica')),
     access_token TEXT UNIQUE NOT NULL DEFAULT encode(gen_random_bytes(32), 'hex'),
     token_expires_at TIMESTAMPTZ NOT NULL,
@@ -151,12 +151,12 @@ CREATE TABLE otp_tokens (
 -- ============================================================
 
 CREATE TABLE folio_sequence (
-    organization_id UUID NOT NULL REFERENCES organizations(id),
+    tenant_id UUID NOT NULL REFERENCES tenants(id),
     code TEXT NOT NULL,
     year INTEGER NOT NULL,
     seq INTEGER NOT NULL DEFAULT 0,
 
-    PRIMARY KEY (organization_id, code, year)
+    PRIMARY KEY (tenant_id, code, year)
 );
 
 -- ============================================================
@@ -165,7 +165,7 @@ CREATE TABLE folio_sequence (
 
 CREATE TABLE audit_log (
     id BIGSERIAL PRIMARY KEY,
-    organization_id UUID REFERENCES organizations(id),
+    tenant_id UUID REFERENCES tenants(id),
     event_type TEXT NOT NULL,
     event_data JSONB DEFAULT '{}',
     ip INET,
@@ -178,15 +178,15 @@ CREATE TABLE audit_log (
 --  INDEXES
 -- ============================================================
 
-CREATE INDEX idx_consent_items_org ON consent_items(organization_id);
+CREATE INDEX idx_consent_items_tenant ON consent_items(tenant_id);
 CREATE INDEX idx_sessions_temp_session ON signing_sessions_temp(session_id);
-CREATE INDEX idx_sessions_results_org ON signing_sessions_results(organization_id);
+CREATE INDEX idx_sessions_results_tenant ON signing_sessions_results(tenant_id);
 CREATE INDEX idx_sessions_results_token ON signing_sessions_results(access_token);
 CREATE INDEX idx_sessions_results_status ON signing_sessions_results(status);
 CREATE INDEX idx_sessions_results_folio ON signing_sessions_results(folio);
 CREATE INDEX idx_otp_email ON otp_tokens(email);
 CREATE INDEX idx_otp_purpose ON otp_tokens(email, purpose);
-CREATE INDEX idx_audit_org ON audit_log(organization_id);
+CREATE INDEX idx_audit_tenant ON audit_log(tenant_id);
 CREATE INDEX idx_audit_type ON audit_log(event_type);
 CREATE INDEX idx_audit_created ON audit_log(created_at);
 
@@ -208,23 +208,23 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-CREATE OR REPLACE FUNCTION next_folio(p_org_id UUID, p_code TEXT, p_year INTEGER)
+CREATE OR REPLACE FUNCTION next_folio(p_tenant_id UUID, p_code TEXT, p_year INTEGER)
 RETURNS TEXT AS $$
 DECLARE
     v_seq INTEGER;
     v_prefix TEXT;
 BEGIN
     SELECT folio_prefix INTO v_prefix
-    FROM organizations
-    WHERE id = p_org_id;
+    FROM tenants
+    WHERE id = p_tenant_id;
 
     IF v_prefix IS NULL THEN
-        RAISE EXCEPTION 'Organization not found: %', p_org_id;
+        RAISE EXCEPTION 'Tenant not found: %', p_tenant_id;
     END IF;
 
-    INSERT INTO folio_sequence (organization_id, code, year, seq)
-    VALUES (p_org_id, p_code, p_year, 1)
-    ON CONFLICT (organization_id, code, year)
+    INSERT INTO folio_sequence (tenant_id, code, year, seq)
+    VALUES (p_tenant_id, p_code, p_year, 1)
+    ON CONFLICT (tenant_id, code, year)
     DO UPDATE SET seq = folio_sequence.seq + 1
     RETURNING seq INTO v_seq;
 
@@ -232,17 +232,17 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-CREATE OR REPLACE FUNCTION get_org_id()
+CREATE OR REPLACE FUNCTION get_tenant_id()
 RETURNS UUID AS $$
 DECLARE
-    v_org_id UUID;
+    v_tenant_id UUID;
 BEGIN
-    v_org_id := (auth.jwt()->'app_metadata'->>'org_id')::UUID;
-    IF v_org_id IS NOT NULL THEN
-        RETURN v_org_id;
+    v_tenant_id := (auth.jwt()->'app_metadata'->>'tenant_id')::UUID;
+    IF v_tenant_id IS NOT NULL THEN
+        RETURN v_tenant_id;
     END IF;
     RETURN (
-        SELECT id FROM organizations
+        SELECT id FROM tenants
         WHERE email = auth.jwt()->>'email'
         LIMIT 1
     );
@@ -295,16 +295,16 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_organizations_updated
-    BEFORE UPDATE ON organizations
+CREATE TRIGGER trg_tenants_updated
+    BEFORE UPDATE ON tenants
     FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
-CREATE TRIGGER trg_org_oauth_updated
-    BEFORE UPDATE ON org_oauth
+CREATE TRIGGER trg_tenant_oauth_updated
+    BEFORE UPDATE ON tenant_oauth
     FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
-CREATE TRIGGER trg_org_sms_config_updated
-    BEFORE UPDATE ON org_sms_config
+CREATE TRIGGER trg_tenant_sms_config_updated
+    BEFORE UPDATE ON tenant_sms_config
     FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 CREATE TRIGGER trg_consent_items_updated
@@ -329,9 +329,9 @@ CREATE TRIGGER trg_fix_auth_token_defaults
 --  ROW LEVEL SECURITY
 -- ============================================================
 
-ALTER TABLE organizations ENABLE ROW LEVEL SECURITY;
-ALTER TABLE org_oauth ENABLE ROW LEVEL SECURITY;
-ALTER TABLE org_sms_config ENABLE ROW LEVEL SECURITY;
+ALTER TABLE tenants ENABLE ROW LEVEL SECURITY;
+ALTER TABLE tenant_oauth ENABLE ROW LEVEL SECURITY;
+ALTER TABLE tenant_sms_config ENABLE ROW LEVEL SECURITY;
 ALTER TABLE consent_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE signing_sessions_temp ENABLE ROW LEVEL SECURITY;
 ALTER TABLE signing_sessions_results ENABLE ROW LEVEL SECURITY;
@@ -339,50 +339,50 @@ ALTER TABLE otp_tokens ENABLE ROW LEVEL SECURITY;
 ALTER TABLE folio_sequence ENABLE ROW LEVEL SECURITY;
 ALTER TABLE audit_log ENABLE ROW LEVEL SECURITY;
 
--- organizations: solo ve/edita la suya. INSERT solo service_role.
-CREATE POLICY "org_select_own" ON organizations
-    FOR SELECT USING (id = get_org_id());
+-- tenants: solo ve/edita la suya. INSERT solo service_role.
+CREATE POLICY "tenant_select_own" ON tenants
+    FOR SELECT USING (id = get_tenant_id());
 
-CREATE POLICY "org_update_own" ON organizations
-    FOR UPDATE USING (id = get_org_id());
+CREATE POLICY "tenant_update_own" ON tenants
+    FOR UPDATE USING (id = get_tenant_id());
 
--- org_oauth: solo su config
-CREATE POLICY "oauth_select_own" ON org_oauth
-    FOR SELECT USING (organization_id = get_org_id());
+-- tenant_oauth: solo su config
+CREATE POLICY "oauth_select_own" ON tenant_oauth
+    FOR SELECT USING (tenant_id = get_tenant_id());
 
-CREATE POLICY "oauth_insert_own" ON org_oauth
-    FOR INSERT WITH CHECK (organization_id = get_org_id());
+CREATE POLICY "oauth_insert_own" ON tenant_oauth
+    FOR INSERT WITH CHECK (tenant_id = get_tenant_id());
 
-CREATE POLICY "oauth_update_own" ON org_oauth
-    FOR UPDATE USING (organization_id = get_org_id());
+CREATE POLICY "oauth_update_own" ON tenant_oauth
+    FOR UPDATE USING (tenant_id = get_tenant_id());
 
--- org_sms_config: solo su config
-CREATE POLICY "sms_select_own" ON org_sms_config
-    FOR SELECT USING (organization_id = get_org_id());
+-- tenant_sms_config: solo su config
+CREATE POLICY "sms_select_own" ON tenant_sms_config
+    FOR SELECT USING (tenant_id = get_tenant_id());
 
-CREATE POLICY "sms_insert_own" ON org_sms_config
-    FOR INSERT WITH CHECK (organization_id = get_org_id());
+CREATE POLICY "sms_insert_own" ON tenant_sms_config
+    FOR INSERT WITH CHECK (tenant_id = get_tenant_id());
 
-CREATE POLICY "sms_update_own" ON org_sms_config
-    FOR UPDATE USING (organization_id = get_org_id());
+CREATE POLICY "sms_update_own" ON tenant_sms_config
+    FOR UPDATE USING (tenant_id = get_tenant_id());
 
--- consent_items: CRUD completo filtrado por org
+-- consent_items: CRUD completo filtrado por tenant
 CREATE POLICY "consent_select_own" ON consent_items
-    FOR SELECT USING (organization_id = get_org_id());
+    FOR SELECT USING (tenant_id = get_tenant_id());
 
 CREATE POLICY "consent_insert_own" ON consent_items
-    FOR INSERT WITH CHECK (organization_id = get_org_id());
+    FOR INSERT WITH CHECK (tenant_id = get_tenant_id());
 
 CREATE POLICY "consent_update_own" ON consent_items
-    FOR UPDATE USING (organization_id = get_org_id());
+    FOR UPDATE USING (tenant_id = get_tenant_id());
 
 CREATE POLICY "consent_delete_own" ON consent_items
-    FOR DELETE USING (organization_id = get_org_id());
+    FOR DELETE USING (tenant_id = get_tenant_id());
 
--- signing_sessions_temp: org accede por session_id, firmante por x-access-token. INSERT/DELETE solo service_role.
+-- signing_sessions_temp: el tenant accede por session_id, firmante por x-access-token. INSERT/DELETE solo service_role.
 CREATE POLICY "temp_select_own" ON signing_sessions_temp
     FOR SELECT USING (
-        session_id IN (SELECT id FROM signing_sessions_results WHERE organization_id = get_org_id())
+        session_id IN (SELECT id FROM signing_sessions_results WHERE tenant_id = get_tenant_id())
     );
 
 CREATE POLICY "temp_select_by_token" ON signing_sessions_temp
@@ -395,12 +395,12 @@ CREATE POLICY "temp_select_by_token" ON signing_sessions_temp
 
 CREATE POLICY "temp_delete_own" ON signing_sessions_temp
     FOR DELETE USING (
-        session_id IN (SELECT id FROM signing_sessions_results WHERE organization_id = get_org_id())
+        session_id IN (SELECT id FROM signing_sessions_results WHERE tenant_id = get_tenant_id())
     );
 
--- signing_sessions_results: org ve las suyas y actualiza status. Firmante accede por access_token. INSERT solo service_role.
+-- signing_sessions_results: el tenant ve las suyas y actualiza status. Firmante accede por access_token. INSERT solo service_role.
 CREATE POLICY "results_select_own" ON signing_sessions_results
-    FOR SELECT USING (organization_id = get_org_id());
+    FOR SELECT USING (tenant_id = get_tenant_id());
 
 CREATE POLICY "results_select_by_token" ON signing_sessions_results
     FOR SELECT USING (
@@ -408,7 +408,7 @@ CREATE POLICY "results_select_by_token" ON signing_sessions_results
     );
 
 CREATE POLICY "results_update_own" ON signing_sessions_results
-    FOR UPDATE USING (organization_id = get_org_id());
+    FOR UPDATE USING (tenant_id = get_tenant_id());
 
 -- otp_tokens: RLS sin policies = bloqueado. Solo service_role.
 
@@ -416,20 +416,20 @@ CREATE POLICY "results_update_own" ON signing_sessions_results
 CREATE POLICY "folio_deny_all" ON folio_sequence
     FOR ALL USING (false);
 
--- audit_log: org ve los suyos. INSERT solo service_role. Sin UPDATE ni DELETE.
+-- audit_log: el tenant ve los suyos. INSERT solo service_role. Sin UPDATE ni DELETE.
 CREATE POLICY "audit_select_own" ON audit_log
-    FOR SELECT USING (organization_id = get_org_id());
+    FOR SELECT USING (tenant_id = get_tenant_id());
 
 -- ============================================================
 --  TABLE COMMENTS
 -- ============================================================
 
-COMMENT ON TABLE organizations IS 'Clientes de la plataforma. INSERT solo via service_role (registro validado por Edge Function con OTP).';
-COMMENT ON TABLE org_oauth IS 'Tokens OAuth encriptados (pgcrypto). history_sheets mapea año→sheet_id.';
-COMMENT ON TABLE org_sms_config IS 'Configuración SMS gateway encriptada (pgcrypto). Solo accesible por la org dueña.';
+COMMENT ON TABLE tenants IS 'Clientes de la plataforma. INSERT solo via service_role (registro validado por Edge Function con OTP).';
+COMMENT ON TABLE tenant_oauth IS 'Tokens OAuth encriptados (pgcrypto). history_sheets mapea año→sheet_id.';
+COMMENT ON TABLE tenant_sms_config IS 'Configuración SMS gateway encriptada (pgcrypto). Solo accesible por el tenant dueño.';
 COMMENT ON TABLE consent_items IS 'Consentimientos configurados por cada cliente.';
-COMMENT ON TABLE signing_sessions_temp IS 'Datos en tránsito. INSERT via service_role. SELECT por org o firmante (access_token). FK a signing_sessions_results.';
-COMMENT ON TABLE signing_sessions_results IS 'Registro permanente zero-knowledge. INSERT via service_role. SELECT/UPDATE por org. SELECT por firmante (access_token).';
+COMMENT ON TABLE signing_sessions_temp IS 'Datos en tránsito. INSERT via service_role. SELECT por tenant o firmante (access_token). FK a signing_sessions_results.';
+COMMENT ON TABLE signing_sessions_results IS 'Registro permanente zero-knowledge. INSERT via service_role. SELECT/UPDATE por tenant. SELECT por firmante (access_token).';
 COMMENT ON TABLE otp_tokens IS 'Códigos OTP temporales. Solo accesible via service_role (Edge Functions). RLS sin policies = bloqueado.';
 COMMENT ON TABLE folio_sequence IS 'Secuencial atómico para folios. Solo accesible por service_role.';
-COMMENT ON TABLE audit_log IS 'Registro inmutable. INSERT solo via service_role. SELECT filtrado por organization_id. Sin UPDATE ni DELETE.';
+COMMENT ON TABLE audit_log IS 'Registro inmutable. INSERT solo via service_role. SELECT filtrado por tenant_id. Sin UPDATE ni DELETE.';

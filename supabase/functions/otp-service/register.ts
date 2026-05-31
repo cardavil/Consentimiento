@@ -1,7 +1,7 @@
 import { ok, err } from '../_shared/response.ts';
 import { create_admin_client } from '../_shared/supabase.ts';
 
-interface OrgData {
+interface TenantData {
   type: string;
   first_name: string;
   last_name?: string;
@@ -18,8 +18,8 @@ export async function handle_register(
   body: Record<string, unknown>,
   req: Request,
 ): Promise<Response> {
-  const org_data = body.org_data as OrgData | undefined;
-  if (!org_data || !org_data.email || !org_data.doc_number) return err('OTP_INVALID');
+  const tenant_data = body.tenant_data as TenantData | undefined;
+  if (!tenant_data || !tenant_data.email || !tenant_data.doc_number) return err('OTP_INVALID');
 
   const jwt = (req.headers.get('authorization') || '').replace('Bearer ', '');
   if (!jwt) return err('SESSION_EXPIRED', 401);
@@ -29,33 +29,33 @@ export async function handle_register(
   const { data: { user }, error: user_err } = await admin.auth.getUser(jwt);
   if (user_err || !user) return err('SESSION_EXPIRED', 401);
 
-  const dup = await check_duplicates(admin, org_data.email, org_data.doc_number);
+  const dup = await check_duplicates(admin, tenant_data.email, tenant_data.doc_number);
   if (dup) return dup;
 
-  const { data: org, error: org_err } = await admin
-    .from('organizations')
+  const { data: tenant, error: tenant_err } = await admin
+    .from('tenants')
     .insert({
-      type: org_data.type,
-      first_name: org_data.first_name,
-      last_name: org_data.last_name || null,
-      doc_type: org_data.doc_type,
-      doc_number: org_data.doc_number,
-      email: org_data.email,
-      phone: org_data.phone,
-      position: org_data.position || null,
-      company_name: org_data.company_name || null,
-      company_nit: org_data.company_nit || null,
+      type: tenant_data.type,
+      first_name: tenant_data.first_name,
+      last_name: tenant_data.last_name || null,
+      doc_type: tenant_data.doc_type,
+      doc_number: tenant_data.doc_number,
+      email: tenant_data.email,
+      phone: tenant_data.phone,
+      position: tenant_data.position || null,
+      company_name: tenant_data.company_name || null,
+      company_nit: tenant_data.company_nit || null,
     })
     .select('id')
     .single();
 
-  if (org_err || !org) {
-    console.error({ fn: 'register', error: org_err?.message });
+  if (tenant_err || !tenant) {
+    console.error({ fn: 'register', error: tenant_err?.message });
     return err('ERROR_SERVIDOR', 500);
   }
 
   const { error: meta_err } = await admin.auth.admin.updateUserById(user.id, {
-    app_metadata: { ...user.app_metadata, org_id: org.id },
+    app_metadata: { ...user.app_metadata, tenant_id: tenant.id },
   });
 
   if (meta_err) {
@@ -64,9 +64,9 @@ export async function handle_register(
   }
 
   await admin.from('audit_log').insert({
-    organization_id: org.id,
-    event_type: 'org_registered',
-    event_data: { type: org_data.type },
+    tenant_id: tenant.id,
+    event_type: 'tenant_registered',
+    event_data: { type: tenant_data.type },
     ip: (body.ip as string) || null,
     ua: (body.user_agent as string) || null,
   });
@@ -80,7 +80,7 @@ async function check_duplicates(
   doc_number: string,
 ): Promise<Response | null> {
   const { data: by_email } = await admin
-    .from('organizations')
+    .from('tenants')
     .select('id')
     .eq('email', email)
     .limit(1)
@@ -89,7 +89,7 @@ async function check_duplicates(
   if (by_email) return err('EMAIL_DUPLICADO', 409);
 
   const { data: by_doc } = await admin
-    .from('organizations')
+    .from('tenants')
     .select('id')
     .eq('doc_number', doc_number)
     .limit(1)

@@ -2,8 +2,8 @@ import { ok, err } from '../_shared/response.ts';
 import { create_admin_client } from '../_shared/supabase.ts';
 import { validate_otp, hash_code } from '../_shared/otp.ts';
 import { sha256_bytes } from '../_shared/hash.ts';
-import { org_display_name } from '../_shared/org.ts';
-import { get_org_connection } from '../drive-service/connection.ts';
+import { tenant_display_name } from '../_shared/tenant.ts';
+import { get_tenant_connection } from '../drive-service/connection.ts';
 import { generate_firma_pdf, type SignField } from './pdf_firma.ts';
 import { copy_email } from '../_shared/email_templates.ts';
 import { MAX_PDF_BYTES } from '../_shared/limits.ts';
@@ -22,7 +22,7 @@ export async function handle_sign(body: Record<string, unknown>, req: Request): 
 
   const { data: session } = await admin
     .from('signing_sessions_results')
-    .select('id, organization_id, status, mode, session_type, token_expires_at')
+    .select('id, tenant_id, status, mode, session_type, token_expires_at')
     .eq('access_token', access_token)
     .maybeSingle();
   if (!session) return err('SESION_INVALIDA', 404);
@@ -54,14 +54,14 @@ export async function handle_sign(body: Record<string, unknown>, req: Request): 
     if (f.required && (f.value === undefined || f.value === '')) return err('CAMPOS_OBLIGATORIOS_FALTANTES');
   }
 
-  const conn = await get_org_connection(admin, session.organization_id);
+  const conn = await get_tenant_connection(admin, session.tenant_id);
   if (!conn || !conn.drive_folder_id) return err('SIN_NUBE_CONECTADA');
 
   const timestamp = new Date().toISOString();
   const year = new Date().getUTCFullYear();
 
   const { data: folio, error: folio_err } = await admin.rpc('next_folio', {
-    p_org_id: session.organization_id, p_code: 'FIRMA', p_year: year,
+    p_tenant_id: session.tenant_id, p_code: 'FIRMA', p_year: year,
   });
   if (folio_err || !folio) {
     console.error({ fn: 'firma.sign.folio', error: folio_err?.message });
@@ -112,8 +112,8 @@ export async function handle_sign(body: Record<string, unknown>, req: Request): 
   }
 
   try {
-    const org_name = await org_display_name(admin, session.organization_id);
-    const tpl = copy_email(org_name, [folio as string]);
+    const tenant_name = await tenant_display_name(admin, session.tenant_id);
+    const tpl = copy_email(tenant_name, [folio as string]);
     await conn.provider.send_email(
       conn.access_token, conn.sender_email!, signer_email, tpl.subject, tpl.html, tpl.text,
       { filename, bytes: pdf_bytes, mime: 'application/pdf' },
@@ -130,7 +130,7 @@ export async function handle_sign(body: Record<string, unknown>, req: Request): 
   await admin.from('signing_sessions_temp').delete().eq('session_id', session.id);
 
   await admin.from('audit_log').insert({
-    organization_id: session.organization_id,
+    tenant_id: session.tenant_id,
     event_type: 'document_signed',
     event_data: { folio, fields: fields.length },
   });

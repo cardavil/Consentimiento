@@ -2,10 +2,10 @@ import { handle_cors } from '../_shared/cors.ts';
 import { ok, err } from '../_shared/response.ts';
 import { create_admin_client } from '../_shared/supabase.ts';
 import { handle_invite } from './invite.ts';
-import { handle_update_org } from './update_org.ts';
+import { handle_update_tenant } from './update_tenant.ts';
 import { handle_set_permissions, handle_toggle_user } from './permissions.ts';
 import { handle_metrics } from './metrics.ts';
-import { handle_bootstrap_org } from './bootstrap_org.ts';
+import { handle_bootstrap_tenant } from './bootstrap_tenant.ts';
 
 interface AuthInfo {
   user_id: string;
@@ -60,14 +60,14 @@ Deno.serve(async (req) => {
     switch (action) {
       case 'invite':
         return await handle_invite(body);
-      case 'update_org':
-        return await handle_update_org(body);
+      case 'update_tenant':
+        return await handle_update_tenant(body);
       case 'set_permissions':
         return await handle_set_permissions(body);
       case 'toggle_user':
         return await handle_toggle_user(body);
-      case 'bootstrap_org':
-        return await handle_bootstrap_org(body, auth.user_id);
+      case 'bootstrap_tenant':
+        return await handle_bootstrap_tenant(body, auth.user_id);
       default:
         return err('INVALID_ACTION');
     }

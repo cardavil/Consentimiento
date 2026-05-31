@@ -1,4 +1,4 @@
-// Loads an org's cloud connection: decrypts the access token (pgcrypto via RPC),
+// Loads an tenant's cloud connection: decrypts the access token (pgcrypto via RPC),
 // refreshes it if expired, and returns a ready-to-use provider + token.
 // Reused by drive-service, otp-service (signer OTP) and consent-service (sign).
 import { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -19,7 +19,7 @@ export async function decrypt_secret(admin: SupabaseClient, ciphertext: string):
   return data as string;
 }
 
-export interface OrgConnection {
+export interface TenantConnection {
   provider: CloudProvider;
   access_token: string;
   drive_folder_id: string | null;
@@ -28,14 +28,14 @@ export interface OrgConnection {
   sender_email: string | null;
 }
 
-export async function get_org_connection(
+export async function get_tenant_connection(
   admin: SupabaseClient,
-  organization_id: string,
-): Promise<OrgConnection | null> {
+  tenant_id: string,
+): Promise<TenantConnection | null> {
   const { data: row } = await admin
-    .from('org_oauth')
+    .from('tenant_oauth')
     .select('*')
-    .eq('organization_id', organization_id)
+    .eq('tenant_id', tenant_id)
     .maybeSingle();
 
   if (!row) return null;
@@ -59,7 +59,7 @@ export async function get_org_connection(
     if (fresh.refresh_token) {
       update.refresh_token = await encrypt_secret(admin, fresh.refresh_token);
     }
-    await admin.from('org_oauth').update(update).eq('organization_id', organization_id);
+    await admin.from('tenant_oauth').update(update).eq('tenant_id', tenant_id);
   }
 
   return {
