@@ -1,13 +1,13 @@
 # Estado del Proyecto — Consentia
 
-**Última actualización:** 2026-05-28
-**Sesión:** Auditoría de código + despliegue runtime (migraciones + Edge Functions)
+**Última actualización:** 2026-05-31
+**Sesión:** Rename organization→tenant + rediseño de signers + consolidación de migraciones + fixes
 
 ---
 
 ## Resumen
 
-Proyecto Consentia (antes FirmaConsent). **Código de las 3 fases completo** (consentimiento, firma visual, 2FA SMS/WhatsApp + app Android), auditado y con remediación aplicada. **Runtime desplegado:** migraciones 001–010 aplicadas en Supabase (pg_cron activo) y las 6 Edge Functions desplegadas. **Aún no funciona end-to-end** porque falta la configuración externa: apps OAuth (Google/Microsoft) + secrets, y SMTP propio + OTP 8 dígitos en Supabase Auth. Pendiente además la migración 011 de hardening (opcional, no bloquea pruebas).
+Proyecto Consentia (antes FirmaConsent). **Código de las 3 fases completo** (consentimiento, firma visual, 2FA SMS/WhatsApp + app Android), auditado y con remediación aplicada. Vocabulario unificado: el cliente registrado es **`tenant`** en código/BD ("Inscritos" en la UI); el firmante usa `signer_type` y campos en inglés. **Runtime desplegado:** esquema en **3 migraciones consolidadas** (`001_functions`/`002_schema`/`003_catalogs`) aplicado en Supabase (pg_cron activo) y las 6 Edge Functions desplegadas. **Aún no funciona end-to-end** porque falta la configuración externa: apps OAuth (Google/Microsoft) + secrets, y SMTP propio + OTP 8 dígitos en Supabase Auth. Pendiente además la migración 011 de hardening (opcional, no bloquea pruebas).
 
 ---
 
@@ -61,6 +61,17 @@ Proyecto Consentia (antes FirmaConsent). **Código de las 3 fases completo** (co
 - **Auditoría de BD** (advisors): hallazgos de hardening → planeada **migración 011** (revoke EXECUTE en encrypt/decrypt_secret/next_folio/get_db_size/fix_auth_user_token_defaults; `SET search_path` en SECURITY DEFINER; índices FK; opcional reescribir 5 policies RLS). **No aplicada aún** (opcional, no bloquea pruebas).
 - Confirmado: BD limpia, solo `db.carlosm@gmail.com` (admin + org jurídica); sin rastro de diversolab. Hosting: GitHub Pages activo en `https://cardavil.github.io/Consentimiento/`.
 
+### Sesión 6 — Coherencia: tenant + signers + consolidación (2026-05-31)
+
+- **Rename `organization` → `tenant` (coherencia total):** tabla `tenants`, columnas `tenant_id`, tablas `tenant_oauth/tenant_sms_config/tenant_whatsapp_config`, función `get_tenant_id()`, permiso `read:tenants`, clave JWT `tenant_id`, ~15 edge functions y frontend. La **UI muestra "Inscritos"** (español); el código/BD usa `tenant` (inglés). BD viva alineada con `ALTER`; historia de migraciones reescrita.
+- **Rediseño del modelo de signers:** `mode` → `signer_type` (`natural`/`natural_represented`/`juridica`); `session_type` `firma` → `signature` (UI sigue "Firma"/"Consentimiento"); `catalog_doc_types.contexts` armonizados (`natural_represented`, `natural_representative`, `juridica_signer`, `juridica_entity`); campos del firmante (JSONB) unificados a inglés snake_case (== tenant). Nuevos `_shared/signer_format.ts` y `_shared/session.ts` (dedup). **Historial del cliente** ahora registra al firmante **completo** (una columna por campo) + encabezados (`_shared/history.ts`).
+- **Migraciones consolidadas:** de 10 archivos a **3** — `001_functions.sql` (extensiones + funciones + cron), `002_schema.sql` (tablas + índices + triggers + RLS), `003_catalogs.sql` (catálogo + seed). Tracking remoto (`schema_migrations`) reconciliado a 001/002/003 (`supabase migration list`: local == remote).
+- **`platform_users`** espeja identidad de jurídica: + `position`, `company_name`, `company_nit`.
+- **Auditoría de código + fixes:** 3 bugs (URL `ipify` rota por el rename, `signer.telefono`→`phone`, `get_supabase`→`init_supabase`); constantes centralizadas en `_shared/limits.ts`; dedup (signer_lines, create_session, helpers de modal, PLAN_LIMITS); `init_app_page` valida que el inscrito del JWT exista (token colgante → re-auth).
+- **Header/avatar:** avatar de 2 líneas (iniciales + `@` inicial de empresa); dropdown muestra nombre / empresa **sin email**; "Mi cuenta" inactiva (no oculta) para admin sin inscrito.
+- **Página de Auditoría:** filtro alineado a los `event_type` reales (con etiquetas) + columnas legibles (inscrito por nombre, `event_data` formateado).
+- **Datos:** email del admin/inscrito `db.carlosm@gmail.com` → `consentia.proyecto@gmail.com`; admin = `Administrador Proyecto`; inscrito de prueba recreado (Consentia, jurídica, plan enterprise, folio `CT`) con **rol dual** admin+inscrito.
+
 ---
 
 ## Commits
@@ -84,7 +95,7 @@ Proyecto Consentia (antes FirmaConsent). **Código de las 3 fases completo** (co
 | Marca | Consentia — manual aprobado en docs/mockups/manual-marca-consentia.html |
 | Documentación | Sincronizada con el código real (README + 7 docs) |
 | Schema BD | 14 tablas implementadas |
-| Migraciones SQL | **001–010 aplicadas** en firmaconsent. pg_cron activo. Pendiente: 011 (hardening, opcional) |
+| Migraciones SQL | Consolidadas en **3 archivos** (`001_functions` / `002_schema` / `003_catalogs`); tracking reconciliado (local == remote). pg_cron activo. Pendiente: 011 (hardening, opcional) |
 | Supabase | ACTIVE_HEALTHY, 14 tablas, RLS, dual-role. Proyecto: `pgouzutwvronvsxgdizk` |
 | Edge Functions | **Desplegadas**: admin, otp, drive, consent, signing, config. Falta config externa (OAuth/secrets) para correr |
 | Frontend | 3 fases + panel admin. **GitHub Pages activo** en `https://cardavil.github.io/Consentimiento/` |
