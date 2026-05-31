@@ -94,7 +94,7 @@ function _header_display_name(org, email) {
   return org.company_name || ((org.first_name || '') + ' ' + (org.last_name || '')).trim() || email;
 }
 
-function _header_initials(name) {
-  var parts = name.split(/[\s@]+/);
+function _header_initials(display_name) {
+  var parts = display_name.split(/[\s@]+/);
   return parts.map(function (w) { return w[0] || ''; }).slice(0, 2).join('').toUpperCase() || '?';
 }

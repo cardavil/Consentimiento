@@ -77,7 +77,7 @@ function render_analysts_table() {
   var html = '';
   for (var i = 0; i < _analysts_all.length; i++) {
     var a = _analysts_all[i];
-    var full_name = (a.first_name || '') + ' ' + (a.last_name || '');
+    var display_name = (a.first_name || '') + ' ' + (a.last_name || '');
     var doc_info = a.doc_type ? a.doc_type + ' ' + (a.doc_number || '') : '';
     var contact = escape_html(a.email);
     if (a.phone) contact += '<br><span class="text-muted text-xs">' + escape_html(a.phone) + '</span>';
@@ -86,7 +86,7 @@ function render_analysts_table() {
     var status_text = a.active ? 'Activo' : 'Inactivo';
 
     html += '<tr>';
-    html += '<td>' + escape_html(full_name.trim()) + '</td>';
+    html += '<td>' + escape_html(display_name.trim()) + '</td>';
     html += '<td class="text-sm">' + escape_html(doc_info) + '</td>';
     html += '<td class="text-sm">' + contact + '</td>';
     html += '<td><span class="badge ' + role_badge + '">' + escape_html(a.role) + '</span></td>';

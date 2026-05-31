@@ -33,8 +33,8 @@ function render_orgs_table() {
   var estado = document.getElementById('filtro-estado').value;
 
   var filtered = _orgs_all.filter(function (o) {
-    var name = o.type === 'juridica' ? (o.company_name || '') : (o.first_name + ' ' + (o.last_name || ''));
-    if (search && name.toLowerCase().indexOf(search) === -1 && (o.email || '').toLowerCase().indexOf(search) === -1) return false;
+    var display_name = o.type === 'juridica' ? (o.company_name || '') : (o.first_name + ' ' + (o.last_name || ''));
+    if (search && display_name.toLowerCase().indexOf(search) === -1 && (o.email || '').toLowerCase().indexOf(search) === -1) return false;
     if (plan && o.plan !== plan) return false;
     if (estado === 'active' && !o.active) return false;
     if (estado === 'inactive' && o.active) return false;
@@ -51,12 +51,12 @@ function render_orgs_table() {
   var html = '';
   for (var i = 0; i < filtered.length; i++) {
     var o = filtered[i];
-    var name = o.type === 'juridica' ? (o.company_name || '') : (o.first_name + ' ' + (o.last_name || ''));
+    var display_name = o.type === 'juridica' ? (o.company_name || '') : (o.first_name + ' ' + (o.last_name || ''));
     var badge_class = o.active ? 'badge-teal' : 'badge-danger';
     var badge_text = o.active ? 'Activa' : 'Inactiva';
 
     html += '<tr>';
-    html += '<td>' + escape_html(name) + '</td>';
+    html += '<td>' + escape_html(display_name) + '</td>';
     html += '<td>' + escape_html(o.email) + '</td>';
     html += '<td><span class="badge badge-neutral">' + escape_html(o.type) + '</span></td>';
     html += '<td><span class="badge badge-neutral">' + escape_html(o.plan) + '</span></td>';
@@ -82,8 +82,8 @@ function open_edit_org(org_id) {
   document.getElementById('edit-org-plan').value = org.plan;
   document.getElementById('edit-org-active').checked = org.active;
 
-  var name = org.type === 'juridica' ? org.company_name : (org.first_name + ' ' + (org.last_name || ''));
-  document.getElementById('edit-org-name').textContent = name;
+  var display_name = org.type === 'juridica' ? org.company_name : (org.first_name + ' ' + (org.last_name || ''));
+  document.getElementById('edit-org-name').textContent = display_name;
 
   var overlay = document.getElementById('modal-edit-org');
   overlay.classList.add('modal-visible');
