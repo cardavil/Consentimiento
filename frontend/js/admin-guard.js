@@ -21,6 +21,7 @@ async function check_admin_session() {
     role: meta.platform_role,
     email: data.session.user.email,
     tenant: null,
+    profile: null,
   };
 
   if (meta.tenant_id) {
@@ -32,6 +33,15 @@ async function check_admin_session() {
       if (tenants.data && tenants.data.length > 0) _admin_session.tenant = tenants.data[0];
     } catch (_e) {}
   }
+
+  // Identidad del usuario de plataforma (para el header cuando no hay inscrito).
+  try {
+    var pu = await client
+      .from('platform_users')
+      .select('first_name,last_name,company_name')
+      .eq('auth_user_id', data.session.user.id);
+    if (pu.data && pu.data.length > 0) _admin_session.profile = pu.data[0];
+  } catch (_e) {}
 
   if (meta.platform_role === 'analyst') {
     const { data: perms } = await client

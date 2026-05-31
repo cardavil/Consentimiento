@@ -12,7 +12,7 @@ var TENANT_COLUMNS = [
 document.addEventListener('DOMContentLoaded', async function () {
   var session = await check_admin_session();
   if (!session) return;
-  render_app_header({ container_id: 'app-header', session: _admin_session.session, tenant: _admin_session.tenant, on_logout: admin_sign_out });
+  render_app_header({ container_id: 'app-header', session: _admin_session.session, tenant: _admin_session.tenant, profile: _admin_session.profile, on_logout: admin_sign_out });
   render_admin_nav();
   if (!require_permission('read:tenants')) return;
 

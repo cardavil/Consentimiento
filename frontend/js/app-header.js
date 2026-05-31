@@ -5,7 +5,7 @@ function render_app_header(opts) {
   var session = opts.session;
   var meta = session.user.app_metadata || {};
   var email = session.user.email;
-  var display_name = _header_display_name(opts.tenant, email);
+  var display_name = _header_display_name(opts.tenant, opts.profile, email);
   var initials = _header_initials(display_name);
 
   var has_tenant = !!meta.tenant_id;
@@ -90,9 +90,10 @@ function _header_bind(on_logout) {
   });
 }
 
-function _header_display_name(tenant, email) {
-  if (!tenant) return email;
-  return tenant.company_name || ((tenant.first_name || '') + ' ' + (tenant.last_name || '')).trim() || email;
+function _header_display_name(tenant, profile, email) {
+  if (tenant) return tenant.company_name || ((tenant.first_name || '') + ' ' + (tenant.last_name || '')).trim() || email;
+  if (profile) return ((profile.first_name || '') + ' ' + (profile.last_name || '')).trim() || profile.company_name || email;
+  return email;
 }
 
 function _header_initials(display_name) {
