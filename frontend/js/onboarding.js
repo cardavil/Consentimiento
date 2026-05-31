@@ -63,13 +63,24 @@ async function save_whatsapp() {
 function gen_sms_secrets() {
   document.getElementById('sms-apikey').value = crypto.randomUUID().replace(/-/g, '');
   document.getElementById('sms-hmac').value = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
-  const pairing = document.getElementById('sms-pairing');
-  pairing.hidden = false;
-  pairing.textContent = 'Vincula la app con: ' + JSON.stringify({
-    url: document.getElementById('sms-url').value.trim(),
+
+  // La app gateway lee {api_key, hmac_secret} del QR; el url del gateway es config del servidor.
+  const payload = JSON.stringify({
     api_key: document.getElementById('sms-apikey').value,
     hmac_secret: document.getElementById('sms-hmac').value,
   });
+
+  const qr = document.getElementById('sms-qr');
+  const qr_label = document.getElementById('sms-qr-label');
+  if (window.QRCode && qr) {
+    qr.hidden = false;
+    if (qr_label) qr_label.hidden = false;
+    QRCode.toCanvas(qr, payload, { width: 220 }, function (err) { if (err) console.error(err); });
+  }
+
+  const pairing = document.getElementById('sms-pairing');
+  pairing.hidden = false;
+  pairing.textContent = 'O pega manualmente en la app: ' + payload;
 }
 
 async function save_sms() {

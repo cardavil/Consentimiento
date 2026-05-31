@@ -1,6 +1,7 @@
 package org.consentia.gateway
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -36,9 +37,14 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        store = PairingStore(this)
+        if (!store.isLoggedIn) {
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
+            return
+        }
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        store = PairingStore(this)
 
         requestPermissions()
 
@@ -46,7 +52,14 @@ class MainActivity : AppCompatActivity() {
             scanLauncher.launch(ScanOptions().setPrompt("Escanea el QR de vinculación de Consentia").setBeepEnabled(false))
         }
         binding.btnToggle.setOnClickListener { toggle() }
+        binding.btnLogout.setOnClickListener { logout() }
         refresh()
+    }
+
+    private fun logout() {
+        store.clearSession()
+        startActivity(Intent(this, LoginActivity::class.java))
+        finish()
     }
 
     private fun toggle() {

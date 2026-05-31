@@ -1,2 +1,5 @@
 # Supabase CLI
 supabase/.temp/
+
+# IDE
+.idea/

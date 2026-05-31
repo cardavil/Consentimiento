@@ -13,6 +13,10 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
+
+        // Mismo backend que la web (frontend/js/config.js). Publishable key = seguro exponer.
+        buildConfigField("String", "SUPABASE_URL", "\"https://pgouzutwvronvsxgdizk.supabase.co\"")
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"sb_publishable_Nhh9XQqxEIUCRlZeThpUcA_YbwP3uLq\"")
     }
 
     buildTypes {
@@ -29,6 +33,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 
@@ -41,4 +46,6 @@ dependencies {
     implementation("org.nanohttpd:nanohttpd:2.3.1")
     // QR pairing (scan the JSON emitted by onboarding)
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+    // HTTP client para el login email+OTP contra GoTrue (Supabase Auth)
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 }

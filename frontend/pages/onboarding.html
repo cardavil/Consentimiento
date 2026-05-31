@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Conectar nube | Consentia</title>
+  <title>Configuración | Consentia</title>
   <link rel="stylesheet" href="../css/tokens.css">
   <link rel="stylesheet" href="../css/componentes.css">
 </head>
@@ -15,8 +15,10 @@
   <main id="main">
     <div class="dash-container">
 
+      <h2 class="mb-md">Configuración general</h2>
+
       <div class="card">
-        <h2 class="m-0 mb-sm">Conectar tu nube y correo</h2>
+        <h3 class="m-0 mb-sm">Conectar tu nube y correo</h3>
         <p class="text-sm text-muted mb-md">
           Consentia guarda las constancias en tu propio Drive/OneDrive y env&iacute;a los c&oacute;digos
           de verificaci&oacute;n desde tu propio correo. Una sola conexi&oacute;n por proveedor cubre
@@ -43,10 +45,12 @@
         </ul>
       </div>
 
+      <h2 class="mb-md mt-lg">Canales 2FA</h2>
+
       <!-- WhatsApp Business (Fase 3) -->
       <div class="card mt-md">
         <div class="flex-between mb-sm">
-          <h3 class="m-0">WhatsApp Business (opcional)</h3>
+          <h3 class="m-0">WhatsApp Business</h3>
           <span id="wa-badge" class="badge badge-warning">No configurado</span>
         </div>
         <p class="text-sm text-muted mb-md">Env&iacute;a los c&oacute;digos por WhatsApp desde tu propia cuenta de Meta Business.</p>
@@ -65,7 +69,7 @@
       <!-- SMS gateway (Fase 3) -->
       <div class="card mt-md">
         <div class="flex-between mb-sm">
-          <h3 class="m-0">SMS por app Android (opcional)</h3>
+          <h3 class="m-0">SMS por app Android</h3>
           <span id="sms-badge" class="badge badge-warning">No configurado</span>
         </div>
         <p class="text-sm text-muted mb-md">Env&iacute;a SMS desde tu propio tel&eacute;fono v&iacute;a la app gateway. Instala la app, expón el servidor con Cloudflare Tunnel y vincula con estos datos.</p>
@@ -75,6 +79,8 @@
           <div class="form-group"><label class="form-label" for="sms-hmac">HMAC secret</label><input id="sms-hmac" class="form-input"></div>
         </div>
         <button type="button" id="btn-sms-gen" class="btn btn-ghost btn-sm mb-sm">Generar API key + HMAC</button>
+        <p id="sms-qr-label" class="text-sm text-muted mb-sm" hidden>Escanea este QR desde la app Consentia Gateway:</p>
+        <canvas id="sms-qr" class="mb-sm" hidden></canvas>
         <div id="sms-pairing" class="text-xs text-mono text-muted mb-sm" hidden></div>
         <div class="form-actions">
           <button type="button" id="btn-sms-test" class="btn btn-outline">Probar</button>
@@ -94,6 +100,7 @@
   <script src="../js/supabase-client.js"></script>
   <script src="../js/utils.js"></script>
   <script src="../js/app-header.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   <script src="../js/onboarding.js"></script>
 </body>
 </html>

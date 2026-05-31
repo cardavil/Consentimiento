@@ -11,13 +11,15 @@ otp-service (Edge Function)
                                                                                   └─ 5 capas de seguridad ─► SmsManager
 ```
 
-- `MainActivity` — vincular (escanear QR), activar/desactivar, estado.
+- `LoginActivity` — **launcher**; login email+OTP contra GoTrue (mismo backend que la web). Exige que
+  el usuario sea un inscrito (`tenant_id` en `app_metadata`). Sin sesión válida no se llega a la config.
+- `MainActivity` — vincular (escanear QR), activar/desactivar, estado, cerrar sesión.
 - `GatewayService` — foreground service que mantiene vivo el servidor HTTP.
 - `BootReceiver` — reinicia el gateway tras reiniciar el teléfono.
 - `HttpServer` (NanoHTTPD) — `POST /send`, valida las 5 capas y envía el SMS.
 - `security/Security.kt` — API key (constant-time), timestamp ±30s, nonce anti-replay, HMAC-SHA256, rate limit.
 - `SmsSender` — `SmsManager` nativo (multipart).
-- `PairingStore` — `EncryptedSharedPreferences` (api_key + hmac_secret).
+- `PairingStore` — `EncryptedSharedPreferences` (api_key + hmac_secret + sesión: access/refresh token, email, tenant_id).
 
 ## Contrato HTTP (debe coincidir con `_shared/channels/sms.ts`)
 
@@ -30,14 +32,17 @@ Cadena firmada (HMAC-SHA256, hex): `to|message|timestamp|nonce`.
 ## Puesta en marcha
 
 1. **Compilar:** abrir `android/` en Android Studio (o `./gradlew assembleRelease`). Min SDK 26.
-2. **Exponer el servidor:** en el teléfono (o vía adb reverse en pruebas) levantar Cloudflare Tunnel:
+   `SUPABASE_URL`/`SUPABASE_ANON_KEY` se inyectan vía `buildConfigField` (de `frontend/js/config.js`).
+2. **Iniciar sesión:** abrir la app → login email+OTP. Usa un correo de inscrito (con `tenant_id`);
+   recibe el código por correo y verifica. La sesión persiste entre aperturas; "Cerrar sesión" la borra.
+3. **Exponer el servidor:** en el teléfono (o vía adb reverse en pruebas) levantar Cloudflare Tunnel:
    `cloudflared tunnel --url http://localhost:8080` → entrega una URL pública.
-3. **Onboarding (web):** en *Conectar nube → SMS por app Android*, poner la URL del tunnel + `/send`,
-   generar API key + HMAC, guardar. Se muestra el JSON de vinculación.
-4. **Vincular la app:** generar un QR a partir de ese JSON y escanearlo en *Escanear QR de vinculación*.
-5. **Activar gateway** y conceder permisos de SMS/notificaciones.
+4. **Onboarding (web):** en *Canales 2FA → SMS por app Android*, poner la URL del tunnel + `/send`,
+   *Generar API key + HMAC*, guardar. Se renderiza un **QR** con `{api_key, hmac_secret}` (y el JSON como fallback).
+5. **Vincular la app:** *Escanear QR de vinculación* y apuntar al QR de la web.
+6. **Activar gateway** y conceder permisos de SMS/notificaciones.
 
 ## Limitaciones conocidas
-- El onboarding muestra el JSON de vinculación como texto; falta renderizar el QR (pendiente).
-  Mientras tanto, generar el QR del JSON con cualquier herramienta o agregar entrada manual a la app.
+- Refresh de token: si la sesión expira, hay que volver a iniciar sesión (refresh con
+  `grant_type=refresh_token` queda como mejora opcional).
 - Empaquetado/firma para Play Store: operativo, fuera de este repositorio.

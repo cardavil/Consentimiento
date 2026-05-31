@@ -32,5 +32,13 @@
         android:id="@+id/btn_toggle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Activar gateway" />
+        android:text="Activar gateway"
+        android:layout_marginBottom="24dp" />
+
+    <Button
+        android:id="@+id/btn_logout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cerrar sesión"
+        style="?attr/borderlessButtonStyle" />
 </LinearLayout>
