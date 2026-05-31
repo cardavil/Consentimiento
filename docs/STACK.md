@@ -131,7 +131,7 @@ consentia/
 │   │   ├── 009_signing_templates.sql      (Fase 2)
 │   │   └── 010_org_whatsapp_config.sql    (Fase 3)
 │   └── functions/
-│       ├── _shared/                       (cors, response, supabase, auth, otp, email_templates, pdf_evidence, channels/{sms,whatsapp})
+│       ├── _shared/                       (cors, response, supabase, auth, otp, hash, limits, org, email_templates, pdf_evidence, channels/{sms,whatsapp})
 │       ├── admin-service/                 (métricas, orgs, invitaciones, permisos)
 │       ├── otp-service/                   (OTP firmante; router de canal email/sms/whatsapp)
 │       ├── consent-service/               (create_session, sign, pdf.ts con pdf-lib)

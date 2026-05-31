@@ -231,7 +231,7 @@ Usuarios internos de la plataforma (admin/analyst). Completamente separados de o
 | email | TEXT UNIQUE NOT NULL | |
 | first_name | TEXT NOT NULL | |
 | last_name | TEXT NOT NULL | |
-| doc_type | TEXT | CC/CE/PA/PEP/PPT/TI/NIT |
+| doc_type | TEXT | sin CHECK en BD; en UI: CC/CE/PA/PEP/PPT/TI/NIT |
 | doc_number | TEXT | |
 | phone | TEXT | |
 | role | TEXT NOT NULL | CHECK: admin / analyst |
@@ -292,7 +292,7 @@ El límite de plantillas por plan se valida en la Edge Function `signing-service
 Retorna `{db_bytes, storage_bytes}` (tamaño de la BD y del storage). Usada por `admin-service` para métricas. SECURITY DEFINER. Migración 006.
 
 ### update_updated_at()
-Trigger en organizations, org_oauth, org_sms_config, org_whatsapp_config, consent_items, signing_templates. Actualiza updated_at automáticamente.
+Trigger en organizations, org_oauth, org_sms_config, org_whatsapp_config, consent_items, signing_templates, platform_users. Actualiza updated_at automáticamente.
 
 ---
 
@@ -307,7 +307,7 @@ Patrón: operaciones sensibles (INSERT en tablas críticas, OTP) pasan exclusiva
 | org_sms_config | Solo su config (select/insert/update). |
 | consent_items | Solo los suyos (CRUD completo). |
 | signing_sessions_temp | Org accede por session_id. Firmante accede por x-access-token header. Org puede borrar los suyos. INSERT solo service_role. |
-| signing_sessions_results | Org ve las suyas y actualiza status. Firmante accede por access_token. INSERT solo service_role. |
+| signing_sessions_results | Org ve las suyas y actualiza status. Firmante accede por access_token. Admin/analyst con read:sessions ve todas (solo metadatos). INSERT solo service_role. |
 | otp_tokens | Bloqueado (sin policies). Solo service_role. |
 | folio_sequence | Bloqueado para todos. Solo service_role. |
 | signing_templates | Solo ve/edita las suyas (CRUD). organization_id = get_org_id(). |

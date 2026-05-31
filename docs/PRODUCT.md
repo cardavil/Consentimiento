@@ -79,7 +79,7 @@ Las 3 fases son MVP. Todas deben estar completas antes del primer cliente.
 ### Fase 1 — Consentimiento
 
 1. Schema + migraciones (tablas, RLS, funciones)
-2. Edge Functions: otp-service, consent-service, drive-service, pdf-generator
+2. Edge Functions: otp-service, consent-service, drive-service (PDF se genera dentro de consent-service/pdf.ts con pdf-lib)
 3. Frontend: login, registro, onboarding, dashboard, consentimiento-solicitar, firmar
 4. Landing page (iterar UI + data pipeline desde el inicio)
 5. Drive/OneDrive integration (OAuth, file picker, preview)
