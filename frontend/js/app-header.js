@@ -5,8 +5,7 @@ function render_app_header(opts) {
   var session = opts.session;
   var meta = session.user.app_metadata || {};
   var email = session.user.email;
-  var display_name = _header_display_name(opts.tenant, opts.profile, email);
-  var initials = _header_initials(display_name);
+  var id = _header_identity(opts.tenant, opts.profile, email);
 
   var has_tenant = !!meta.tenant_id;
   var has_platform = !!meta.platform_role;
@@ -22,11 +21,14 @@ function render_app_header(opts) {
   html += '<span class="header-page-title">' + escape_html(page_title) + '</span>';
   html += '<div class="header-actions">';
   html += '<div class="header-dropdown-wrap">';
-  html += '<div class="header-avatar" id="header-avatar-btn" role="button" tabindex="0" aria-label="Menú de usuario">' + escape_html(initials) + '</div>';
+  html += '<div class="header-avatar" id="header-avatar-btn" role="button" tabindex="0" aria-label="Menú de usuario">';
+  html += '<span class="avatar-initials">' + escape_html(id.initials) + '</span>';
+  if (id.company_initial) html += '<span class="avatar-company">@' + escape_html(id.company_initial) + '</span>';
+  html += '</div>';
   html += '<div class="header-dropdown" id="header-dropdown">';
 
   html += '<div class="header-dropdown-user">';
-  html += '<div class="header-dropdown-name">' + escape_html(display_name) + '</div>';
+  html += '<div class="header-dropdown-name">' + escape_html(id.display_name) + '</div>';
   html += '<div class="header-dropdown-email">' + escape_html(email) + '</div>';
   html += '<div class="header-dropdown-badges">';
   if (has_platform) html += '<span class="badge ' + (in_admin ? 'badge-teal' : 'badge-neutral') + '">' + escape_html(platform_label) + '</span>';
@@ -95,13 +97,24 @@ function _header_bind(on_logout) {
   });
 }
 
-function _header_display_name(tenant, profile, email) {
-  if (tenant) return tenant.company_name || ((tenant.first_name || '') + ' ' + (tenant.last_name || '')).trim() || email;
-  if (profile) return ((profile.first_name || '') + ' ' + (profile.last_name || '')).trim() || profile.company_name || email;
-  return email;
-}
-
-function _header_initials(display_name) {
-  var parts = display_name.split(/[\s@]+/);
-  return parts.map(function (w) { return w[0] || ''; }).slice(0, 2).join('').toUpperCase() || '?';
+// Deriva iniciales + inicial de empresa + nombre, desde el inscrito (tenant) o el
+// perfil de plataforma (admin/analyst), o el email como último recurso.
+//  - initials: inicial(nombre)+inicial(apellido)
+//  - company_initial: inicial de company_name (vacío si no hay → natural)
+//  - display_name: "Nombre Apellido @ Empresa" (jurídica) o "Nombre Apellido" (natural)
+function _header_identity(tenant, profile, email) {
+  var src = tenant || profile || null;
+  if (!src) {
+    var parts = (email || '').split(/[\s@]+/);
+    var ini = parts.map(function (w) { return w[0] || ''; }).slice(0, 2).join('').toUpperCase() || '?';
+    return { initials: ini, company_initial: '', display_name: email };
+  }
+  var fn = (src.first_name || '').trim();
+  var ln = (src.last_name || '').trim();
+  var company = (src.company_name || '').trim();
+  var person = (fn + ' ' + ln).trim();
+  var initials = ((fn[0] || '') + (ln[0] || '')).toUpperCase() || (company[0] || email[0] || '?').toUpperCase();
+  var company_initial = company ? company[0].toUpperCase() : '';
+  var display_name = company ? (person ? person + ' @ ' + company : company) : (person || email);
+  return { initials: initials, company_initial: company_initial, display_name: display_name };
 }
