@@ -44,10 +44,10 @@ Email → OTP por email (SMTP propio de Supabase Auth) → verifica → dashboar
 
 Tres modos:
 
-### Modo 1: Persona natural (natural_personal)
+### Modo 1: Persona natural (natural)
 Nombre, apellido, tipo doc (CC/CE/PA/PEP/PPT), número, email, teléfono.
 
-### Modo 2: Con representante (natural_tutor)
+### Modo 2: Con representante (natural_represented)
 
 Persona que firma a través de un representante legal. Aplica a:
 - Menores de edad (Ley 1098/2006 + Art. 12 Ley 1581/2012)
@@ -130,10 +130,10 @@ Enviar → el firmante recibe email con enlace.
 
 Mismos tres modos de firmante que consentimiento:
 
-### Modo 1: Persona natural (natural_personal)
+### Modo 1: Persona natural (natural)
 Nombre, apellido, tipo doc, número, email, teléfono.
 
-### Modo 2: Con representante (natural_tutor)
+### Modo 2: Con representante (natural_represented)
 Datos del representado + datos del representante legal (idéntico al flujo de consentimiento).
 
 ### Modo 3: Persona jurídica (juridica)

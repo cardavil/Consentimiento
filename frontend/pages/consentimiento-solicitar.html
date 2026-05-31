@@ -23,13 +23,13 @@
           <div class="form-group">
             <label class="form-label" for="modo">Tipo de firmante</label>
             <select id="modo" class="form-input">
-              <option value="natural_personal">Persona natural</option>
-              <option value="natural_tutor">Con representante legal</option>
+              <option value="natural">Persona natural</option>
+              <option value="natural_represented">Con representante legal</option>
               <option value="juridica">Persona jurídica</option>
             </select>
           </div>
 
-          <!-- natural_personal -->
+          <!-- natural -->
           <div id="campos-natural" class="modo-campos">
             <div class="form-row-2col">
               <div class="form-group"><label class="form-label" for="np-nombre">Nombre</label><input id="np-nombre" class="form-input"></div>
@@ -45,7 +45,7 @@
             </div>
           </div>
 
-          <!-- natural_tutor -->
+          <!-- natural_represented -->
           <div id="campos-tutor" class="modo-campos" hidden>
             <h4 class="mb-sm">Representado</h4>
             <div class="form-row-2col">

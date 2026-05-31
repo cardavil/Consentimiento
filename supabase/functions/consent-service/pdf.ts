@@ -16,7 +16,7 @@ export interface ConsentResult {
 export interface ConstanciaInput {
   source_pdfs: Array<{ name: string; bytes: Uint8Array; hash: string }>;
   signer: Record<string, unknown>;
-  mode: string;
+  signer_type: string;
   consents: ConsentResult[];
   evidence: { ip: string; user_agent: string; timestamp: string };
   global_hash: string;
@@ -45,7 +45,7 @@ export async function generate_constancia(input: ConstanciaInput): Promise<Uint8
   w.gap(6);
 
   w.heading('Firmante');
-  for (const line of signer_lines(input.mode, input.signer)) w.line(line);
+  for (const line of signer_lines(input.signer_type, input.signer)) w.line(line);
   w.gap(8);
 
   w.heading('Documentos firmados');
@@ -77,28 +77,28 @@ export async function generate_constancia(input: ConstanciaInput): Promise<Uint8
   return await out.save();
 }
 
-function signer_lines(mode: string, s: Record<string, unknown>): string[] {
+function signer_lines(signer_type: string, s: Record<string, unknown>): string[] {
   const g = (k: string) => String(s[k] ?? '');
-  if (mode === 'natural_tutor') {
-    const rep = `${g('nombre')} ${g('apellido')}`.trim();
+  if (signer_type === 'natural_represented') {
+    const rep = `${g('first_name')} ${g('last_name')}`.trim();
     const r = (s.represented as Record<string, unknown>) || {};
-    const repd = `${r.nombre ?? ''} ${r.apellido ?? ''}`.toString().trim();
+    const repd = `${r.first_name ?? ''} ${r.last_name ?? ''}`.toString().trim();
     return [
-      `Firmado por ${rep}, en calidad de ${g('calidad')} de ${repd}.`,
-      `Representante: ${g('tipoDoc')} ${g('numero')} · ${g('email')}`,
-      `Representado: ${r.tipoDoc ?? ''} ${r.numero ?? ''}`,
+      `Firmado por ${rep}, en calidad de ${g('capacity')} de ${repd}.`,
+      `Representante: ${g('doc_type')} ${g('doc_number')} · ${g('email')}`,
+      `Representado: ${r.doc_type ?? ''} ${r.doc_number ?? ''}`,
     ];
   }
-  if (mode === 'juridica') {
+  if (signer_type === 'juridica') {
     return [
-      `${g('empresa')} · NIT ${g('nit')}`,
-      `Firmante: ${g('nombre')} ${g('apellido')} (${g('cargo')})`,
-      `${g('tipoDoc')} ${g('numero')} · ${g('email')}`,
+      `${g('company_name')} · NIT ${g('company_nit')}`,
+      `Firmante: ${g('first_name')} ${g('last_name')} (${g('position')})`,
+      `${g('doc_type')} ${g('doc_number')} · ${g('email')}`,
     ];
   }
   return [
-    `${g('nombre')} ${g('apellido')}`,
-    `${g('tipoDoc')} ${g('numero')}`,
-    `${g('email')} · ${g('telefono')}`,
+    `${g('first_name')} ${g('last_name')}`,
+    `${g('doc_type')} ${g('doc_number')}`,
+    `${g('email')} · ${g('phone')}`,
   ];
 }

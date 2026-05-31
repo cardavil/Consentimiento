@@ -13,7 +13,7 @@ POST /api/v1/consent/request
 **Request:**
 ```json
 {
-  "mode": "natural_personal" | "natural_tutor" | "juridica",
+  "signer_type": "natural" | "natural_represented" | "juridica",
   "signer": {
     "nombre": "",
     "apellido": "",
@@ -32,7 +32,7 @@ POST /api/v1/consent/request
 }
 ```
 
-- `representative` solo si mode = "natural_tutor"
+- `representative` solo si signer_type = "natural_represented"
 - `documents` son IDs de archivos del Drive del cliente
 - `consents[].required` puede sobrescribir la obligatoriedad por defecto
 
@@ -76,7 +76,7 @@ Estructura tentativa. Se definirá cuando se implemente la API.
 ```
 POST /api/v1/signing/request
 ```
-Similar a consent/request pero con session_type: "firma". Incluye template_id (opcional) o array de campos inline. Mismos modos de firmante.
+Similar a consent/request pero con session_type: "signature". Incluye template_id (opcional) o array de campos inline. Mismos modos de firmante.
 
 ```
 GET /api/v1/signing/status/{sessionId}

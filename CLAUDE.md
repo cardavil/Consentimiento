@@ -34,7 +34,7 @@ Un cambio de una línea sigue el mismo protocolo que una migración de 500 líne
 - **NUNCA** usar el SMTP por defecto de Supabase Auth (límite 2/hora); usar el SMTP propio configurado en Supabase Auth
 - **NUNCA** usar Google Apps Script (se está migrando desde ahí)
 - **NUNCA** mezclar datos de persona con datos de empresa en la misma lógica
-- **NUNCA** asumir que natural_tutor es solo menores — aplica a cualquier persona que firma a través de representante legal
+- **NUNCA** asumir que natural_represented es solo menores — aplica a cualquier persona que firma a través de representante legal
 - **NUNCA** crear tablas innecesarias (si los datos viven en el PDF/Sheet del cliente, no duplicar)
 - **NUNCA** mezclar consentimiento y firma en la misma solicitud — modos mutuamente excluyentes (riesgo legal)
 - **NUNCA** usar una cuenta central de WhatsApp — cada cliente usa su propia cuenta de WhatsApp Business

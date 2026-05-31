@@ -92,7 +92,7 @@ OTP factor 2: email-only en esta fase.
 
 1. Frontend: documento-editor (drag & drop campos sobre PDF renderizado)
 2. Frontend: documento-solicitar (formulario solicitar firma)
-3. firmar.html se extiende (detecta session_type=firma, renderiza campos)
+3. firmar.html se extiende (detecta session_type=signature, renderiza campos)
 4. Edge Function: signing-service (sesiones de firma, procesar campos)
 5. Plantillas reutilizables (limitadas por plan, TBD)
 6. PDF con pdf-lib: documento original + campos aplicados + evidencia

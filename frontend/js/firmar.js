@@ -76,7 +76,7 @@ function render_session() {
 
   if (state.session_type === 'consent') {
     render_consent_mode();
-  } else if (state.session_type === 'firma') {
+  } else if (state.session_type === 'signature') {
     render_firma_mode();
   } else {
     show_error_section('Tipo de sesión no reconocido.');
@@ -89,8 +89,8 @@ function render_consent_mode() {
   // Signer data
   if (state.temp && state.temp.signer) {
     const s = state.temp.signer;
-    const html = '<p><strong>' + escape_html(s.nombre || '') + ' ' + escape_html(s.apellido || '') + '</strong></p>' +
-      '<p>' + escape_html(format_doc_type(s.tipoDoc || '')) + ' ' + escape_html(s.numero || '') + '</p>' +
+    const html = '<p><strong>' + escape_html(s.first_name || '') + ' ' + escape_html(s.last_name || '') + '</strong></p>' +
+      '<p>' + escape_html(format_doc_type(s.doc_type || '')) + ' ' + escape_html(s.doc_number || '') + '</p>' +
       '<p>' + escape_html(s.email || '') + '</p>';
     document.getElementById('datos-firmante').innerHTML = html;
   }
@@ -120,8 +120,8 @@ async function render_firma_mode() {
   if (state.temp && state.temp.signer) {
     const s = state.temp.signer;
     document.getElementById('datos-firmante-firma').innerHTML =
-      '<p><strong>' + escape_html(s.nombre || '') + ' ' + escape_html(s.apellido || '') + '</strong></p>' +
-      '<p>' + escape_html(format_doc_type(s.tipoDoc || '')) + ' ' + escape_html(s.numero || '') + '</p>' +
+      '<p><strong>' + escape_html(s.first_name || '') + ' ' + escape_html(s.last_name || '') + '</strong></p>' +
+      '<p>' + escape_html(format_doc_type(s.doc_type || '')) + ' ' + escape_html(s.doc_number || '') + '</p>' +
       '<p>' + escape_html(s.email || '') + '</p>';
   }
   document.getElementById('firma-fecha-f').textContent = format_date();
@@ -296,7 +296,7 @@ async function on_verify_and_sign() {
 
   try {
     let result;
-    if (state.session_type === 'firma') {
+    if (state.session_type === 'signature') {
       result = await call_edge_function('signing-service', {
         action: 'sign',
         session_id: state.session.id,

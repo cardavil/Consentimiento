@@ -57,7 +57,7 @@ const ERROR_MESSAGES = {
   OAUTH_FALLIDO: 'No se pudo conectar la cuenta. Intenta de nuevo.',
   DOCUMENTOS_REQUERIDOS: 'Selecciona al menos un documento.',
   CONSENTIMIENTOS_REQUERIDOS: 'Selecciona al menos un consentimiento.',
-  MODE_INVALID: 'Tipo de firmante inválido.',
+  SIGNER_TYPE_INVALID: 'Tipo de firmante inválido.',
   PROVIDER_INVALID: 'Proveedor de nube no soportado.',
   ARCHIVO_MUY_GRANDE: 'El documento supera el tamaño máximo permitido.',
   DOCUMENTOS_MUY_GRANDES: 'Los documentos seleccionados superan el tamaño máximo.',

@@ -7,6 +7,7 @@ import { get_tenant_connection } from '../drive-service/connection.ts';
 import { generate_constancia, type ConsentResult } from './pdf.ts';
 import { copy_email } from '../_shared/email_templates.ts';
 import { MAX_PDF_BYTES, MAX_TOTAL_PDF_BYTES } from '../_shared/limits.ts';
+import { history_row } from '../_shared/history.ts';
 
 // Completes a consent session: verify OTP → folios/hashes → constancia PDF
 // (documents + evidence) → upload to Drive → history sheet → copy email → zero-knowledge cleanup.
@@ -22,7 +23,7 @@ export async function handle_sign(body: Record<string, unknown>, req: Request): 
 
   const { data: session } = await admin
     .from('signing_sessions_results')
-    .select('id, tenant_id, status, mode, token_expires_at')
+    .select('id, tenant_id, status, signer_type, token_expires_at')
     .eq('access_token', access_token)
     .maybeSingle();
   if (!session) return err('SESION_INVALIDA', 404);
@@ -105,7 +106,7 @@ export async function handle_sign(body: Record<string, unknown>, req: Request): 
   );
 
   const pdf_bytes = await generate_constancia({
-    source_pdfs, signer, mode: session.mode, consents: consent_results,
+    source_pdfs, signer, signer_type: session.signer_type, consents: consent_results,
     evidence: { ip, user_agent, timestamp }, global_hash,
   });
   const pdf_hash = await sha256_bytes(pdf_bytes);
@@ -125,13 +126,16 @@ export async function handle_sign(body: Record<string, unknown>, req: Request): 
   // History sheet + copy email are best-effort (the record + PDF in Drive are the source of truth).
   try {
     if (conn.history_sheet_id) {
-      await conn.provider.append_sheet_row(conn.access_token, conn.history_sheet_id, [
+      await conn.provider.append_sheet_row(conn.access_token, conn.history_sheet_id, history_row({
         timestamp,
-        consent_results.map((c) => c.folio).join(' '),
-        source_pdfs.map((d) => d.name).join('; '),
-        summary.map((s) => `${s.code}:${s.decision}`).join('; '),
+        session_type: 'consent',
+        documents: source_pdfs.map((d) => d.name).join('; '),
+        signer_type: session.signer_type,
+        signer,
+        detail: summary.map((s) => `${s.code}:${s.decision}`).join('; '),
+        folio: consent_results.map((c) => c.folio).join(' '),
         pdf_hash,
-      ]);
+      }));
     }
   } catch (e) {
     console.error({ fn: 'sign.sheet', error: (e as Error).message });

@@ -5,7 +5,7 @@ import { invite_email } from '../_shared/email_templates.ts';
 import { tenant_display_name } from '../_shared/tenant.ts';
 import { MAX_DOCS_PER_SESSION } from '../_shared/limits.ts';
 
-const VALID_MODES = ['natural_personal', 'natural_tutor', 'juridica'];
+const VALID_SIGNER_TYPES = ['natural', 'natural_represented', 'juridica'];
 
 // Creates a consent session: permanent row in results + transient row in temp,
 // then emails the signing link to the recipient from the tenant's own account.
@@ -13,14 +13,14 @@ export async function handle_create_session(body: Record<string, unknown>, req: 
   const ctx = await require_tenant(req);
   if (!ctx) return err('NO_AUTORIZADO', 401);
 
-  const mode = body.mode as string;
+  const signer_type = body.signer_type as string;
   const signer = body.signer as Record<string, unknown> | undefined;
   const documents = (body.documents as unknown[]) || [];
   const consents = (body.consents as unknown[]) || [];
   const context = (body.context as string) || '';
   const expires_in_hours = Number(body.expires_in_hours) || 72;
 
-  if (!VALID_MODES.includes(mode)) return err('MODE_INVALID');
+  if (!VALID_SIGNER_TYPES.includes(signer_type)) return err('SIGNER_TYPE_INVALID');
   if (!signer || typeof signer !== 'object') return err('SIGNER_REQUERIDO');
   const recipient = String((signer as Record<string, unknown>).email || '').trim().toLowerCase();
   if (!recipient || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient)) return err('EMAIL_INVALID');
@@ -34,7 +34,7 @@ export async function handle_create_session(body: Record<string, unknown>, req: 
     .from('signing_sessions_results')
     .insert({
       tenant_id: ctx.tenant_id,
-      mode,
+      signer_type,
       session_type: 'consent',
       otp_channel: 'email',
       status: 'pending',
@@ -83,7 +83,7 @@ export async function handle_create_session(body: Record<string, unknown>, req: 
   await ctx.admin.from('audit_log').insert({
     tenant_id: ctx.tenant_id,
     event_type: 'session_created',
-    event_data: { mode, documents: documents.length, consents: consents.length, email_sent },
+    event_data: { signer_type, documents: documents.length, consents: consents.length, email_sent },
   });
 
   return ok({ session_id: result.id, access_token: result.access_token, signing_url, expires_at, email_sent });

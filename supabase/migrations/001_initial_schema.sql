@@ -99,7 +99,7 @@ CREATE TABLE consent_items (
 CREATE TABLE signing_sessions_results (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     tenant_id UUID NOT NULL REFERENCES tenants(id),
-    mode TEXT NOT NULL CHECK (mode IN ('natural_personal','natural_tutor','juridica')),
+    signer_type TEXT NOT NULL CHECK (signer_type IN ('natural','natural_represented','juridica')),
     access_token TEXT UNIQUE NOT NULL DEFAULT encode(gen_random_bytes(32), 'hex'),
     token_expires_at TIMESTAMPTZ NOT NULL,
     status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN (

@@ -48,7 +48,7 @@ El firmante verifica su identidad con un OTP de 8 dígitos enviado por uno de es
 
 ### Email OTP (Fase 1+)
 
-Disponible desde Fase 1. El OTP del **firmante** (factor 2 de la firma) se envía al email del firmante (o del representante en modo natural_tutor) via Gmail API / Microsoft Graph del cliente. Mismo principio zero-knowledge: la plataforma no envía emails propios para el firmante.
+Disponible desde Fase 1. El OTP del **firmante** (factor 2 de la firma) se envía al email del firmante (o del representante en modo natural_represented) via Gmail API / Microsoft Graph del cliente. Mismo principio zero-knowledge: la plataforma no envía emails propios para el firmante.
 
 **OTP de autenticación del cliente** (login/registro de la inscrito): es un canal distinto, sale por el **SMTP propio configurado en Supabase Auth** (email de la plataforma, no del cliente). No aplica zero-knowledge porque es el propio titular de la cuenta quien se autentica. Nunca se usa el SMTP por defecto de Supabase (límite 2/hora).
 

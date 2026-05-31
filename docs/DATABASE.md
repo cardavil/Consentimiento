@@ -12,7 +12,7 @@ Migraciones aplicadas (`supabase/migrations/`):
 | `004_admin_org_dual_role.sql` | Redefine `get_tenant_id()` para identidad dual admin/tenant (fast-path tenant_id en JWT antes del guard platform_role) |
 | `005_platform_users_identity.sql` | Expande `platform_users` con nombre, apellido, documento, teléfono |
 | `006_get_db_size.sql` | Función `get_db_size()` para métricas admin |
-| `007_session_type_otp_channel.sql` | Agrega `session_type` (consent/firma) y `otp_channel` (email/sms/whatsapp) a `signing_sessions_results` |
+| `007_session_type_otp_channel.sql` | Agrega `session_type` (consent/signature) y `otp_channel` (email/sms/whatsapp) a `signing_sessions_results` |
 | `008_schedule_cleanup.sql` | Programa `expire_sessions()` (cada 15 min) y `cleanup_otps()` (cada hora) vía pg_cron |
 | `009_signing_templates.sql` | Crea `signing_templates`; agrega `fields` a `signing_sessions_temp` y `template_id` a `signing_sessions_results` (Fase 2) |
 | `010_tenant_whatsapp_config.sql` | Crea `tenant_whatsapp_config` (Fase 3) |
@@ -128,8 +128,8 @@ Registro permanente zero-knowledge. **NO contiene datos del firmante, documentos
 |---|---|---|
 | id | UUID PK | |
 | tenant_id | UUID FK | → tenants |
-| session_type | TEXT | consent / firma. NOT NULL. CHECK constraint |
-| mode | TEXT | natural_personal / natural_tutor (con representante) / juridica |
+| session_type | TEXT | consent / signature. NOT NULL. CHECK constraint |
+| signer_type | TEXT | natural / natural_represented (con representante) / juridica |
 | access_token | TEXT | UNIQUE, gen_random_bytes(32) hex |
 | token_expires_at | TIMESTAMPTZ | |
 | status | TEXT | pending/opened/reviewing/awaiting_otp/completed/expired/cancelled |
@@ -137,7 +137,7 @@ Registro permanente zero-knowledge. **NO contiene datos del firmante, documentos
 | pdf_hash | TEXT | SHA-256 |
 | consent_hashes | JSONB | hash por cada consentimiento |
 | otp_channel | TEXT | email / sms / whatsapp. Default 'email' |
-| template_id | UUID FK NULL | → signing_templates(id). ON DELETE SET NULL. Solo session_type=firma (migración 009) |
+| template_id | UUID FK NULL | → signing_templates(id). ON DELETE SET NULL. Solo session_type=signature (migración 009) |
 | created_at | TIMESTAMPTZ | |
 | completed_at | TIMESTAMPTZ | |
 | expires_at | TIMESTAMPTZ | |
@@ -193,7 +193,7 @@ Catálogo de tipos de documento colombianos. Lectura pública, escritura solo ad
 |---|---|---|
 | code | TEXT PK | CC, CE, PA, PEP, PPT, TI, RC, NIT |
 | label | TEXT | Nombre legible (Cédula de Ciudadanía, etc.) |
-| contexts | TEXT[] | Contextos donde aplica: natural, natural_tutor_represented, natural_tutor_representative, juridica_signer, organization |
+| contexts | TEXT[] | Contextos donde aplica: natural, natural_represented, natural_representative, juridica_signer, juridica_entity |
 | regex | TEXT | Patrón de validación frontend |
 | sort_order | INTEGER | Orden en dropdowns |
 | active | BOOLEAN | default true. Desactivar en vez de borrar |

@@ -20,11 +20,11 @@ CREATE POLICY "catalog_doc_types_select"
 
 -- Seed: tipos vigentes Colombia 2026
 INSERT INTO catalog_doc_types (code, label, contexts, regex, sort_order) VALUES
-    ('CC',  'Cédula de Ciudadanía',             ARRAY['natural','natural_tutor_represented','natural_tutor_representative','juridica_signer','organization'], '^\d{6,10}$',        1),
-    ('CE',  'Cédula de Extranjería',            ARRAY['natural','natural_tutor_represented','natural_tutor_representative','juridica_signer','organization'], '^[A-Za-z0-9]{4,12}$', 2),
-    ('PA',  'Pasaporte',                         ARRAY['natural','natural_tutor_represented','natural_tutor_representative','juridica_signer','organization'], '^[A-Za-z0-9]{5,15}$', 3),
-    ('PEP', 'Permiso Especial de Permanencia',   ARRAY['natural','natural_tutor_represented','juridica_signer','organization'],                                '^\d{7,15}$',        4),
-    ('PPT', 'Permiso por Protección Temporal',   ARRAY['natural','natural_tutor_represented','juridica_signer','organization'],                                '^\d{7,15}$',        5),
-    ('TI',  'Tarjeta de Identidad',              ARRAY['natural_tutor_represented','organization'],                                                            '^\d{8,11}$',        6),
-    ('RC',  'Registro Civil',                    ARRAY['natural_tutor_represented'],                                                                           '^\d{8,11}$',        7),
-    ('NIT', 'NIT',                               ARRAY['organization'],                                                                                        '^\d{9,10}(-\d)?$',  8);
+    ('CC',  'Cédula de Ciudadanía',             ARRAY['natural','natural_represented','natural_representative','juridica_signer','juridica_entity'], '^\d{6,10}$',        1),
+    ('CE',  'Cédula de Extranjería',            ARRAY['natural','natural_represented','natural_representative','juridica_signer','juridica_entity'], '^[A-Za-z0-9]{4,12}$', 2),
+    ('PA',  'Pasaporte',                         ARRAY['natural','natural_represented','natural_representative','juridica_signer','juridica_entity'], '^[A-Za-z0-9]{5,15}$', 3),
+    ('PEP', 'Permiso Especial de Permanencia',   ARRAY['natural','natural_represented','juridica_signer','juridica_entity'],                                '^\d{7,15}$',        4),
+    ('PPT', 'Permiso por Protección Temporal',   ARRAY['natural','natural_represented','juridica_signer','juridica_entity'],                                '^\d{7,15}$',        5),
+    ('TI',  'Tarjeta de Identidad',              ARRAY['natural_represented','juridica_entity'],                                                            '^\d{8,11}$',        6),
+    ('RC',  'Registro Civil',                    ARRAY['natural_represented'],                                                                           '^\d{8,11}$',        7),
+    ('NIT', 'NIT',                               ARRAY['juridica_entity'],                                                                                        '^\d{9,10}(-\d)?$',  8);

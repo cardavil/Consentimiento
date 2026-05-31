@@ -2,6 +2,7 @@ import { ok, err } from '../_shared/response.ts';
 import { require_tenant } from '../_shared/auth.ts';
 import { get_provider } from './providers/index.ts';
 import { encrypt_secret } from './connection.ts';
+import { HISTORY_HEADER } from '../_shared/history.ts';
 
 function redirect_uri(): string {
   return `${Deno.env.get('OAUTH_REDIRECT_BASE')}/onboarding.html`;
@@ -47,6 +48,8 @@ export async function handle_oauth_callback(body: Record<string, unknown>, req: 
     const folder_id = await provider.ensure_folder(tokens.access_token, 'Consentia');
     const year = new Date().getUTCFullYear();
     const sheet_id = await provider.ensure_sheet(tokens.access_token, folder_id, `Historial-${year}`);
+    // Write the column header on the freshly created History sheet (best-effort).
+    try { await provider.append_sheet_row(tokens.access_token, sheet_id, HISTORY_HEADER); } catch (_e) { /* header is non-critical */ }
 
     const row: Record<string, unknown> = {
       tenant_id: ctx.tenant_id,

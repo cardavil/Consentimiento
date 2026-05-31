@@ -7,6 +7,7 @@ import { get_tenant_connection } from '../drive-service/connection.ts';
 import { generate_firma_pdf, type SignField } from './pdf_firma.ts';
 import { copy_email } from '../_shared/email_templates.ts';
 import { MAX_PDF_BYTES } from '../_shared/limits.ts';
+import { history_row } from '../_shared/history.ts';
 
 // Completes a firma session: verify OTP → apply field values to the original PDF
 // → evidence → upload to Drive → history sheet → copy email → zero-knowledge cleanup.
@@ -22,11 +23,11 @@ export async function handle_sign(body: Record<string, unknown>, req: Request): 
 
   const { data: session } = await admin
     .from('signing_sessions_results')
-    .select('id, tenant_id, status, mode, session_type, token_expires_at')
+    .select('id, tenant_id, status, signer_type, session_type, token_expires_at')
     .eq('access_token', access_token)
     .maybeSingle();
   if (!session) return err('SESION_INVALIDA', 404);
-  if (session.session_type !== 'firma') return err('SESION_INVALIDA', 409);
+  if (session.session_type !== 'signature') return err('SESION_INVALIDA', 409);
   if (session.status === 'completed') return err('SESION_COMPLETADA', 409);
   if (session.status === 'expired' || session.status === 'cancelled') return err('SESION_EXPIRADA', 410);
   if (new Date(session.token_expires_at) < new Date()) return err('SESION_EXPIRADA', 410);
@@ -86,7 +87,7 @@ export async function handle_sign(body: Record<string, unknown>, req: Request): 
 
   const pdf_bytes = await generate_firma_pdf({
     source: { name: doc_name, bytes: source_bytes },
-    mode: session.mode, signer, fields,
+    signer_type: session.signer_type, signer, fields,
     evidence: { ip, user_agent, timestamp }, folio: folio as string, global_hash,
   });
   const pdf_hash = await sha256_bytes(pdf_bytes);
@@ -103,9 +104,16 @@ export async function handle_sign(body: Record<string, unknown>, req: Request): 
 
   try {
     if (conn.history_sheet_id) {
-      await conn.provider.append_sheet_row(conn.access_token, conn.history_sheet_id, [
-        timestamp, folio as string, doc_name, 'Firma electrónica', pdf_hash,
-      ]);
+      await conn.provider.append_sheet_row(conn.access_token, conn.history_sheet_id, history_row({
+        timestamp,
+        session_type: 'signature',
+        documents: doc_name,
+        signer_type: session.signer_type,
+        signer,
+        detail: 'Firma electrónica',
+        folio: folio as string,
+        pdf_hash,
+      }));
     }
   } catch (e) {
     console.error({ fn: 'firma.sign.sheet', error: (e as Error).message });

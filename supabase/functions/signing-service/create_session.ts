@@ -4,7 +4,7 @@ import { get_tenant_connection } from '../drive-service/connection.ts';
 import { invite_email } from '../_shared/email_templates.ts';
 import { tenant_display_name } from '../_shared/tenant.ts';
 
-const VALID_MODES = ['natural_personal', 'natural_tutor', 'juridica'];
+const VALID_SIGNER_TYPES = ['natural', 'natural_represented', 'juridica'];
 
 // Creates a firma session: results (session_type=firma, optional template_id) + temp
 // (single document, signer, field definitions), then emails the signing link.
@@ -12,7 +12,7 @@ export async function handle_create_session(body: Record<string, unknown>, req: 
   const ctx = await require_tenant(req);
   if (!ctx) return err('NO_AUTORIZADO', 401);
 
-  const mode = body.mode as string;
+  const signer_type = body.signer_type as string;
   const signer = body.signer as Record<string, unknown> | undefined;
   const documents = (body.documents as unknown[]) || [];
   const fields = (body.fields as unknown[]) || [];
@@ -20,7 +20,7 @@ export async function handle_create_session(body: Record<string, unknown>, req: 
   const context = (body.context as string) || '';
   const expires_in_hours = Number(body.expires_in_hours) || 72;
 
-  if (!VALID_MODES.includes(mode)) return err('MODE_INVALID');
+  if (!VALID_SIGNER_TYPES.includes(signer_type)) return err('SIGNER_TYPE_INVALID');
   if (!signer || typeof signer !== 'object') return err('SIGNER_REQUERIDO');
   const recipient = String((signer as Record<string, unknown>).email || '').trim().toLowerCase();
   if (!recipient || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient)) return err('EMAIL_INVALID');
@@ -33,8 +33,8 @@ export async function handle_create_session(body: Record<string, unknown>, req: 
     .from('signing_sessions_results')
     .insert({
       tenant_id: ctx.tenant_id,
-      mode,
-      session_type: 'firma',
+      signer_type,
+      session_type: 'signature',
       otp_channel: 'email',
       status: 'pending',
       template_id,
@@ -82,8 +82,8 @@ export async function handle_create_session(body: Record<string, unknown>, req: 
 
   await ctx.admin.from('audit_log').insert({
     tenant_id: ctx.tenant_id,
-    event_type: 'firma_session_created',
-    event_data: { mode, fields: fields.length, template: !!template_id, email_sent },
+    event_type: 'signature_session_created',
+    event_data: { signer_type, fields: fields.length, template: !!template_id, email_sent },
   });
 
   return ok({ session_id: result.id, access_token: result.access_token, signing_url, expires_at, email_sent });

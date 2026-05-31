@@ -90,7 +90,7 @@ function get_selected_consents() {
 
 async function on_submit(e) {
   e.preventDefault();
-  const mode = get_signer_mode();
+  const signer_type = get_signer_type();
   const signer = build_signer();
   const documents = get_selected_documents();
   const consents = get_selected_consents();
@@ -100,7 +100,7 @@ async function on_submit(e) {
   const context = document.getElementById('contexto').value.trim();
 
   if (!signer.email || !validate_email(signer.email)) { show_error('Email del firmante inválido.'); return; }
-  if (!signer.nombre || !signer.numero) { show_error('Completa los datos del firmante.'); return; }
+  if (!signer.first_name || !signer.doc_number) { show_error('Completa los datos del firmante.'); return; }
   if (documents.length === 0) { show_error('Selecciona al menos un documento.'); return; }
   if (consents.length === 0) { show_error('Selecciona al menos un consentimiento.'); return; }
 
@@ -109,7 +109,7 @@ async function on_submit(e) {
 
   try {
     const data = await call_edge_function('consent-service', {
-      action: 'create_session', mode: mode, signer: signer,
+      action: 'create_session', signer_type: signer_type, signer: signer,
       documents: documents, consents: consents, expires_in_hours: expires_in_hours, context: context,
     });
     show_result(data);

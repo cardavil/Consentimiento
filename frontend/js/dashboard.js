@@ -8,19 +8,19 @@ document.addEventListener('DOMContentLoaded', async function () {
 async function load_historial(jwt, tenant_id) {
   try {
     var sessions = await supabase_fetch(
-      '/signing_sessions_results?tenant_id=eq.' + tenant_id + '&select=id,status,mode,created_at&order=created_at.desc&limit=5',
+      '/signing_sessions_results?tenant_id=eq.' + tenant_id + '&select=id,status,session_type,created_at&order=created_at.desc&limit=5',
       jwt
     );
 
     if (!sessions || sessions.length === 0) return;
 
-    var html = '<table class="tabla"><thead><tr><th>Fecha</th><th>Modo</th><th>Estado</th></tr></thead><tbody>';
+    var html = '<table class="tabla"><thead><tr><th>Fecha</th><th>Tipo</th><th>Estado</th></tr></thead><tbody>';
     for (var i = 0; i < sessions.length; i++) {
       var s = sessions[i];
       var fecha = new Date(s.created_at).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' });
-      var modo = s.mode === 'firma' ? 'Firma' : 'Consentimiento';
+      var tipo = s.session_type === 'signature' ? 'Firma' : 'Consentimiento';
       var estado = s.status || 'pending';
-      html += '<tr><td>' + escape_html(fecha) + '</td><td>' + escape_html(modo) + '</td><td><span class="badge">' + escape_html(estado) + '</span></td></tr>';
+      html += '<tr><td>' + escape_html(fecha) + '</td><td>' + escape_html(tipo) + '</td><td><span class="badge">' + escape_html(estado) + '</span></td></tr>';
     }
     html += '</tbody></table>';
     document.getElementById('dash-historial').innerHTML = html;

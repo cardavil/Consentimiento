@@ -90,7 +90,7 @@ function resolve_fields(doc) {
 
 async function on_submit(e) {
   e.preventDefault();
-  const mode = get_signer_mode();
+  const signer_type = get_signer_type();
   const signer = build_signer();
   const doc = selected_doc();
   const exp_val = parseInt(document.getElementById('exp-valor').value) || 3;
@@ -98,7 +98,7 @@ async function on_submit(e) {
   const context = document.getElementById('contexto').value.trim();
 
   if (!signer.email || !validate_email(signer.email)) { show_error('Email del firmante inválido.'); return; }
-  if (!signer.nombre || !signer.numero) { show_error('Completa los datos del firmante.'); return; }
+  if (!signer.first_name || !signer.doc_number) { show_error('Completa los datos del firmante.'); return; }
   if (!doc) { show_error('Selecciona el documento a firmar.'); return; }
   const { fields, template_id } = resolve_fields(doc);
   if (!fields || fields.length === 0) { show_error('Configura los campos (plantilla o editor).'); return; }
@@ -107,7 +107,7 @@ async function on_submit(e) {
   set_button_loading(btn, 'Creando...');
   try {
     const data = await call_edge_function('signing-service', {
-      action: 'create_session', mode: mode, signer: signer,
+      action: 'create_session', signer_type: signer_type, signer: signer,
       documents: [doc], fields: fields, template_id: template_id,
       expires_in_hours: expires_in_hours, context: context,
     });

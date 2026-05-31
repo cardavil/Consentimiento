@@ -15,7 +15,7 @@ export interface SignField {
 
 export interface FirmaInput {
   source: { name: string; bytes: Uint8Array };
-  mode: string;
+  signer_type: string;
   signer: Record<string, unknown>;
   fields: SignField[];
   evidence: { ip: string; user_agent: string; timestamp: string };
@@ -73,7 +73,7 @@ export async function generate_firma_pdf(input: FirmaInput): Promise<Uint8Array>
   w.line(input.source.name, bold);
   w.gap(6);
   w.heading('Firmante');
-  for (const line of signer_lines(input.mode, input.signer)) w.line(line);
+  for (const line of signer_lines(input.signer_type, input.signer)) w.line(line);
   w.gap(6);
   w.heading('Campos diligenciados');
   for (const f of input.fields) {
@@ -93,20 +93,20 @@ export async function generate_firma_pdf(input: FirmaInput): Promise<Uint8Array>
   return await doc.save();
 }
 
-function signer_lines(mode: string, s: Record<string, unknown>): string[] {
+function signer_lines(signer_type: string, s: Record<string, unknown>): string[] {
   const g = (k: string) => String(s[k] ?? '');
-  if (mode === 'natural_tutor') {
+  if (signer_type === 'natural_represented') {
     const r = (s.represented as Record<string, unknown>) || {};
     return [
-      `Firmado por ${g('nombre')} ${g('apellido')}, en calidad de ${g('calidad')} de ${r.nombre ?? ''} ${r.apellido ?? ''}.`,
-      `Representante: ${g('tipoDoc')} ${g('numero')} · ${g('email')}`,
+      `Firmado por ${g('first_name')} ${g('last_name')}, en calidad de ${g('capacity')} de ${r.first_name ?? ''} ${r.last_name ?? ''}.`,
+      `Representante: ${g('doc_type')} ${g('doc_number')} · ${g('email')}`,
     ];
   }
-  if (mode === 'juridica') {
+  if (signer_type === 'juridica') {
     return [
-      `${g('empresa')} · NIT ${g('nit')}`,
-      `Firmante: ${g('nombre')} ${g('apellido')} (${g('cargo')}) · ${g('tipoDoc')} ${g('numero')}`,
+      `${g('company_name')} · NIT ${g('company_nit')}`,
+      `Firmante: ${g('first_name')} ${g('last_name')} (${g('position')}) · ${g('doc_type')} ${g('doc_number')}`,
     ];
   }
-  return [`${g('nombre')} ${g('apellido')}`, `${g('tipoDoc')} ${g('numero')} · ${g('email')}`];
+  return [`${g('first_name')} ${g('last_name')}`, `${g('doc_type')} ${g('doc_number')} · ${g('email')}`];
 }
