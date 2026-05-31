@@ -28,8 +28,8 @@ function render_app_header(opts) {
   html += '<div class="header-dropdown" id="header-dropdown">';
 
   html += '<div class="header-dropdown-user">';
-  html += '<div class="header-dropdown-name">' + escape_html(id.display_name) + '</div>';
-  html += '<div class="header-dropdown-email">' + escape_html(email) + '</div>';
+  html += '<div class="header-dropdown-name">' + escape_html(id.name) + '</div>';
+  if (id.company) html += '<div class="header-dropdown-company">@ ' + escape_html(id.company) + '</div>';
   html += '<div class="header-dropdown-badges">';
   if (has_platform) html += '<span class="badge ' + (in_admin ? 'badge-teal' : 'badge-neutral') + '">' + escape_html(platform_label) + '</span>';
   if (has_tenant && opts.tenant) {
@@ -97,17 +97,18 @@ function _header_bind(on_logout) {
   });
 }
 
-// Deriva iniciales + inicial de empresa + nombre, desde el inscrito (tenant) o el
-// perfil de plataforma (admin/analyst), o el email como último recurso.
-//  - initials: inicial(nombre)+inicial(apellido)
-//  - company_initial: inicial de company_name (vacío si no hay → natural)
-//  - display_name: "Nombre Apellido @ Empresa" (jurídica) o "Nombre Apellido" (natural)
+// Deriva identidad para el header, desde el inscrito (tenant) o el perfil de plataforma
+// (admin/analyst), o el email como último recurso.
+//  - initials: inicial(nombre)+inicial(apellido) → avatar línea 1
+//  - company_initial: inicial de company_name (vacío si no hay) → avatar línea 2 "@C"
+//  - name: "Nombre Apellido" → dropdown línea 1
+//  - company: company_name si hay nombre+empresa → dropdown línea 2 "@ Empresa"
 function _header_identity(tenant, profile, email) {
   var src = tenant || profile || null;
   if (!src) {
     var parts = (email || '').split(/[\s@]+/);
     var ini = parts.map(function (w) { return w[0] || ''; }).slice(0, 2).join('').toUpperCase() || '?';
-    return { initials: ini, company_initial: '', display_name: email };
+    return { initials: ini, company_initial: '', name: email, company: '' };
   }
   var fn = (src.first_name || '').trim();
   var ln = (src.last_name || '').trim();
@@ -115,6 +116,7 @@ function _header_identity(tenant, profile, email) {
   var person = (fn + ' ' + ln).trim();
   var initials = ((fn[0] || '') + (ln[0] || '')).toUpperCase() || (company[0] || email[0] || '?').toUpperCase();
   var company_initial = company ? company[0].toUpperCase() : '';
-  var display_name = company ? (person ? person + ' @ ' + company : company) : (person || email);
-  return { initials: initials, company_initial: company_initial, display_name: display_name };
+  var name = person || company || email;
+  // "@ empresa" solo cuando hay nombre de persona Y empresa (no duplicar si el nombre ya es la empresa).
+  return { initials: initials, company_initial: company_initial, name: name, company: (company && person) ? company : '' };
 }

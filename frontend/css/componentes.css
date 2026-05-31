@@ -167,6 +167,12 @@ body {
   word-break: break-all;
 }
 
+.header-dropdown-company {
+  font-size: var(--text-xs);
+  color: var(--azul-grisaceo);
+  margin-top: 1px;
+}
+
 .header-dropdown-badges {
   display: flex;
   gap: var(--spacing-xs);
