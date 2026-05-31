@@ -2,8 +2,9 @@ var _tenants_all = [];
 
 // Columnas reales de la tabla `tenants` en Supabase, en orden. Vista fiel: una
 // columna por campo, valores crudos.
+// Columnas visibles (el id se carga aparte para el botón Editar, no se muestra).
 var TENANT_COLUMNS = [
-  'id', 'type', 'company_name', 'company_nit', 'first_name', 'last_name',
+  'type', 'company_name', 'company_nit', 'first_name', 'last_name',
   'doc_type', 'doc_number', 'position', 'email', 'phone', 'plan', 'active',
   'folio_prefix', 'created_at', 'updated_at',
 ];
@@ -27,7 +28,7 @@ async function load_tenants() {
   var jwt = _admin_session.session.access_token;
   try {
     _tenants_all = await supabase_fetch(
-      '/tenants?select=' + TENANT_COLUMNS.join(',') + '&order=created_at.desc',
+      '/tenants?select=id,' + TENANT_COLUMNS.join(',') + '&order=created_at.desc',
       jwt
     ) || [];
     render_tenants_table();
@@ -63,7 +64,7 @@ function render_tenants_table() {
   var tbody = document.getElementById('tenants-tbody');
 
   if (filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="17" class="admin-empty">Sin resultados</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="16" class="admin-empty">Sin resultados</td></tr>';
     return;
   }
 
