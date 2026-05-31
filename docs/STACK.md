@@ -28,11 +28,14 @@ Frontend ──────────►      PostgreSQL + RLS
                             consent-service    ──────► Drive API (del cliente)
                             signing-service    ──────► Sheets API (del cliente)
                             drive-service             
-                            pdf-generator             
+                              (PDF se genera dentro de consent-service/pdf.ts
+                               y signing-service/pdf_firma.ts con pdf-lib)
                                                       
                           Fase 3:                     
-                            whatsapp-service   ──────► WhatsApp Business API
-                            Gateway SMS (Android)       (cuenta del cliente)
+                            config-service            (config SMS/WhatsApp encriptada)
+                            whatsapp/sms       ──────► WhatsApp Business API
+                              (_shared/channels)        (cuenta del cliente)
+                            Gateway SMS (Android)     
                               via Cloudflare Tunnel     
 ```
 
