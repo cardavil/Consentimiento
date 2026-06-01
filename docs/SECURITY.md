@@ -42,6 +42,31 @@ Esto previene que un atacante con la publishable key (pública en el frontend) p
 
 ---
 
+## Autenticación de las Edge Functions
+
+El gateway de Supabase (`verify_jwt`) es una capa previa al código, pero **la autenticación real vive en el código de cada handler**. Por eso el `verify_jwt` se configura por función según quién la llama:
+
+**Funciones de cara al firmante** — `otp-service`, `consent-service`, `signing-service` → `verify_jwt:false`. El firmante no tiene cuenta ni sesión (modelo DocuSign: recibe un enlace). El gateway no puede validarlo y la publishable key no es un JWT, así que la auth se hace en el código:
+- **Acciones del firmante:** token de sesión de **256 bits** (`signing_sessions_results.access_token` = `encode(gen_random_bytes(32),'hex')`, impredecible) en el header `x-access-token`, más expiración (`token_expires_at`), chequeo de `status` y verificación por OTP.
+- **Acciones del inscrito** (crear sesión/plantilla, registro): `require_tenant` (`_shared/auth.ts`) valida el JWT de sesión vía `auth.getUser`.
+
+**Funciones solo emisor/admin** — `drive-service`, `config-service`, `admin-service` → `verify_jwt:true` (siempre llegan con una sesión JWT del inscrito/admin) + auth in-code → defensa en profundidad.
+
+El valor de `verify_jwt` por función se fija en `supabase/config.toml`, así el deploy es determinista (un `supabase functions deploy` sin flags respeta cada valor). Esto sigue la guía oficial de Supabase: el flag `verify_jwt` es incompatible con las nuevas JWT Signing Keys; recomiendan apagarlo y validar en el código.
+
+---
+
+## Migración de API keys (sb_publishable / sb_secret)
+
+Supabase está deprecando las llaves JWT legacy (`anon` / `service_role`, formato `eyJ…`) a favor de llaves opacas `sb_`:
+
+- **Frontend / Android:** ya usan `sb_publishable_*` (header `apikey`).
+- **Backend:** `create_admin_client` (`_shared/supabase.ts`) lee `SB_SECRET_KEY ?? SUPABASE_SERVICE_ROLE_KEY` → hoy usa el `service_role` legacy mientras `SB_SECRET_KEY` no esté seteada.
+- El prefijo `SUPABASE_` está **reservado**: la nueva secret se expone manualmente como **`SB_SECRET_KEY`** (prefijo `SB_`). Las llaves nuevas **aún no son default** en Edge Functions.
+- **No deshabilitar las JWT legacy** hasta crear la `sb_secret`, setearla como `SB_SECRET_KEY`, redesplegar y probar — de lo contrario se rompe el `SUPABASE_SERVICE_ROLE_KEY` auto-inyectado.
+
+---
+
 ## Canales de verificación factor 2
 
 El firmante verifica su identidad con un OTP de 8 dígitos enviado por uno de estos canales:
@@ -117,6 +142,9 @@ Cada cliente usa su propia cuenta de WhatsApp Business (nunca una cuenta central
 | Consentimiento sin representante válido | Formulario obliga datos del representante legal y su calidad |
 | Atacante usa publishable key para insertar datos | INSERT bloqueado en tablas críticas, solo service_role |
 | Atacante consulta OTPs con publishable key | otp_tokens sin policies RLS, solo service_role |
+| Endpoint del firmante público (verify_jwt:false) | Token de sesión de 256 bits impredecible + expiración + OTP; el OTP se rechaza antes de escribir si la sesión no existe |
+| Atacante pide OTP para un firmante ajeno | El email/teléfono destino se deriva de la sesión (no del body); sin `x-access-token` válido no se emite ni escribe nada |
+| Acción de inscrito sin sesión válida | `require_tenant` rechaza en código (no depende del gateway) |
 | Tokens OAuth expuestos en BD | Encriptados con pgcrypto (pgp_sym_encrypt) |
 | WhatsApp account del cliente comprometida | Cada cliente gestiona su propia cuenta; revocación de token independiente |
 | Meta API caída o rate limited | Fallback a email OTP; firmante puede cambiar canal |
