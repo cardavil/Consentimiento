@@ -33,7 +33,7 @@ export async function handle_sign(body: Record<string, unknown>, req: Request): 
 
   const { data: temp } = await admin
     .from('signing_sessions_temp')
-    .select('signer, documents, consents, context')
+    .select('signer, documents, consents')
     .eq('session_id', session.id)
     .maybeSingle();
   if (!temp) return err('DATOS_NO_DISPONIBLES', 410);

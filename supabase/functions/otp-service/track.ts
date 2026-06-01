@@ -5,14 +5,12 @@ export async function handle_track(body: Record<string, unknown>): Promise<Respo
   const email = (body.email as string || '').trim().toLowerCase();
   if (!email) return err('DATOS_INCOMPLETOS');
 
-  const context = body.context as string || 'auth';
-  const event_type = context === 'auth' ? 'auth_otp_sent' : 'signing_otp_sent';
-
+  // Only the auth (login/registro) flows call track; signer OTPs are logged in send.ts.
   const admin = create_admin_client();
 
   await admin.from('audit_log').insert({
     tenant_id: null,
-    event_type,
+    event_type: 'auth_otp_sent',
     event_data: { email_domain: email.split('@')[1] },
     ip: (body.ip as string) || null,
     ua: (body.user_agent as string) || null,
