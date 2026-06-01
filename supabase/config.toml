@@ -1,0 +1,26 @@
+project_id = "pgouzutwvronvsxgdizk"
+
+# verify_jwt por función — fijado aquí para que el deploy sea determinista y no dependa
+# de pasar (o recordar) el flag --no-verify-jwt en la línea de comandos.
+
+# Funciones de cara al firmante: el firmante no tiene cuenta/sesión (modelo DocuSign).
+# La auth real vive en el código: token de sesión de 256 bits + OTP (firmante) y
+# require_tenant (inscrito). El gateway aquí no aporta seguridad real. NO poner en true.
+[functions.otp-service]
+verify_jwt = false
+
+[functions.consent-service]
+verify_jwt = false
+
+[functions.signing-service]
+verify_jwt = false
+
+# Funciones solo emisor/admin: siempre llegan con una sesión JWT → defensa en profundidad.
+[functions.drive-service]
+verify_jwt = true
+
+[functions.config-service]
+verify_jwt = true
+
+[functions.admin-service]
+verify_jwt = true
